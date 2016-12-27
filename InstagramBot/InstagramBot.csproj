@@ -46,6 +46,10 @@
     <Compile Include="Data\Accounts\AccountInstagram.cs" />
     <Compile Include="Data\Accounts\FullInfo.cs" />
     <Compile Include="Data\Accounts\User.cs" />
+    <Compile Include="Data\SQL\CheckPermissions.cs" />
+    <Compile Include="Data\SQL\CreateNewLicense.cs" />
+    <Compile Include="Data\SQL\Database.cs" />
+    <Compile Include="Data\SQL\MySqlDatabase.cs" />
     <Compile Include="Data\StateEventArgs.cs" />
     <Compile Include="Data\States.cs" />
     <Compile Include="Data\UnixTime.cs" />
@@ -55,9 +59,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\SQL\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
