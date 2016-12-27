@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading;
+using InstagramBot.Parsing;
 
 namespace InstagramBot
 {
@@ -10,6 +7,10 @@ namespace InstagramBot
     {
         static void Main(string[] args)
         {
+            WebInstagram instagram = new WebInstagram("vitaliirogoza", "qwerty2");
+            Session Session = new Session("310136073:AAHEP0i318aIkB8y3lAOTtwYxMf7jwtp51w");
+            Session.Start();
+            Thread.Sleep(Timeout.Infinite);
         }
     }
 }
