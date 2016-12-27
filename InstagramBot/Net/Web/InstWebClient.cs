@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
-namespace InstagramBot.Parsing
+namespace InstagramBot.Net.Web
 {
     public class InstWebClient : WebClient
     {

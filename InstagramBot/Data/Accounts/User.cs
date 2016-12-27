@@ -1,8 +1,8 @@
 ﻿using Telegram.Bot.Types;
 
-namespace InstagramBot.Data
+namespace InstagramBot.Data.Accounts
 {
-    public class User
+    public class ActionBot
     {
         public int UID { get; set; }
         public string InstagramNick { get; set; }
@@ -19,7 +19,7 @@ namespace InstagramBot.Data
                     .Serialize(this, new StateEventArgs(Message, value));
             }
         }
-        public User(int uid, Session session, States state = States.Registering)
+        public ActionBot(int uid, Session session, States state = States.Registering)
         {
             this.session = session;
             UID = uid;

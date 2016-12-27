@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using InstagramBot.Data;
+using InstagramBot.Data.Accounts;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
@@ -10,7 +11,7 @@ namespace InstagramBot.Net
     public class Connection
     {
         public Session Session { get; set; }
-        public Dictionary<int, User> Users = new Dictionary<int, User>();
+        public Dictionary<int, ActionBot> Users = new Dictionary<int, ActionBot>();
         public PacketsRegistry PacketsRegistry { get; set; }
         TelegramBotClient Bot => Session.Bot;
 
@@ -46,7 +47,7 @@ namespace InstagramBot.Net
                     if (!Users.ContainsKey(message.From.Id))
                     {
                         int id = message.From.Id;
-                        Users.Add(id, new User(id, Session, GetLicenseState(id)));
+                        Users.Add(id, new ActionBot(id, Session, GetLicenseState(id)));
                     }
                     return;
                 }

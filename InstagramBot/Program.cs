@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-using InstagramBot.Parsing;
+using InstagramBot.Net.Web;
 
 namespace InstagramBot
 {

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml;
+using InstagramBot.Data.Accounts;
+using Newtonsoft.Json;
 
-namespace InstagramBot.Parsing
+namespace InstagramBot.Net.Web
 {
     public class Authorization
     {
@@ -52,8 +54,11 @@ namespace InstagramBot.Parsing
         protected string GetUserNamefromURL(string url)
         {
             string data = instWC.UploadString(url);
-            data = data.Substring(data.IndexOf("<script type=\"text/javascript\">window._sharedData"));
-            data = data.Substring(0, data.IndexOf("</script>") + "</script>".Length);
+            data = data.Substring(data.IndexOf("<script type=\"text/javascript\">window._sharedData = ")+ "<script type=\"text/javascript\">window._sharedData = ".Length);
+            data = data.Substring(0, data.IndexOf("</script>")-1);
+            FullInfo info = JsonConvert.DeserializeObject<FullInfo>(data);
+            FullInfo f = new FullInfo();
+            
             var d = new XmlDocument();
             d.LoadXml(data);
 
