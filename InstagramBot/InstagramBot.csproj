@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Accounts\AccountInstagram.cs" />
+    <Compile Include="Data\Accounts\FullInfo.cs" />
+    <Compile Include="Data\Accounts\User.cs" />
     <Compile Include="Data\StateEventArgs.cs" />
     <Compile Include="Data\States.cs" />
     <Compile Include="Data\UnixTime.cs" />
@@ -53,7 +56,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Data\Accounts\" />
     <Folder Include="Data\SQL\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
