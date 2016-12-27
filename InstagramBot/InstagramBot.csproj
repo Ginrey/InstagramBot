@@ -61,6 +61,11 @@
     <Compile Include="Net\Packets\OnRegistering.cs" />
     <Compile Include="Net\Packets\OnWaitSubscribe.cs" />
     <Compile Include="Net\Packets\OnWaitUrl.cs" />
+    <Compile Include="Parsing\Authorization.cs" />
+    <Compile Include="Parsing\InstWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Parsing\WebInstagram.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
