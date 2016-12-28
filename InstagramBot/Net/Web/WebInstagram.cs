@@ -14,8 +14,22 @@ namespace InstagramBot.Net.Web
 
         public User GetUser(string referal)
         {
-            return GetUserFromUrl("https://www.instagram.com/" + referal+"/");
+            return GetUserFromUrl("https://www.instagram.com/" + referal);
         }
-       
+        public AccountInstagram GetAccount(string referal)
+        {
+            User user = GetUser(referal);
+            if (string.IsNullOrEmpty(user.id)) return null;
+            return new AccountInstagram
+            {
+                Uid = int.Parse(user.id),
+                Name = user.full_name,
+                Referal = user.username,
+                Following = user.followed_by.count,
+                Folowers = user.follows.count,
+                Posts = user.media.count
+            };
+        }
+
     }
 }

@@ -13,9 +13,8 @@ namespace InstagramBot.Net.Packets
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
             if (e.Message.Text.Contains("/")) return;
-           // user.InstagramNick = e.Message.Text;
-
-
+            user.Account = Session.WebInstagram.GetAccount(e.Message.Text);
+            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Это ваш аккаунт?\n"+user.Account.Name);
         }
     }
 }
