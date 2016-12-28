@@ -47,7 +47,7 @@ namespace InstagramBot.Net
                     if (!Users.ContainsKey(message.From.Id))
                     {
                         int id = message.From.Id;
-                        Users.Add(id, new ActionBot(id, Session, GetLicenseState(id)));
+                        Users.Add(id, new ActionBot(Session, GetLicenseState(id)) {TelegramID = id});
                     }
                     return;
                 }

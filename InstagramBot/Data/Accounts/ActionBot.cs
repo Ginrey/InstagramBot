@@ -4,8 +4,8 @@ namespace InstagramBot.Data.Accounts
 {
     public class ActionBot
     {
-        public int UID { get; set; }
-        public string InstagramNick { get; set; }
+        public int TelegramID { get; set; }
+        public AccountInstagram Account { get; set; }
         public Message Message { get; set; }
         Session session;
         States _state;
@@ -19,10 +19,9 @@ namespace InstagramBot.Data.Accounts
                     .Serialize(this, new StateEventArgs(Message, value));
             }
         }
-        public ActionBot(int uid, Session session, States state = States.Registering)
+        public ActionBot(Session session, States state = States.Registering)
         {
             this.session = session;
-            UID = uid;
             State = state;
         }
 

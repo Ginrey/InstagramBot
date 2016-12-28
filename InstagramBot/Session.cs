@@ -1,5 +1,6 @@
 ﻿using InstagramBot.Data.SQL;
 using InstagramBot.Net;
+using InstagramBot.Net.Web;
 using Telegram.Bot;
 
 namespace InstagramBot
@@ -9,6 +10,7 @@ namespace InstagramBot
         public Connection Connection { get; }
         public MySqlDatabase MySql { get; set; }
         public TelegramBotClient Bot { get; set; }
+        public WebInstagram WebInstagram { get; set; }
         string Token { get; }
         bool Started { get; set; }
         public Session(string token = "")

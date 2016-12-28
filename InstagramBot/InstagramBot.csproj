@@ -51,7 +51,7 @@
   <ItemGroup>
     <Compile Include="Data\Accounts\AccountInstagram.cs" />
     <Compile Include="Data\Accounts\FullInfo.cs" />
-    <Compile Include="Data\Accounts\User.cs" />
+    <Compile Include="Data\Accounts\ActionBot.cs" />
     <Compile Include="Data\SQL\CheckPermissions.cs" />
     <Compile Include="Data\SQL\CreateNewLicense.cs" />
     <Compile Include="Data\SQL\Database.cs" />
