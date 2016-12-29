@@ -39,6 +39,11 @@ namespace InstagramBot.Data.SQL
             throw new NotImplementedException();
         }
 
+        public virtual bool InsertNewAccount(int pid, string referal, int fromReferal, States state)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual bool GetLicenseTime(int uid, int sid, out UnixTime time)
         {
             throw new NotImplementedException();

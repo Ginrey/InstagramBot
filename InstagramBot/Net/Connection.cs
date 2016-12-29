@@ -53,27 +53,7 @@ namespace InstagramBot.Net
                 }
                 if (!Users.ContainsKey(message.From.Id)) return;
                 var user = Users[message.From.Id];
-                user.Message = message;
-                //Todo
-                user.State++;
-
-                switch (user.State)
-                {
-                    case States.Registering:
-                        break;
-                    case States.WaitUrl:
-                        break;
-                    case States.WaitSubscribe:
-                        break;
-                    case States.Done:
-                        break;
-                    case States.Blocked:
-                        break;
-                    case States.Null:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                user.NextStep(message);
             }
         }
 

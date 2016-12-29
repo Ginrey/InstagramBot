@@ -86,6 +86,19 @@ namespace InstagramBot.Data.SQL
             return result;
         }
 
+        public override bool InsertNewAccount(int pid, string referal, int fromReferal, States state)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.Int) {Value = pid},
+                new SqlParameter("Referal", SqlDbType.VarChar, 50) {Value = referal},
+                new SqlParameter("FromReferal", SqlDbType.Int) {Value = fromReferal},
+                new SqlParameter("State", SqlDbType.Int) {Value = (int)state}
+            };
+            var result = CallFunction("InsertNewAccount", args);
+            return result;
+        }
+
         public override bool GetLicenseTime(int uid, int sid, out UnixTime time)
         {
             var args = new[]

@@ -1,5 +1,4 @@
-﻿using System;
-using InstagramBot.Data;
+﻿using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
@@ -9,11 +8,18 @@ namespace InstagramBot.Net.Packets
         public Session Session { get; set; }
         public void Serialize(ActionBot user, StateEventArgs e)
         {
-            Session.Bot?.SendTextMessageAsync(user.UID, "Спасибо, вы внесены в базу!\nДля начала Вам необходимо подписаться на этих людей");
+            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Это ваш аккаунт?\n" + user.Account.Name);
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            throw new NotImplementedException();
+            if (e.Message.Text.ToLower() == "да")
+            {
+                user.State++;
+            }
+            else
+            {
+                user.State = States.Registering;
+            }
         }
     }
 }

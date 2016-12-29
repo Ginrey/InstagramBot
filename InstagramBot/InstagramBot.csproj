@@ -64,6 +64,7 @@
     <Compile Include="Net\PacketsRegistry.cs" />
     <Compile Include="Net\Packets\OnBlocked.cs" />
     <Compile Include="Net\Packets\OnDone.cs" />
+    <Compile Include="Net\Packets\OnGetFromReferal.cs" />
     <Compile Include="Net\Packets\OnRegistering.cs" />
     <Compile Include="Net\Packets\OnWaitSubscribe.cs" />
     <Compile Include="Net\Packets\OnWaitUrl.cs" />

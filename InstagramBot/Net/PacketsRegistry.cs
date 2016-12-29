@@ -13,6 +13,7 @@ namespace InstagramBot.Net
         {
             Session = session;
             packets[States.Registering] = new OnRegistering { Session = session };
+            packets[States.WaitUrlFrom] = new OnGetFromReferal { Session = session };
             packets[States.WaitUrl] = new OnWaitUrl { Session = session };
             packets[States.WaitSubscribe] = new OnWaitSubscribe { Session = session };
             packets[States.Done] = new OnDone { Session = session };

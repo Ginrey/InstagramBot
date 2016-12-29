@@ -4,6 +4,7 @@
     {
         Registering,
         WaitUrl,
+        WaitUrlFrom,
         WaitSubscribe,
         Done,
         Blocked,
