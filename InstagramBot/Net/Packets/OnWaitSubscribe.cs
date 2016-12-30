@@ -9,7 +9,7 @@ namespace InstagramBot.Net.Packets
         public Session Session { get; set; }
         public void Serialize(ActionBot user, StateEventArgs e)
         {
-            Session.Bot?.SendTextMessageAsync(user.UID, "ждем как подпишется");
+            Session.Bot?.SendTextMessageAsync(user.TelegramID, "ждем как подпишется");
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {

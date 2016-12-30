@@ -69,11 +69,11 @@ namespace InstagramBot.Data.SQL
             MD5Hash = (byte[]) args[2].Value;
             return result;
         }
-        public override bool GetLicenseState(int uid, out States state)
+        public override bool GetLicenseState(long uid, out States state)
         {
             var args = new[]
             {
-                new SqlParameter("ID", SqlDbType.Int) {Value = uid},
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
                 new SqlParameter("State", SqlDbType.Int) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("GetLicenseState", args);
@@ -86,13 +86,13 @@ namespace InstagramBot.Data.SQL
             return result;
         }
 
-        public override bool InsertNewAccount(int pid, string referal, int fromReferal, States state)
+        public override bool InsertNewAccount(long pid, string referal, long fromReferal, States state)
         {
             var args = new[]
             {
-                new SqlParameter("ID", SqlDbType.Int) {Value = pid},
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = pid},
                 new SqlParameter("Referal", SqlDbType.VarChar, 50) {Value = referal},
-                new SqlParameter("FromReferal", SqlDbType.Int) {Value = fromReferal},
+                new SqlParameter("FromReferal", SqlDbType.BigInt) {Value = fromReferal},
                 new SqlParameter("State", SqlDbType.Int) {Value = (int)state}
             };
             var result = CallFunction("InsertNewAccount", args);

@@ -19,8 +19,9 @@ namespace InstagramBot.Data.Accounts
                     .Serialize(this, new StateEventArgs(Message, value));
             }
         }
-        public ActionBot(Session session, States state = States.Registering)
+        public ActionBot(int tid, Session session, States state = States.Registering)
         {
+            TelegramID = tid;
             this.session = session;
             State = state;
         }

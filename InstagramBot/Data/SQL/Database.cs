@@ -34,12 +34,12 @@ namespace InstagramBot.Data.SQL
             throw new NotImplementedException();
         }
 
-        public virtual bool GetLicenseState(int uid, out States complete)
+        public virtual bool GetLicenseState(long uid, out States complete)
         {
             throw new NotImplementedException();
         }
 
-        public virtual bool InsertNewAccount(int pid, string referal, int fromReferal, States state)
+        public virtual bool InsertNewAccount(long pid, string referal, long fromReferal, States state)
         {
             throw new NotImplementedException();
         }
