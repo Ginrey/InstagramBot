@@ -55,10 +55,9 @@ namespace InstagramBot.Net.Web
             try
             {
                 string data = instWC.UploadString(url);
-                data = data.Substring(data.IndexOf("window._sharedData = ") + "window._sharedData = ".Length);
-                data = data.Substring(0, data.IndexOf("</script>") - 1);
-                FullInfo info = JsonConvert.DeserializeObject<FullInfo>(data);
-                return info.EntryData.ProfilePage[0].user;
+             
+                User info = JsonConvert.DeserializeObject<User>(data);
+                return info;
             }
             catch
             {
