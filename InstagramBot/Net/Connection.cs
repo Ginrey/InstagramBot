@@ -4,6 +4,7 @@ using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace InstagramBot.Net
@@ -11,10 +12,10 @@ namespace InstagramBot.Net
     public class Connection
     {
         public Session Session { get; set; }
-        public Dictionary<int, ActionBot> Users = new Dictionary<int, ActionBot>();
+        public Dictionary<long, ActionBot> Users = new Dictionary<long, ActionBot>();
         public PacketsRegistry PacketsRegistry { get; set; }
         TelegramBotClient Bot => Session.Bot;
-
+     
         public Connection(Session session)
         {
             Session = session;
@@ -36,7 +37,7 @@ namespace InstagramBot.Net
             Bot?.StopReceiving();
             Console.Title = "Closed";
         }
-
+       
         private void OnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             var message = messageEventArgs.Message;
