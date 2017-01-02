@@ -2,6 +2,26 @@
 
 namespace InstagramBot.Data.Accounts
 {
+    public class Subscriptions
+    {
+        public class Node
+        {
+            public string id { get; set; }
+            public string full_name { get; set; }
+            public string username { get; set; }
+        }
+
+        public class FollowedBy
+        {
+            public List<Node> nodes { get; set; }
+        }
+       
+    }
+    public class FollowedUser
+    {
+        public string status { get; set; }
+        public Subscriptions.FollowedBy followed_by { get; set; }
+    }
     public class Follows
     {
         public int count { get; set; }
@@ -88,10 +108,4 @@ namespace InstagramBot.Data.Accounts
         public bool is_private { get; set; }
         public FollowedBy followed_by { get; set; }
     }
-
-    public class RootObject
-    {
-        public User user { get; set; }
-    }
-
 }

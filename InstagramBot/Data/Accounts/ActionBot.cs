@@ -1,4 +1,5 @@
-﻿using Telegram.Bot.Types;
+﻿using System.Collections.Generic;
+using Telegram.Bot.Types;
 
 namespace InstagramBot.Data.Accounts
 {
@@ -9,6 +10,7 @@ namespace InstagramBot.Data.Accounts
         public Message Message { get; set; }
         Session session;
         States _state;
+        public Dictionary <long, bool> IsNeedFollow { get; set; }
         public States State
         {
             get { return _state; }

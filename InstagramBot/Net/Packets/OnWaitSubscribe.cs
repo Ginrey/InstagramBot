@@ -1,5 +1,4 @@
-﻿using System;
-using InstagramBot.Data;
+﻿using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
@@ -10,10 +9,16 @@ namespace InstagramBot.Net.Packets
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "Чтобы начать получать своих подписчиков Вам необходимо подписаться на следующих людей");
+            //todo
+            Session.Bot?.SendTextMessageAsync(user.TelegramID, "После того как подпишитесь отправьте команду /Check");
+
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            throw new NotImplementedException();
+            if(e.Message.Text.StartsWith("/Check"))
+            {
+
+            }
         }
     }
 }
