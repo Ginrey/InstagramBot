@@ -8,26 +8,26 @@ namespace InstagramBot.Net.Web
         {
             Auth();
         }
-        public Subscriptions.FollowedBy GetListFollowing(long referalId)
+        public FollowedUser GetListFollowing(long referalId)
         {
             return GetFoloowingListBuId(referalId);
         }
-        public User GetUser(string referal)
+        public UserInfo GetUser(string referal)
         {
-            return GetUserFromUrl("https://www.instagram.com/" + referal+ "/?a=1");
+            return GetUserFromUrl("https://www.instagram.com/" + referal+ "/?__a=1");
         }
         public AccountInstagram GetAccount(string referal)
         {
-            User user = GetUser(referal);
-            if (string.IsNullOrEmpty(user.id)) return null;
+            User userInfo = GetUser(referal).user;
+            if (string.IsNullOrEmpty(userInfo.id)) return null;
             return new AccountInstagram
             {
-                Uid = long.Parse(user.id),
-                Name = user.full_name,
-                Referal = user.username,
-                Following = user.followed_by.count,
-                Folowers = user.follows.count,
-                Posts = user.media.count
+                Uid = long.Parse(userInfo.id),
+                Name = userInfo.full_name,
+                Referal = userInfo.username,
+                Following = userInfo.followed_by.count,
+                Folowers = userInfo.follows.count,
+                Posts = userInfo.media.count
             };
         }
     }

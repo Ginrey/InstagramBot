@@ -50,14 +50,19 @@ namespace InstagramBot.Net.Web
             return ResponseHeaders;
         }
 
-        public void ResetHeaders(string token)
+        void SetToket(string token)
+        {
+            if(!string.IsNullOrEmpty(token))
+            Headers["X-CSRFToken"] = token;
+        }
+        public void ResetHeaders(string token="")
         {
             Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
             Headers[HttpRequestHeader.Host] = "www.instagram.com";
             Headers["Accept"] = "*/*";
             Headers["Accept-Language"] = "en-US,en;q=0.5";
             Headers["Referer"] = "https://www.instagram.com/";
-            Headers["X-CSRFToken"] = token;
+            SetToket(token);
             Headers["Content-Type"] = "application/x-www-form-urlencoded";
             Headers["X-Requested-With"] = "XMLHttpRequest";
             Headers["X-Instagram-AJAX"] = "1";

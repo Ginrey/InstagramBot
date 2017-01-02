@@ -40,6 +40,7 @@ namespace InstagramBot.Net
        
         private void OnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
+          
             var message = messageEventArgs.Message;
             if (message.Type == MessageType.TextMessage)
             {
@@ -54,6 +55,8 @@ namespace InstagramBot.Net
                 }
                 if (!Users.ContainsKey(message.From.Id)) return;
                 var user = Users[message.From.Id];
+              
+               
                 user.NextStep(message);
             }
         }

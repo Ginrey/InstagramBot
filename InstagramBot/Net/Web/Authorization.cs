@@ -50,7 +50,7 @@ namespace InstagramBot.Net.Web
             return string.Empty;
         }
 
-        protected  Subscriptions.FollowedBy GetFoloowingListBuId(long referalId)
+        protected FollowedUser GetFoloowingListBuId(long referalId)
         {
             try
             {
@@ -58,27 +58,28 @@ namespace InstagramBot.Net.Web
                 {
                     {"q", "ig_user("+referalId+"){followed_by.first(20){nodes{id,full_name,username}}}"}
                 };
+                instWC.ResetHeaders();
                 var data = instWC.UploadString("https://www.instagram.com/query/", code);
-                Subscriptions.FollowedBy info = JsonConvert.DeserializeObject<Subscriptions.FollowedBy>(data);
+                FollowedUser info = JsonConvert.DeserializeObject<FollowedUser>(data);
                 return info;
             }
             catch
             {
-                return new Subscriptions.FollowedBy();
+                return new FollowedUser();
             }
         }
 
-        protected User GetUserFromUrl(string url)
+        protected UserInfo GetUserFromUrl(string url)
         {
             try
             {
                 string data = instWC.UploadString(url);
-                User info = JsonConvert.DeserializeObject<User>(data);
+                UserInfo info = JsonConvert.DeserializeObject<UserInfo>(data);
                 return info;
             }
             catch
             {
-                return new User();
+                return new UserInfo();
             }
         }
     }
