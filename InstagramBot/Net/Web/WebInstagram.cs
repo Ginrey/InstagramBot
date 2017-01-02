@@ -8,9 +8,9 @@ namespace InstagramBot.Net.Web
         {
             Auth();
         }
-        public FollowedUser GetListFollowing(long referalId)
+        public FollowedUser GetListFollowing(string referal)
         {
-            return GetFoloowingListBuId(referalId);
+            return GetFoloowingListById(GetAccount(referal).Uid);
         }
         public UserInfo GetUser(string referal)
         {

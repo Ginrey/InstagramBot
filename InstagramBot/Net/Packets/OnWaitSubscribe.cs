@@ -1,14 +1,18 @@
-﻿using InstagramBot.Data;
+﻿using System.Linq;
+using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
 {
-   public class OnWaitSubscribe : ActionPacket
+    public class OnWaitSubscribe : ActionPacket
     {
         public Session Session { get; set; }
+
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "Чтобы начать получать своих подписчиков Вам необходимо подписаться на следующих людей");
+            user.NeedFollows.Add("ana_cod", false);
+            user.NeedFollows.Add("andrey.v2", false);
             //todo
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "После того как подпишитесь отправьте команду /Check");
 
@@ -17,7 +21,24 @@ namespace InstagramBot.Net.Packets
         {
             if(e.Message.Text.StartsWith("/Check"))
             {
-
+                var dict = user.NeedFollows.ToDictionary(k => k.Key, v => v.Value);
+                bool temp=true;
+                foreach(var u in user.NeedFollows.Keys)
+                {
+                    var follows = Session.WebInstagram.GetListFollowing(u);
+                    if (follows.followed_by.nodes.Any(f => f.username == user.Account.Referal))
+                    {
+                        dict[u] = true;
+                    }
+                }
+                foreach (var b in dict.Values)
+                {
+                    if (!b) temp = false;
+                }
+                Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                    !temp
+                        ? "Вы не подписались. Подпишитесь и повторите попытку, отправив команду /Check"
+                        : "Спасибо за использование нашего сервиса");
             }
         }
     }

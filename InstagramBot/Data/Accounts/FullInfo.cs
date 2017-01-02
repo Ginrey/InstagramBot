@@ -15,7 +15,6 @@ namespace InstagramBot.Data.Accounts
         {
             public List<Node> nodes { get; set; }
         }
-       
     }
     public class FollowedUser
     {

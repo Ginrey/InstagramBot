@@ -50,7 +50,7 @@ namespace InstagramBot.Net.Web
             return string.Empty;
         }
 
-        protected FollowedUser GetFoloowingListBuId(long referalId)
+        protected FollowedUser GetFoloowingListById(long referalId)
         {
             try
             {

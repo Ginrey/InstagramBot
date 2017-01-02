@@ -15,8 +15,7 @@ namespace InstagramBot.Net.Packets
             if (e.Message.Text.Contains("/")) return;
             user.Account.FromReferal = e.Message.Text;
             user.Account.FromReferalId = Session.WebInstagram.GetAccount(e.Message.Text).Uid;
-            Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.Account.FromReferalId,
-                user.State + 1);
+            Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.Account.FromReferalId, user.State + 1);
             user.State++;
         }
     }
