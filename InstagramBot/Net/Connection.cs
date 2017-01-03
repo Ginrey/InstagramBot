@@ -33,7 +33,6 @@ namespace InstagramBot.Net
 
         public void Close()
         {
-            
             Bot?.StopReceiving();
             Console.Title = "Closed";
         }

@@ -17,8 +17,8 @@ namespace InstagramBot
         {
             Token = token;
             if (!string.IsNullOrEmpty(Token)) Bot = new TelegramBotClient(Token);
-            Connection = new Connection(this);
             MySql = new MySqlDatabase("SERVER=DESKTOP-VBFBI8T;DATABASE=Instagram_DB;Trusted_Connection=True");
+            Connection = new Connection(this);
         }
 
         public void Start()
