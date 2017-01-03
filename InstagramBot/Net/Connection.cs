@@ -4,7 +4,6 @@ using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using Telegram.Bot;
 using Telegram.Bot.Args;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace InstagramBot.Net
@@ -54,8 +53,6 @@ namespace InstagramBot.Net
                 }
                 if (!Users.ContainsKey(message.From.Id)) return;
                 var user = Users[message.From.Id];
-              
-               
                 user.NextStep(message);
             }
         }

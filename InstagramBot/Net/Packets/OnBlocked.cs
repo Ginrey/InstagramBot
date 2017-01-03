@@ -9,11 +9,11 @@ namespace InstagramBot.Net.Packets
         public Session Session { get; set; }
         public void Serialize(ActionBot user, StateEventArgs e)
         {
-            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Вы заблокированы на этом сервисе");
+           
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            throw new NotImplementedException();
+            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Вы заблокированы на этом сервисе");
         }
     }
 }

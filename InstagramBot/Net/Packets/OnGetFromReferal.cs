@@ -15,8 +15,10 @@ namespace InstagramBot.Net.Packets
             if (e.Message.Text.Contains("/")) return;
             user.Account.FromReferal = e.Message.Text;
             user.Account.FromReferalId = Session.WebInstagram.GetAccount(e.Message.Text).Uid;
-            Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.Account.FromReferalId, user.State + 1);
-            user.State++;
+            if (Session.MySql.IsPresentLicense(user.Account.FromReferalId))
+                user.State++;
+            else
+                Session.Bot?.SendTextMessageAsync(user.TelegramID, "Такой пользователь не зарегистрирован. Повторите попытку");
         }
     }
 }

@@ -13,7 +13,7 @@ namespace InstagramBot.Net.Packets
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            throw new NotImplementedException();
+            Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.Account.FromReferalId, user.State + 1);
         }
     }
 }
