@@ -47,6 +47,23 @@ namespace InstagramBot.Data.SQL
             count = (int)args[1].Value;
             return result;
         }
+
+        public override bool GetReferal(long uid, out string referal)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("Referal", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
+            };
+            bool result = CallFunction("GetReferal", args);
+            if (args[1].Value == DBNull.Value)
+            {
+                referal = "";
+                return false;
+            }
+            referal = (string) args[1].Value;
+            return result;
+        }
         public override bool IsLicenseStart(long uid)
         {
             var args = new[]

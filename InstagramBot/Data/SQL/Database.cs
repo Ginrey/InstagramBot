@@ -15,6 +15,11 @@ namespace InstagramBot.Data.SQL
             throw new NotImplementedException();
         }
 
+        public virtual bool GetReferal(long uid, out string referal)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual bool InsertNewAccount(long pid, string referal, long fromReferal, States state)
         {
             throw new NotImplementedException();
