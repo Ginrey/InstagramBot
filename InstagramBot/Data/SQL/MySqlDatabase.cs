@@ -93,22 +93,6 @@ namespace InstagramBot.Data.SQL
             GetReferal(referalId, out referal);
             return true;
         }
-
-        public override bool IsLicenseStart(long uid)
-        {
-            var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("Status", SqlDbType.Bit) {Direction = ParameterDirection.Output}
-            };
-            CallFunction("IsLicenseStart", args);
-            if (args[1].Value == DBNull.Value)
-            {
-                return false;
-            }
-            return (bool) args[1].Value;
-        }
-
         public override bool InsertNewAccount(long pid, string referal, long fromReferal, States state)
         {
             var args = new[]
@@ -131,6 +115,41 @@ namespace InstagramBot.Data.SQL
             };
             var result = CallFunction("IsPresentLicense", args);
             return args[1].Value != DBNull.Value && result;
+        }
+
+        public override bool IsLicenseStart(long uid)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("Status", SqlDbType.Bit) {Direction = ParameterDirection.Output}
+            };
+            CallFunction("IsLicenseStart", args);
+            if (args[1].Value == DBNull.Value)
+            {
+                return false;
+            }
+            return (bool)args[1].Value;
+        }
+
+        public override bool UpdateStatus(long uid, bool status)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("Status", SqlDbType.Bit) {Value = status}
+            };
+            return CallFunction("UpdateStatus", args);
+        }
+
+        public override bool UpdateCountFollows(long uid, int count)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("Count", SqlDbType.Int) {Value = count}
+            };
+            return CallFunction("UpdateCountFollows", args);
         }
 
         public bool CallFunction(string functionName, params SqlParameter[] parameters)

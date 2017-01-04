@@ -14,9 +14,9 @@ namespace InstagramBot.Net.Packets
             long referalid;
             string referal;
             Session.MySql.GetNeedReferalForFollow(user.Account.FromReferalId, out referalid, out referal);
-            user.Account.FromReferalId = referalid;
+            user.Account.ToReferalId = referalid;
             user.NeedFollows.Add(referal, false);
-            Session.Bot?.SendTextMessageAsync(user.TelegramID, user.NeedFollows.Keys.Aggregate("", (current, r) => current + (r+"\n")));
+            Session.Bot?.SendTextMessageAsync(user.TelegramID, user.NeedFollows.Keys.Aggregate("", (current, r) => current + r + "\n"));
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "После того как подпишитесь отправьте команду /Check");
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
@@ -37,10 +37,11 @@ namespace InstagramBot.Net.Packets
                 {
                     if (!b) temp = false;
                 }
-                Session.Bot?.SendTextMessageAsync(user.TelegramID,
-                    !temp
-                        ? "Вы не подписались. Подпишитесь и повторите попытку, отправив команду /Check"
-                        : "Спасибо за использование нашего сервиса");
+                if (!temp)
+                    Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                        "Вы не подписались. Подпишитесь и повторите попытку, отправив команду /Check");
+                else
+                    user.State++;
             }
         }
     }

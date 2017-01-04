@@ -44,5 +44,14 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
+
+        public virtual bool UpdateStatus(long uid, bool status)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool UpdateCountFollows(long uid, int count)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
