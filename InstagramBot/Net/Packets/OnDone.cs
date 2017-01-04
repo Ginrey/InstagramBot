@@ -10,10 +10,11 @@ namespace InstagramBot.Net.Packets
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "Спасибо за то, что пользуетесь нашим сервисом. Регистрация прошла успешно");
+            Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.Account.FromReferalId,States.Done);
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.Account.FromReferalId, user.State + 1);
+            
         }
     }
 }

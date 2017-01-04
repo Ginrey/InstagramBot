@@ -10,7 +10,17 @@ namespace InstagramBot.Data.SQL
             throw new NotImplementedException();
         }
 
+        public virtual bool GetCountFollows(long uid, out int count)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual bool InsertNewAccount(long pid, string referal, long fromReferal, States state)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool IsLicenseStart(long uid)
         {
             throw new NotImplementedException();
         }
