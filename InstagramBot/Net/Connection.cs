@@ -20,6 +20,7 @@ namespace InstagramBot.Net
             Session = session;
             PacketsRegistry = new PacketsRegistry(session);
             Bot.OnMessage += OnMessageReceived;
+            Bot.OnCallbackQuery += OnInlineQueryReceived;
         }
 
         public void Connect()
@@ -38,26 +39,32 @@ namespace InstagramBot.Net
        
         private void OnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
-          
             var message = messageEventArgs.Message;
             if (message.Type == MessageType.TextMessage)
             {
                 if (message.Text.StartsWith("/start"))
                 {
-                    if (!Users.ContainsKey(message.From.Id))
+                    if (!Users.ContainsKey(message.Chat.Id))
                     {
-                        int id = message.From.Id;
+                        long id = message.Chat.Id;
                         Users.Add(id, new ActionBot(id, Session, GetLicenseState(id)));
                     }
                     return;
                 }
-                if (!Users.ContainsKey(message.From.Id)) return;
-                var user = Users[message.From.Id];
+                if (!Users.ContainsKey(message.Chat.Id)) return;
+                var user = Users[message.Chat.Id];
                 user.NextStep(message);
             }
         }
 
-        States GetLicenseState(int uid)
+        private void OnInlineQueryReceived(object sender, CallbackQueryEventArgs messageEventArgs)
+        {
+            var message = messageEventArgs.CallbackQuery.Message;
+            message.Text = messageEventArgs.CallbackQuery.Data;
+            OnMessageReceived(sender, new MessageEventArgs(message));
+        }
+
+        States GetLicenseState(long uid)
         {
             States state;
             Session.MySql.GetLicenseState(uid, out state);
