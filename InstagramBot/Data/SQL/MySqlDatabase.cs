@@ -12,9 +12,10 @@ namespace InstagramBot.Data.SQL
 
         public MySqlDatabase(string connectionString)
         {
-            if(MySqlConnection == null)
-            MySqlConnection = new SqlConnection(connectionString);
+            if (MySqlConnection == null)
+                MySqlConnection = new SqlConnection(connectionString);
         }
+
         public override bool GetLicenseState(long uid, out States state)
         {
             var args = new[]
@@ -28,13 +29,14 @@ namespace InstagramBot.Data.SQL
                 state = States.Registering;
                 return false;
             }
-            state = (States)args[1].Value;
+            state = (States) args[1].Value;
             return result;
         }
+
         public override bool GetCountFollows(long uid, out int count)
         {
             var args = new[]
-           {
+            {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
                 new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
             };
@@ -44,7 +46,7 @@ namespace InstagramBot.Data.SQL
                 count = 0;
                 return false;
             }
-            count = (int)args[1].Value;
+            count = (int) args[1].Value;
             return result;
         }
 
@@ -64,6 +66,34 @@ namespace InstagramBot.Data.SQL
             referal = (string) args[1].Value;
             return result;
         }
+
+        public override bool GetFromReferalId(long uid, out long referalId)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("ReferalId", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
+            };
+            bool result = CallFunction("GetFromReferalId", args);
+            if (args[1].Value == DBNull.Value)
+            {
+                referalId = 0;
+                return false;
+            }
+            referalId = (long) args[1].Value;
+            return result;
+        }
+
+        public override bool GetNeedReferalForFollow(long uid, out long referalId, out string referal)
+        {
+            if (IsLicenseStart(uid))
+                referalId = uid;
+            else
+                GetFromReferalId(uid, out referalId);
+            GetReferal(referalId, out referal);
+            return true;
+        }
+
         public override bool IsLicenseStart(long uid)
         {
             var args = new[]
@@ -76,8 +106,9 @@ namespace InstagramBot.Data.SQL
             {
                 return false;
             }
-            return (bool)args[1].Value;
+            return (bool) args[1].Value;
         }
+
         public override bool InsertNewAccount(long pid, string referal, long fromReferal, States state)
         {
             var args = new[]
@@ -85,7 +116,7 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = pid},
                 new SqlParameter("Referal", SqlDbType.VarChar, 50) {Value = referal},
                 new SqlParameter("FromReferal", SqlDbType.BigInt) {Value = fromReferal},
-                new SqlParameter("State", SqlDbType.Int) {Value = (int)state}
+                new SqlParameter("State", SqlDbType.Int) {Value = (int) state}
             };
             var result = CallFunction("InsertNewAccount", args);
             return result;

@@ -11,11 +11,13 @@ namespace InstagramBot.Net.Packets
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "Чтобы начать получать своих подписчиков Вам необходимо подписаться на следующих людей");
-            user.NeedFollows.Add("ana_cod", false);
-            user.NeedFollows.Add("andrey.v2", false);
-            //todo
+            long referalid;
+            string referal;
+            Session.MySql.GetNeedReferalForFollow(user.Account.FromReferalId, out referalid, out referal);
+            user.Account.FromReferalId = referalid;
+            user.NeedFollows.Add(referal, false);
+            Session.Bot?.SendTextMessageAsync(user.TelegramID, user.NeedFollows.Keys.Aggregate("", (current, r) => current + (r+"\n")));
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "После того как подпишитесь отправьте команду /Check");
-
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
