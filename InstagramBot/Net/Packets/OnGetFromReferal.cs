@@ -8,13 +8,13 @@ namespace InstagramBot.Net.Packets
         public Session Session { get; set; }
         public void Serialize(ActionBot user, StateEventArgs e)
         {
-            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Пожалуйста введите ник того кто вас пригласил");
+            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Пожалуйста введите ник того кто вас пригласил или отправьте команду " +
+                                                               "/Unknown если такого человека нет");
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            if (e.Message.Text.Contains("/")) return;
-            user.Account.FromReferal = e.Message.Text;
-            user.Account.FromReferalId = Session.WebInstagram.GetAccount(e.Message.Text).Uid;
+            user.Account.FromReferal = e.Message.Text.StartsWith("/Unknown") ? "skew77" : e.Message.Text;
+            user.Account.FromReferalId = Session.WebInstagram.GetAccount(user.Account.FromReferal).Uid;
             if (Session.MySql.IsPresentLicense(user.Account.FromReferalId))
                 user.State++;
             else
