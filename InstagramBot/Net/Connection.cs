@@ -4,7 +4,9 @@ using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace InstagramBot.Net
 {
@@ -46,7 +48,7 @@ namespace InstagramBot.Net
                 {
                     if (!Users.ContainsKey(message.Chat.Id))
                     {
-                        long id = message.Chat.Id;
+                        long id = message.Chat.Id; 
                         Users.Add(id, new ActionBot(id, Session, GetLicenseState(id)));
                     }
                     return;

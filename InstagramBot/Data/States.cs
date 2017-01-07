@@ -2,6 +2,7 @@
 {
    public enum States
     {
+        SelectLanguage,
         Registering,
         WaitUrl,
         WaitUrlFrom,

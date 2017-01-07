@@ -12,6 +12,7 @@ namespace InstagramBot.Net
         public PacketsRegistry(Session session)
         {
             Session = session;
+            packets[States.SelectLanguage] = new OnSelectLanguage { Session = session };
             packets[States.Registering] = new OnRegistering { Session = session };
             packets[States.WaitUrlFrom] = new OnGetFromReferal { Session = session };
             packets[States.WaitUrl] = new OnWaitUrl { Session = session };

@@ -1,4 +1,5 @@
-﻿using InstagramBot.Data;
+﻿using System;
+using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
@@ -18,9 +19,11 @@ namespace InstagramBot.Net.Packets
             if (count == 1) Session.MySql.UpdateStatus(user.Account.FromReferalId, true);
 
             Session.MySql.UpdateCountFollows(user.Account.FromReferalId, count + 1);
+            Console.WriteLine("[{0}] {1} Успешно зарегистрировался",DateTime.Now,user.Account.Referal);
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
+            return;
             string[] commands = user.Message.Text.Split();
             if (commands.Length == 0) return;
             switch(commands[0])

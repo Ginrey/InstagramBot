@@ -26,7 +26,7 @@ namespace InstagramBot.Data.SQL
             var result = CallFunction("GetLicenseState", args);
             if (args[1].Value == DBNull.Value)
             {
-                state = States.Registering;
+                state = States.SelectLanguage;
                 return false;
             }
             state = (States) args[1].Value;
