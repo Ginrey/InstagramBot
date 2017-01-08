@@ -18,6 +18,7 @@ namespace InstagramBot.Net
             packets[States.WaitUrl] = new OnWaitUrl { Session = session };
             packets[States.WaitSubscribe] = new OnWaitSubscribe { Session = session };
             packets[States.Done] = new OnDone { Session = session };
+            packets[States.OnAlreadyUsing] = new OnAlreadyUsing { Session = session };
             packets[States.Blocked] = new OnBlocked { Session = session };
         }
 

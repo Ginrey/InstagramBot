@@ -20,6 +20,11 @@ namespace InstagramBot.Data.SQL
             throw new NotImplementedException();
         }
 
+        public virtual bool GetReferalByTelegramId(long tid, out string referal)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual bool GetNeedReferalForFollow(long uid, out long referalId, out string referal)
         {
             throw new NotImplementedException();
@@ -29,8 +34,16 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
+        public virtual bool GetTelegramId(long uid, out long telegramId)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual List<string> GetPriorityList(int priority)
+        {
+            throw new NotImplementedException();
+        }
 
-        public virtual bool InsertNewAccount(long pid, string referal, long fromReferal, States state)
+        public virtual bool InsertNewAccount(long pid, string referal,long telegramId, long fromReferal, States state)
         {
             throw new NotImplementedException();
         }

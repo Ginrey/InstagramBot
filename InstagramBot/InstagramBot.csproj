@@ -66,6 +66,7 @@
     <Compile Include="Net\ActionPacket.cs" />
     <Compile Include="Net\Connection.cs" />
     <Compile Include="Net\PacketsRegistry.cs" />
+    <Compile Include="Net\Packets\OnAlreadyUsing.cs" />
     <Compile Include="Net\Packets\OnBlocked.cs" />
     <Compile Include="Net\Packets\OnDone.cs" />
     <Compile Include="Net\Packets\OnGetFromReferal.cs" />

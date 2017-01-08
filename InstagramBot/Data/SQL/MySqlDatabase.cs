@@ -67,6 +67,38 @@ namespace InstagramBot.Data.SQL
             return result;
         }
 
+        public override bool GetReferalByTelegramId(long tid, out string referal)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = tid},
+                new SqlParameter("Referal", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
+            };
+            bool result = CallFunction("GetReferalByTelegramId", args);
+            if (args[1].Value == DBNull.Value)
+            {
+                referal = "";
+                return false;
+            }
+            referal = (string)args[1].Value;
+            return result;
+        }
+        public override bool GetTelegramId(long uid, out long telegramId)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("TelegramID", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
+            };
+            bool result = CallFunction("GetTelegramID", args);
+            if (args[1].Value == DBNull.Value)
+            {
+                telegramId = 0;
+                return false;
+            }
+            telegramId = (long)args[1].Value;
+            return result;
+        }
         public override bool GetFromReferalId(long uid, out long referalId)
         {
             var args = new[]
@@ -84,6 +116,29 @@ namespace InstagramBot.Data.SQL
             return result;
         }
 
+        public override List<string> GetPriorityList(int priority)
+        {
+            lock (MySqlConnection)
+            {
+                List<string> list = new List<string>();
+                using (
+                    var command =
+                        new SqlCommand(
+                            "select PriorityLevels.Referal from PriorityLevels where PriorityLevels.Priority = " +
+                            priority, MySqlConnection))
+                {
+                    command.CommandType = CommandType.Text;
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        list.Add(reader["Referal"].ToString());
+                    }
+                    reader.Close();
+                }
+                return list;
+            }
+        }
+       
         public override bool GetNeedReferalForFollow(long uid, out long referalId, out string referal)
         {
             if (IsLicenseStart(uid))
@@ -93,12 +148,13 @@ namespace InstagramBot.Data.SQL
             GetReferal(referalId, out referal);
             return true;
         }
-        public override bool InsertNewAccount(long pid, string referal, long fromReferal, States state)
+        public override bool InsertNewAccount(long pid, string referal,long telegramiD, long fromReferal, States state)
         {
             var args = new[]
             {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = pid},
                 new SqlParameter("Referal", SqlDbType.VarChar, 50) {Value = referal},
+                new SqlParameter("TelegramID", SqlDbType.BigInt) {Value = telegramiD},
                 new SqlParameter("FromReferal", SqlDbType.BigInt) {Value = fromReferal},
                 new SqlParameter("State", SqlDbType.Int) {Value = (int) state}
             };

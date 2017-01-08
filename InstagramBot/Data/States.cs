@@ -8,6 +8,7 @@
         WaitUrlFrom,
         WaitSubscribe,
         Done,
+        OnAlreadyUsing,
         Blocked,
         Null
     }

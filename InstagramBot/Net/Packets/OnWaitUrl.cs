@@ -24,8 +24,18 @@ namespace InstagramBot.Net.Packets
             {
                 if (!Session.MySql.IsPresentLicense(user.Account.Uid))
                 {
-                    Console.WriteLine("[{0}] {1} Подтвердил свой аккаунт", DateTime.Now, user.Account.Referal);
-                    user.State++;
+                    if (user.Account.Following - 300 < 0 || user.Account.Posts - 100 < 0)
+                    {
+                        Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                            "Чтобы пользоваться сервисом вам необходимо еще " +
+                            $"{300 - user.Account.Following} подписчиков и {100 - user.Account.Posts} публикаций");
+                        Console.WriteLine("[{0}] {1} Не прошел по критериям", DateTime.Now, user.Account.Referal);
+                    }
+                    else
+                    {
+                        Console.WriteLine("[{0}] {1} Подтвердил свой аккаунт", DateTime.Now, user.Account.Referal);
+                        user.State++;
+                    }
                 }
                 else
                     Session.Bot?.SendTextMessageAsync(user.TelegramID, "Данный аккаунт уже зарегистрирован");

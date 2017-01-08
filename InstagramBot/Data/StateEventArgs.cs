@@ -10,7 +10,7 @@ namespace InstagramBot.Data
             Message = message;
             State = state;
         }
-        public Message Message { get; private set; }
+        public Message Message { get; set; }
         public States State { get; private set; }
     }
 }

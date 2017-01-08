@@ -46,10 +46,12 @@ namespace InstagramBot.Net
             {
                 if (message.Text.StartsWith("/start"))
                 {
+                    string[] lines = message.Text.Split();
+                    string fromreferal = lines.Length == 2 ? lines[1] : "";
                     if (!Users.ContainsKey(message.Chat.Id))
                     {
                         long id = message.Chat.Id; 
-                        Users.Add(id, new ActionBot(id, Session, GetLicenseState(id)));
+                        Users.Add(id, new ActionBot(id, Session, GetLicenseState(id), fromreferal));
                     }
                     return;
                 }
