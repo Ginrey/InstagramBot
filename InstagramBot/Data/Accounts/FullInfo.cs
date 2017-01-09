@@ -20,6 +20,7 @@ namespace InstagramBot.Data.Accounts
     {
         public string status { get; set; }
         public Subscriptions.FollowedBy followed_by { get; set; }
+        public Subscriptions.FollowedBy follows { get; set; }
     }
     public class UserInfo
     {

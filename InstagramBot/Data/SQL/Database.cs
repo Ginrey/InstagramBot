@@ -14,6 +14,10 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
+        public virtual bool GetRedList(long uid, out List<string> list)
+        {
+            throw new NotImplementedException();
+        }
 
         public virtual bool GetReferal(long uid, out string referal)
         {
@@ -47,6 +51,10 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
+        public virtual bool InsertRedList(long pid, string red1, string red2, string red3)
+        {
+            throw new NotImplementedException();
+        }
 
         public virtual bool IsLicenseStart(long uid)
         {
@@ -54,6 +62,10 @@ namespace InstagramBot.Data.SQL
         }
 
         public virtual bool IsPresentLicense(long uid)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool IsPresentReferal(string referal)
         {
             throw new NotImplementedException();
         }

@@ -48,16 +48,32 @@ namespace InstagramBot.Net
                 {
                     string[] lines = message.Text.Split();
                     string fromreferal = lines.Length == 2 ? lines[1] : "";
-                    if (!Users.ContainsKey(message.Chat.Id))
+                    // if (!Users.ContainsKey(message.Chat.Id))
                     {
-                        long id = message.Chat.Id; 
-                        Users.Add(id, new ActionBot(id, Session, GetLicenseState(id), fromreferal));
+                        long id = message.Chat.Id;
+                        Users[id] = new ActionBot(id, Session, GetLicenseState(id), fromreferal);
                     }
                     return;
                 }
-                if (!Users.ContainsKey(message.Chat.Id)) return;
+                else
+                {
+                    long id = message.Chat.Id;
+                    ActionBot user = null;
+                    if (Users.ContainsKey(id))
+                    {
+                        user = Users[message.Chat.Id];
+                    }
+                    else
+                    {
+                        Users[id] = new ActionBot(id, Session, GetLicenseState(id), "");
+                        user = Users[message.Chat.Id];
+                    }
+                    user.NextStep(message);
+                    return;
+                }
+               /* if (!Users.ContainsKey(message.Chat.Id)) return;
                 var user = Users[message.Chat.Id];
-                user.NextStep(message);
+                user.NextStep(message);*/
             }
         }
 

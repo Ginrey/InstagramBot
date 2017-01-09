@@ -7,7 +7,7 @@ namespace InstagramBot
     {
         static void Main(string[] args)
         {
-            Session Session = new Session("310136073:AAHEP0i318aIkB8y3lAOTtwYxMf7jwtp51w")
+            Session Session = new Session("326705762:AAHtag0VT3_wk0Hc1GCyrIyOL_OXeg-CAHQ")
             {
                 WebInstagram = new WebInstagram("vitaliirogoza", "qwerty2")
             };

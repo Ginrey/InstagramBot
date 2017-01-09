@@ -50,13 +50,32 @@ namespace InstagramBot.Net.Web
             return string.Empty;
         }
 
-        protected FollowedUser GetFoloowingListById(long referalId)
+        protected FollowedUser GetFollowingListById(long referalId)
         {
             try
             {
                 Dictionary<string, string> code = new Dictionary<string, string>
                 {
                     {"q", "ig_user("+referalId+"){followed_by.first(20){nodes{id,full_name,username}}}"}
+                };
+                instWC.ResetHeaders();
+                var data = instWC.UploadString("https://www.instagram.com/query/", code);
+                FollowedUser info = JsonConvert.DeserializeObject<FollowedUser>(data);
+                return info;
+            }
+            catch
+            {
+                return new FollowedUser();
+            }
+        }
+
+        protected FollowedUser GetFollowsListById(long referalId)
+        {
+            try
+            {
+                Dictionary<string, string> code = new Dictionary<string, string>
+                {
+                    {"q", "ig_user("+referalId+"){follows.first(20){nodes{id,full_name,username}}}"}
                 };
                 instWC.ResetHeaders();
                 var data = instWC.UploadString("https://www.instagram.com/query/", code);

@@ -13,7 +13,7 @@ namespace InstagramBot.Net.Packets
             else
             {
                 Session.Bot?.SendTextMessageAsync(user.TelegramID, "Вы пришли по ссылке ["+user.FromReferal+"]. Если он не подойдет, введите другую ссылку");
-                e.Message = new Telegram.Bot.Types.Message() {Text = user.FromReferal};
+                e.Message = new Telegram.Bot.Types.Message {Text = user.FromReferal};
                 Deserialize(user, e);
             }
         }

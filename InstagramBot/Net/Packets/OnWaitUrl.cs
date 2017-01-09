@@ -24,11 +24,11 @@ namespace InstagramBot.Net.Packets
             {
                 if (!Session.MySql.IsPresentLicense(user.Account.Uid))
                 {
-                    if (user.Account.Following - 300 < 0 || user.Account.Posts - 100 < 0)
+                    if (user.Account.Following - 100 < 0 || user.Account.Posts - 50 < 0)
                     {
                         Session.Bot?.SendTextMessageAsync(user.TelegramID,
                             "Чтобы пользоваться сервисом вам необходимо еще " +
-                            $"{300 - user.Account.Following} подписчиков и {100 - user.Account.Posts} публикаций");
+                            $"{(100 - user.Account.Following < 0 ? 0 : 100 - user.Account.Following)} подписчиков и {(50 - user.Account.Posts < 0 ? 50 : 50 - user.Account.Posts)} публикаций");
                         Console.WriteLine("[{0}] {1} Не прошел по критериям", DateTime.Now, user.Account.Referal);
                     }
                     else

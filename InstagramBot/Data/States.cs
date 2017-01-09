@@ -9,6 +9,7 @@
         WaitSubscribe,
         Done,
         OnAlreadyUsing,
+        OnFindClients,
         Blocked,
         Null
     }

@@ -10,7 +10,11 @@ namespace InstagramBot.Net.Web
         }
         public FollowedUser GetListFollowing(string referal)
         {
-            return GetFoloowingListById(GetAccount(referal).Uid);
+            return GetFollowingListById(GetAccount(referal).Uid);
+        }
+        public FollowedUser GetListFollows(string referal)
+        {
+            return GetFollowsListById(GetAccount(referal).Uid);
         }
         public UserInfo GetUser(string referal)
         {

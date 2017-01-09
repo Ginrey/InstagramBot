@@ -50,6 +50,27 @@ namespace InstagramBot.Data.SQL
             return result;
         }
 
+        public override bool GetRedList(long uid, out List<string> list)
+        {
+            var args = new[]
+           {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("Red1", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output},
+                 new SqlParameter("Red2", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output},
+                  new SqlParameter("Red3", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetRedList", args);
+            list = new List<string>();
+            if (args[1].Value == DBNull.Value)
+            {
+                return false;
+            }
+            list.Add((string)args[1].Value);
+            list.Add((string)args[2].Value);
+            list.Add((string)args[3].Value);
+            return result;
+        }
+
         public override bool GetReferal(long uid, out string referal)
         {
             var args = new[]
@@ -161,6 +182,18 @@ namespace InstagramBot.Data.SQL
             var result = CallFunction("InsertNewAccount", args);
             return result;
         }
+        public override bool InsertRedList(long pid, string red1, string red2, string red3)
+        {
+            var args = new[]
+          {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = pid},
+                new SqlParameter("Red1", SqlDbType.VarChar, 50) {Value = red1},
+                new SqlParameter("Red2", SqlDbType.VarChar, 50) {Value = red2},
+                new SqlParameter("Red3", SqlDbType.VarChar, 50) {Value = red3}
+            };
+            var result = CallFunction("InsertRedList", args);
+            return result;
+        }
 
         public override bool IsPresentLicense(long uid)
         {
@@ -170,6 +203,17 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("State", SqlDbType.Int) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("IsPresentLicense", args);
+            return args[1].Value != DBNull.Value && result;
+        }
+
+        public override bool IsPresentReferal(string referal)
+        {
+            var args = new[]
+            {
+                new SqlParameter("Referal", SqlDbType.VarChar, 50) {Value = referal},
+                new SqlParameter("State", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("IsPresentReferal", args);
             return args[1].Value != DBNull.Value && result;
         }
 

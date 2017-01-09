@@ -58,6 +58,7 @@
     <Compile Include="Data\Accounts\AccountInstagram.cs" />
     <Compile Include="Data\Accounts\FullInfo.cs" />
     <Compile Include="Data\Accounts\ActionBot.cs" />
+    <Compile Include="Data\Config.cs" />
     <Compile Include="Data\SQL\Database.cs" />
     <Compile Include="Data\SQL\MySqlDatabase.cs" />
     <Compile Include="Data\StateEventArgs.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Net\Packets\OnAlreadyUsing.cs" />
     <Compile Include="Net\Packets\OnBlocked.cs" />
     <Compile Include="Net\Packets\OnDone.cs" />
+    <Compile Include="Net\Packets\OnFindClients.cs" />
     <Compile Include="Net\Packets\OnGetFromReferal.cs" />
     <Compile Include="Net\Packets\OnRegistering.cs" />
     <Compile Include="Net\Packets\OnSelectLanguage.cs" />

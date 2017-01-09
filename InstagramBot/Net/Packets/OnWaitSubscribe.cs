@@ -29,9 +29,10 @@ namespace InstagramBot.Net.Packets
             var  topList = Session.MySql.GetPriorityList(1);
             foreach(var t in topList)
             {
-                if (user.NeedFollows.Count < 3)
-                    if(!user.NeedFollows.ContainsKey(t))
-                        user.NeedFollows.Add(t, false);
+                if (user.NeedFollows.Count >= 3) continue;
+                if (string.Equals(t, user.Account.Referal, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!user.NeedFollows.ContainsKey(t))
+                    user.NeedFollows.Add(t, false);
             }
 
             user.Account.ToReferalId = referalid;
@@ -41,10 +42,11 @@ namespace InstagramBot.Net.Packets
             if (user.NeedFollows.Count < 3)
             {
                 topList = Session.MySql.GetPriorityList(2);
-                for (int i = 0; i < topList.Count; i++)
+              while(true)
                 {
                     if (user.NeedFollows.Count >= 3) break;
                     var t = topList[rnd.Next(topList.Count)];
+                    if (string.Equals(t, user.Account.Referal,StringComparison.OrdinalIgnoreCase)) continue;
                     if (!user.NeedFollows.ContainsKey(t))
                         user.NeedFollows.Add(t, false);
                 }
@@ -52,7 +54,8 @@ namespace InstagramBot.Net.Packets
 
             var keyboard = new InlineKeyboardMarkup(new[]
                 {
-                    InlineKeyboardMarkupMaker(user.NeedFollows), new[] {new InlineKeyboardButton("Подтвердить подписку", "/Check")}
+                    InlineKeyboardMarkupMaker(user.NeedFollows),
+                new[] {new InlineKeyboardButton("Подтвердить подписку", "/Check")}
                 }
             );
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "Список:", replyMarkup: keyboard);
@@ -62,17 +65,15 @@ namespace InstagramBot.Net.Packets
         {
             if (e.Message.Text.StartsWith("/Check"))
             {
-                var dict = user.NeedFollows.ToDictionary(k => k.Key, v => v.Value);
+                var dictBool = user.NeedFollows.ToDictionary(k => k.Key.ToLower(), v => v.Value);
                 bool temp = true;
-                foreach (var u in user.NeedFollows.Keys)
+                var follows = Session.WebInstagram.GetListFollows(user.Account.Referal);
+                foreach (var u in follows.follows.nodes)
                 {
-                    var follows = Session.WebInstagram.GetListFollowing(u);
-                    if (follows.followed_by.nodes.Any(f => f.username == user.Account.Referal))
-                    {
-                        dict[u] = true;
-                    }
+                 if(dictBool.ContainsKey(u.username.ToLower()))
+                        dictBool[u.username.ToLower()] = true;
                 }
-                foreach (var b in dict.Values)
+                foreach (var b in dictBool.Values)
                 {
                     if (!b) temp = false;
                 }
