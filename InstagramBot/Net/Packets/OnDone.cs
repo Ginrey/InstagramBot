@@ -17,17 +17,17 @@ namespace InstagramBot.Net.Packets
                 "Пригласите минимум 3 пользователей Instagram для получения статуса \"РОСТ\"");
             int count;
             Session.MySql.GetCountFollows(user.Account.FromReferalId, out count);
-            
+            long telegramId;
+            Session.MySql.GetTelegramId(user.Account.FromReferalId, out telegramId);
+            Session.Bot?.SendTextMessageAsync(telegramId,"По вашей ссылке зарегистрировался " + user.Account.Referal);
             if (count == 1)
             {
                 Session.MySql.UpdateStatus(user.Account.FromReferalId, true);
-                long telegramId;
-                Session.MySql.GetTelegramId(user.Account.FromReferalId, out telegramId);
                 if(telegramId != 0) Session.Bot?.SendTextMessageAsync(telegramId,
                     "Поздравляем! Вы получили статус \"РОСТ\"\n" +
                     "С этого момента каждый приглашенный вами человек будет приносить вам новых подписчиков \n" +
-                    "Для получения новых подписчиков в ваш Instagram, пригласите друзей в scs110100bot по вашей реферальный ссылке: https://telegram.me/scs110100bot?start=" +
-                        user.Account.Referal);
+                    "Для получения новых подписчиков в ваш Instagram, пригласите друзей в scs110100bot по вашей реферальный ссылке: https://t.me/scs110100bot?start=" +
+                        user.Account.FromReferal);
             }
 
             Session.MySql.UpdateCountFollows(user.Account.FromReferalId, count + 1);

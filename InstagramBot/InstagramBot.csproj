@@ -23,6 +23,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -58,6 +60,7 @@
     <Compile Include="Data\Accounts\AccountInstagram.cs" />
     <Compile Include="Data\Accounts\FullInfo.cs" />
     <Compile Include="Data\Accounts\ActionBot.cs" />
+    <Compile Include="Data\Accounts\StructInfo.cs" />
     <Compile Include="Data\Config.cs" />
     <Compile Include="Data\SQL\Database.cs" />
     <Compile Include="Data\SQL\MySqlDatabase.cs" />

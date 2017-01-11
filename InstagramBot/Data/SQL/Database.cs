@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Data.SQL
 {
@@ -46,7 +47,10 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
-
+        public virtual List<StructInfo> GetStructInfo(long fromId)
+        {
+            throw new NotImplementedException();
+        }
         public virtual bool InsertNewAccount(long pid, string referal,long telegramId, long fromReferal, States state)
         {
             throw new NotImplementedException();

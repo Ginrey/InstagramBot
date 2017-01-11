@@ -9,6 +9,7 @@ namespace InstagramBot.Data.Accounts
         public int ErrorCounter { get; set; }
         public AccountInstagram Account { get; set; }
         public Message Message { get; set; }
+        public List<StructInfo> StructsInfo { get; set; }
         public string FromReferal { get; set; }
         Session session;
         States _state;

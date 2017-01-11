@@ -14,11 +14,20 @@ namespace InstagramBot.Net.Web
         }
         public FollowedUser GetListFollows(string referal)
         {
-            return GetFollowsListById(GetAccount(referal).Uid);
+            var acc = GetAccount(referal);
+            if (acc == null) return null;
+            return GetFollowsListById(acc.Uid);
         }
         public UserInfo GetUser(string referal)
         {
-            return GetUserFromUrl("https://www.instagram.com/" + referal+ "/?__a=1");
+            try
+            {
+                return GetUserFromUrl("https://www.instagram.com/" + referal + "/?__a=1");
+            }
+            catch
+            {
+                return new UserInfo();
+            }
         }
         public AccountInstagram GetAccount(string referal)
         {

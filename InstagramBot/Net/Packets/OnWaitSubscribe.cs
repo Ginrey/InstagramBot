@@ -21,7 +21,8 @@ namespace InstagramBot.Net.Packets
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             Session.Bot?.SendTextMessageAsync(user.TelegramID,
-                "Подпишитесь в Instagram на данные аккаунты");
+                "Подпишитесь в Instagram на данные аккаунты\n" +
+                "Если вы уже были подписаны на указанные аккаунты: отпишитесь и заново подпишитесь");
             long referalid;
             string referal;
 
@@ -63,26 +64,31 @@ namespace InstagramBot.Net.Packets
 
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            if (e.Message.Text.StartsWith("/Check"))
+            try
             {
-                var dictBool = user.NeedFollows.ToDictionary(k => k.Key.ToLower(), v => v.Value);
-                bool temp = true;
-                var follows = Session.WebInstagram.GetListFollows(user.Account.Referal);
-                foreach (var u in follows.follows.nodes)
+                if (e.Message.Text.StartsWith("/Check"))
                 {
-                 if(dictBool.ContainsKey(u.username.ToLower()))
-                        dictBool[u.username.ToLower()] = true;
+                    var dictBool = user.NeedFollows.ToDictionary(k => k.Key.ToLower(), v => v.Value);
+                    bool temp = true;
+                    var follows = Session.WebInstagram.GetListFollows(user.Account.Referal);
+                  
+                    foreach (var u in follows.follows.nodes)
+                    {
+                        if (dictBool.ContainsKey(u.username.ToLower()))
+                            dictBool[u.username.ToLower()] = true;
+                    }
+                    foreach (var b in dictBool.Values)
+                    {
+                        if (!b) temp = false;
+                    }
+                    if (!temp)
+                        Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                            "Вы не подписались. Подпишитесь и повторите попытку, отправив команду /Check");
+                    else
+                        user.State++;
                 }
-                foreach (var b in dictBool.Values)
-                {
-                    if (!b) temp = false;
-                }
-                if (!temp)
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID,
-                        "Вы не подписались. Подпишитесь и повторите попытку, отправив команду /Check");
-                else
-                    user.State++;
             }
+            catch { Session.Bot?.SendTextMessageAsync(user.TelegramID, "Ошибка, повторите попытку.Ваш аккаунт не должен быть приватным"); }
         }
     }
 }

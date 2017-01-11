@@ -10,7 +10,7 @@ namespace InstagramBot.Net.Packets
       public  void Deserialize(ActionBot user, StateEventArgs e)
       {
           string referal = e.Message.Text;
-          if (string.IsNullOrEmpty(referal) || referal.Length > 20)
+          if (string.IsNullOrEmpty(referal) || referal.Length > 40)
           {
               Session.Bot?.SendTextMessageAsync(user.TelegramID, "Неверные данные");
                 return;

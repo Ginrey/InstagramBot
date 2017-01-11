@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading;
+using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Data.SQL
 {
@@ -159,7 +160,56 @@ namespace InstagramBot.Data.SQL
                 return list;
             }
         }
-       
+        public override List<StructInfo> GetStructInfo(long fromId)
+        {
+            lock (MySqlConnection)
+            {
+                List<StructInfo> list = new List<StructInfo>();
+                using (
+                    var command =
+                        new SqlCommand(
+                            "select Accounts.Referal, Accounts.State, Accounts.Status from Accounts where Accounts.FromReferal = " +
+                            fromId, MySqlConnection))
+                {
+                    command.CommandType = CommandType.Text;
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        list.Add(new StructInfo
+                        {
+                            Referal = reader["Referal"].ToString(),
+                            States = (States)reader["State"],
+                            Status = (bool)reader["Status"]
+                        });
+                    }
+                    reader.Close();
+                }
+                return list;
+            }
+        }
+
+        public List<long> GetTelegrams()
+        {
+            lock (MySqlConnection)
+            {
+                List<long> list = new List<long>();
+                using (
+                    var command =
+                        new SqlCommand(
+                            "select Accounts.TelegramID from Accounts", MySqlConnection))
+                {
+                    command.CommandType = CommandType.Text;
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        list.Add((long)reader["TelegramID"]);
+                    }
+                    reader.Close();
+                }
+                return list;
+            }
+        }
+
         public override bool GetNeedReferalForFollow(long uid, out long referalId, out string referal)
         {
             if (IsLicenseStart(uid))
