@@ -1,4 +1,5 @@
-﻿using InstagramBot.Data.Accounts;
+﻿using System.Threading.Tasks;
+using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Web
 {
@@ -8,33 +9,33 @@ namespace InstagramBot.Net.Web
         {
             Auth();
         }
-        public FollowedUser GetListFollowing(string referal)
+        public async Task<FollowedUser> GetListFollowing(string referal)
         {
-            return GetFollowingListById(GetAccount(referal).Uid);
+            return await GetFollowingListById((await GetAccount(referal)).Uid);
         }
-        public FollowedUser GetListFollows(string referal)
+        public async Task<FollowedUser> GetListFollows(string referal)
         {
-            var acc = GetAccount(referal);
+            var acc = await GetAccount(referal);
             if (acc == null) return null;
-            return GetFollowsListById(acc.Uid);
+            return await GetFollowsListById(acc.Uid);
         }
-        public UserInfo GetUser(string referal)
+        public async Task<UserInfo> GetUser(string referal)
         {
             try
             {
-                return GetUserFromUrl("https://www.instagram.com/" + referal + "/?__a=1");
+                return await GetUserFromUrl("https://www.instagram.com/" + referal + "/?__a=1");
             }
             catch
             {
                 return new UserInfo();
             }
         }
-        public AccountInstagram GetAccount(string referal)
+        public async Task<AccountInstagram> GetAccount(string referal)
         {
             try
             {
-                User userInfo = GetUser(referal).user;
-                if (string.IsNullOrEmpty(userInfo.id)) return null;
+                User userInfo = (await GetUser(referal)).user;
+                if (string.IsNullOrEmpty(userInfo?.id)) return null;
                 return new AccountInstagram
                 {
                     Uid = long.Parse(userInfo.id),

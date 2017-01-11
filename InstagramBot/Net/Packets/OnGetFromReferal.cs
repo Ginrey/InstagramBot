@@ -17,11 +17,11 @@ namespace InstagramBot.Net.Packets
                 Deserialize(user, e);
             }
         }
-        public void Deserialize(ActionBot user, StateEventArgs e)
+        public async void Deserialize(ActionBot user, StateEventArgs e)
         {
             user.Account.FromReferal = e.Message.Text.Replace("@","");
             if (user.ErrorCounter == 3) user.Account.Referal = "100lbov";
-            var acc = Session.WebInstagram.GetAccount(user.Account.FromReferal);
+            var acc = await Session.WebInstagram.GetAccount(user.Account.FromReferal);
             if (acc == null) goto error;
             user.Account.FromReferalId = acc.Uid;
             if (Session.MySql.IsPresentLicense(user.Account.FromReferalId))
@@ -31,7 +31,7 @@ namespace InstagramBot.Net.Packets
             }
             error:
             user.ErrorCounter++;
-            Session.Bot?.SendTextMessageAsync(user.TelegramID,
+            await Session.Bot?.SendTextMessageAsync(user.TelegramID,
                 "Пользователь не зарегистрирован!\n[Попыток осталось: " + (3-user.ErrorCounter)+"]");
         }
     }

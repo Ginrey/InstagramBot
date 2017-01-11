@@ -9,16 +9,16 @@ namespace InstagramBot.Net.Packets
     public class OnWaitUrl : IActionPacket
     {
         public Session Session { get; set; }
-        public void Serialize(ActionBot user, StateEventArgs e)
+        public async void Serialize(ActionBot user, StateEventArgs e)
         {
             var keyboard = new InlineKeyboardMarkup(new[]
             {
                 new InlineKeyboardButton("Да","/Yes"),
                 new InlineKeyboardButton("Нет", "/No")
             });
-            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Это ваш аккаунт?\nhttp://instagram.com/" + user.Account.Referal, replyMarkup : keyboard);
+           await Session.Bot?.SendTextMessageAsync(user.TelegramID, "Это ваш аккаунт?\nhttp://instagram.com/" + user.Account.Referal, replyMarkup : keyboard);
         }
-        public void Deserialize(ActionBot user, StateEventArgs e)
+        public async void Deserialize(ActionBot user, StateEventArgs e)
         {
             if (e.Message.Text.StartsWith("/Yes"))
             {
@@ -26,11 +26,11 @@ namespace InstagramBot.Net.Packets
                 {
                     if (user.Account.Following - 100 < 0 || user.Account.Posts - 50 < 0)
                     {
-                        Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                        await Session.Bot?.SendTextMessageAsync(user.TelegramID,
                             "Чтобы пользоваться сервисом вам необходимо еще " +
                             $"{(100 - user.Account.Following < 0 ? 0 : 100 - user.Account.Following)} подписчиков и {(50 - user.Account.Posts < 0 ? 50 : 50 - user.Account.Posts)} публикаций");
                         Console.WriteLine("[{0}] {1} Не прошел по критериям", DateTime.Now, user.Account.Referal);
-                        System.IO.File.AppendAllText(@"notRegistering.txt", $"{user.TelegramID}-{user.Account.Referal}");
+                        System.IO.File.AppendAllText(@"notRegistering.txt", $"{user.TelegramID}-{user.Account.Referal}\n");
                     }
                     else
                     {
@@ -39,7 +39,7 @@ namespace InstagramBot.Net.Packets
                     }
                 }
                 else
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID, "Данный аккаунт уже зарегистрирован");
+                   await Session.Bot?.SendTextMessageAsync(user.TelegramID, "Данный аккаунт уже зарегистрирован");
             }
             else
             {

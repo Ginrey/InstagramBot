@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace InstagramBot.Net.Web
 {
@@ -84,18 +85,18 @@ namespace InstagramBot.Net.Web
           //  Headers[HttpRequestHeader.Cookie] = "csrftoken=3GOJxtFceZN5yg55cqSGVsw7JjNBL32K; mid=WFrtCAAEAAEL5wz0LRR3QevL80Y8; s_network=; ig_pr=1; ig_vw=1004";        
         }
 
-        public string UploadString(string address)
-        {
-        //    ResetHeaders();
-            return DownloadString(GetUri(address));
+        public async Task<string> UploadString(string address)
+        {//    ResetHeaders();
+        
+            return await DownloadStringTaskAsync(GetUri(address));
         }
 
-        public string UploadString(string address, string data)
+        public async Task<string> UploadString(string address, string data)
         {
-            return UploadString(GetUri(address), data);
+            return await UploadStringTaskAsync(GetUri(address), data);
         }
 
-        public string UploadString(string address, Dictionary<string, string> data)
+        public async Task<string> UploadString(string address, Dictionary<string, string> data)
         {
             var sb = new StringBuilder();
 
@@ -111,7 +112,7 @@ namespace InstagramBot.Net.Web
 
             var pp = string.Join("&", p);
 
-            return UploadString(address, pp);
+            return await UploadStringTaskAsync(address, pp);
         }
 
         private static Uri GetUri(string str)

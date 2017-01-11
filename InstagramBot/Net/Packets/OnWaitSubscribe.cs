@@ -62,7 +62,7 @@ namespace InstagramBot.Net.Packets
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "Список:", replyMarkup: keyboard);
         }
 
-        public void Deserialize(ActionBot user, StateEventArgs e)
+        public async void Deserialize(ActionBot user, StateEventArgs e)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace InstagramBot.Net.Packets
                 {
                     var dictBool = user.NeedFollows.ToDictionary(k => k.Key.ToLower(), v => v.Value);
                     bool temp = true;
-                    var follows = Session.WebInstagram.GetListFollows(user.Account.Referal);
+                    var follows = await Session.WebInstagram.GetListFollows(user.Account.Referal);
                   
                     foreach (var u in follows.follows.nodes)
                     {

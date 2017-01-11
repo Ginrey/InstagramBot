@@ -12,16 +12,16 @@ namespace InstagramBot.Net.Packets
     {
         public Session Session { get; set; }
        
-        public void Serialize(ActionBot user, StateEventArgs e)
+        public async void Serialize(ActionBot user, StateEventArgs e)
         {
             string referal;
             if (user.Account != null) return;
             if (Session.MySql.GetReferalByTelegramId(user.TelegramID, out referal))
             {
-                user.Account = Session.WebInstagram.GetAccount(referal);
+                user.Account = await Session.WebInstagram.GetAccount(referal);
 
                 if (user.Account == null)
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID, "Не удалось войти, повторите попытку");
+                   await Session.Bot?.SendTextMessageAsync(user.TelegramID, "Не удалось войти, повторите попытку");
                 else
                 {
                     Console.WriteLine("[{0}] {1} Заходит на аккаунт", DateTime.Now, user.Account.Referal);
@@ -37,10 +37,10 @@ namespace InstagramBot.Net.Packets
             {
                 case Config.MenuList.ReferalUrl:
                 case "/get_referal":
-                  Message x = await Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                  await Session.Bot?.SendTextMessageAsync(user.TelegramID,
                         "При регистрации, реферал может использовать ваш ник в Instagram\n" +
                         "Реферальная ссылка:");
-                    x = await Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                     await Session.Bot?.SendTextMessageAsync(user.TelegramID,
                       "t.me/scs110100bot?start=" + user.Account.Referal);
                     break;
                 case Config.MenuList.MyReferals:
@@ -48,7 +48,7 @@ namespace InstagramBot.Net.Packets
                     int count;
                     Session.MySql.GetCountFollows(user.Account.Uid, out count);
                     
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID, "Количество людей зарегистрированных по вашей ссылке: " + count+ 
+                    await Session.Bot?.SendTextMessageAsync(user.TelegramID, "Количество людей зарегистрированных по вашей ссылке: " + count+ 
                                                                        "\nПрограмма min = 2");
                     break;
                 case Config.MenuList.MyListUsers:
@@ -60,7 +60,7 @@ namespace InstagramBot.Net.Packets
                     break;
                 case Config.MenuList.Order:
                 case "/order":
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID, Config.Order);
+                    await Session.Bot?.SendTextMessageAsync(user.TelegramID, Config.Order);
                     break;
                 case Config.MenuList.PrivateOffice:
                     ShowLK(user);
@@ -83,13 +83,13 @@ namespace InstagramBot.Net.Packets
                     await Session.Bot?.SendTextMessageAsync(user.TelegramID, Config.TextDownVideo);
                     break;
                 case Config.MenuList.WhereReferals:
-                    Session.Bot?.SendVideoAsync(user.TelegramID, "BAADAgADLwADLiR6DhSg_EdEBaRkAg");
+                   await Session.Bot?.SendVideoAsync(user.TelegramID, "BAADAgADLwADLiR6DhSg_EdEBaRkAg");
                     break;
 
                 case Config.MenuList.HowMachUsers:
                     if (!adminList.Contains(user.TelegramID)) return;
                     var list = Session.MySql.GetTelegrams();
-                        Session.Bot?.SendTextMessageAsync(user.TelegramID, "Всего пользователей: "+ list.Count);
+                       await Session.Bot?.SendTextMessageAsync(user.TelegramID, "Всего пользователей: "+ list.Count);
                     break;
                 default:
 

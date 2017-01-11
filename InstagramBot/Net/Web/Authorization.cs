@@ -19,10 +19,10 @@ namespace InstagramBot.Net.Web
             Password = password;
         }
 
-        protected void Auth()
+        protected async void Auth()
         {
             if (IsDone) return;
-            instWC.UploadString("https://www.instagram.com/");
+            await instWC.UploadString("https://www.instagram.com/");
 
             Dictionary<string, string> code = new Dictionary<string, string>
             {
@@ -31,7 +31,7 @@ namespace InstagramBot.Net.Web
             };
 
             instWC.ResetHeaders(GetTokenFromCookie());
-            var data = instWC.UploadString("https://www.instagram.com/accounts/login/ajax/", code);
+            var data = await instWC.UploadString("https://www.instagram.com/accounts/login/ajax/", code);
             instWC.ResetHeaders(GetTokenFromCookie());
             IsDone = data.Contains("true");
             Console.WriteLine(IsDone ? "Auth complete" : "Auth error");
@@ -51,56 +51,65 @@ namespace InstagramBot.Net.Web
             return string.Empty;
         }
 
-        protected FollowedUser GetFollowingListById(long referalId)
+        protected async Task<FollowedUser> GetFollowingListById(long referalId)
         {
-            try
+            return await Task.Run(async () =>
             {
-                Dictionary<string, string> code = new Dictionary<string, string>
+                try
                 {
-                    {"q", "ig_user("+referalId+"){followed_by.first(20){nodes{id,full_name,username}}}"}
-                };
-                instWC.ResetHeaders();
-                var data = instWC.UploadString("https://www.instagram.com/query/", code);
-                FollowedUser info = JsonConvert.DeserializeObject<FollowedUser>(data);
-                return info;
-            }
-            catch
-            {
-                return new FollowedUser();
-            }
+                    Dictionary<string, string> code = new Dictionary<string, string>
+                    {
+                        {"q", "ig_user(" + referalId + "){followed_by.first(20){nodes{id,full_name,username}}}"}
+                    };
+                    instWC.ResetHeaders();
+                    var data = await instWC.UploadString("https://www.instagram.com/query/", code);
+                    FollowedUser info = JsonConvert.DeserializeObject<FollowedUser>(data);
+                    return info;
+                }
+                catch
+                {
+                    return new FollowedUser();
+                }
+            });
         }
 
-        protected  FollowedUser GetFollowsListById(long referalId)
+        protected async Task<FollowedUser> GetFollowsListById(long referalId)
         {
-            try
+            return await Task.Run(async () =>
+            {
+                try
             {
                 Dictionary<string, string> code = new Dictionary<string, string>
                 {
                     {"q", "ig_user("+referalId+"){follows.first(20){nodes{id,full_name,username}}}"}
                 };
                 instWC.ResetHeaders();
-                var data = instWC.UploadString("https://www.instagram.com/query/", code);
+                var data = await instWC.UploadString("https://www.instagram.com/query/", code);
                 FollowedUser info = JsonConvert.DeserializeObject<FollowedUser>(data);
                 return info;
             }
             catch
             {
                 return new FollowedUser();
-            }
+                }
+            });
         }
 
-        protected UserInfo GetUserFromUrl(string url)
+        protected async Task<UserInfo> GetUserFromUrl(string url)
         {
-            try
+            return await Task.Run(async () =>
             {
-                string data = instWC.UploadString(url);
-                UserInfo info = JsonConvert.DeserializeObject<UserInfo>(data);
-                return info;
-            }
-            catch
-            {
-                return new UserInfo();
-            }
+                try
+                {
+                    string data = await instWC.UploadString(url);
+                    UserInfo info = JsonConvert.DeserializeObject<UserInfo>(data);
+                    return info;
+                }
+                catch
+                {
+                    return new UserInfo();
+                }
+            });
         }
     }
 }

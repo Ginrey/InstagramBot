@@ -14,13 +14,13 @@ namespace InstagramBot.Net.Packets
 
             Console.WriteLine("[{0}] {1} Начинает регистрацию", DateTime.Now, user.TelegramID);
         }
-        public void Deserialize(ActionBot user, StateEventArgs e)
+        public async void Deserialize(ActionBot user, StateEventArgs e)
         {
             if (e.Message.Text.Contains("/")) return;
-            user.Account = Session.WebInstagram.GetAccount(e.Message.Text.Replace("@",""));
+            user.Account = await Session.WebInstagram.GetAccount(e.Message.Text.Replace("@",""));
             if(user.Account == null)
             {
-                Session.Bot?.SendTextMessageAsync(user.TelegramID, "Данного аккаунта не существует. Повторите попытку");
+                await Session.Bot?.SendTextMessageAsync(user.TelegramID, "Данного аккаунта не существует. Повторите попытку");
                 return;
             }
             user.State++;
