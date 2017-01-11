@@ -4,14 +4,14 @@ using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
 {
-    public class OnRegistering : ActionPacket
+    public class OnRegistering : IActionPacket
     {
         public Session Session { get; set; }
-        public void Serialize(ActionBot user, StateEventArgs e)
+        public async void Serialize(ActionBot user, StateEventArgs e)
         {
-            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Добро пожаловать!\nПосмотрите видео\nСсылка на видео: https://youtu.be/MVG4pY-3Sls \n" +
-                                                               "\n--------\nДля старта введите ваш ник в instagram\n--------");
-            
+          await  Session.Bot?.SendTextMessageAsync(user.TelegramID, "Добро пожаловать!\nПосмотрите видео\nСсылка на видео: https://youtu.be/MVG4pY-3Sls \n");
+          await  Session.Bot?.SendTextMessageAsync(user.TelegramID, "--------\nДля старта введите ваш ник в instagram\n--------");
+
             Console.WriteLine("[{0}] {1} Начинает регистрацию", DateTime.Now, user.TelegramID);
         }
         public void Deserialize(ActionBot user, StateEventArgs e)

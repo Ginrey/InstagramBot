@@ -3,7 +3,7 @@ using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
 {
-    class OnFindClients : ActionPacket
+    class OnFindClients : IActionPacket
     {
        public Session Session { get; set; }
 

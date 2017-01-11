@@ -8,7 +8,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace InstagramBot.Net.Packets
 {
-    class OnAlreadyUsing : ActionPacket
+    class OnAlreadyUsing : IActionPacket
     {
         public Session Session { get; set; }
        
@@ -30,24 +30,29 @@ namespace InstagramBot.Net.Packets
             }
         }
 
-        public void Deserialize(ActionBot user, StateEventArgs e)
+        public async void Deserialize(ActionBot user, StateEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Message.Text) || user.Account == null) return;
             switch (e.Message.Text)
             {
                 case Config.MenuList.ReferalUrl:
                 case "/get_referal":
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                  Message x = await Session.Bot?.SendTextMessageAsync(user.TelegramID,
                         "При регистрации, реферал может использовать ваш ник в Instagram\n" +
                         "Реферальная ссылка:");
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                    x = await Session.Bot?.SendTextMessageAsync(user.TelegramID,
                       "t.me/scs110100bot?start=" + user.Account.Referal);
                     break;
                 case Config.MenuList.MyReferals:
                 case "/count_follows":
                     int count;
                     Session.MySql.GetCountFollows(user.Account.Uid, out count);
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID, "Количество людей зарегистрированных по вашей ссылке: " + count);
+                    
+                    Session.Bot?.SendTextMessageAsync(user.TelegramID, "Количество людей зарегистрированных по вашей ссылке: " + count+ 
+                                                                       "\nПрограмма min = 2");
+                    break;
+                case Config.MenuList.MyListUsers:
+                    ShowStruct(user, false);
                     break;
                 case Config.MenuList.MyPrivateFollows:
                 case "/need_follows":
@@ -67,15 +72,15 @@ namespace InstagramBot.Net.Packets
                     ShowStatus(user);
                     break;
                 case Config.MenuList.Struct:
-                    ShowStruct(user);
+                    ShowStruct(user, true);
                     break;
                 case Config.MenuList.CheckUsersOnInstagram:
                     user.State = States.OnFindClients;
                     break;
                 case Config.MenuList.PromoMaterials:
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID,Config.TextUpVideo);
-                    Session.Bot?.SendVideoAsync(user.TelegramID, "BAADAgADQAADLiR6DqVNPQgJAvFTAg");
-                    Session.Bot?.SendTextMessageAsync(user.TelegramID, Config.TextDownVideo);
+                  await  Session.Bot?.SendTextMessageAsync(user.TelegramID,Config.TextUpVideo);
+                    await Session.Bot?.SendVideoAsync(user.TelegramID, "BAADAgADQAADLiR6DqVNPQgJAvFTAg");
+                    await Session.Bot?.SendTextMessageAsync(user.TelegramID, Config.TextDownVideo);
                     break;
                 case Config.MenuList.WhereReferals:
                     Session.Bot?.SendVideoAsync(user.TelegramID, "BAADAgADLwADLiR6DhSg_EdEBaRkAg");
@@ -103,22 +108,29 @@ namespace InstagramBot.Net.Packets
             Session.Bot?.SendTextMessageAsync(user.TelegramID, " Ваш статус: "+status);
         }
 
-        void ShowStruct(ActionBot user)
+        void ShowStruct(ActionBot user, bool isStruct)
         {
             int count;
             var list = Session.MySql.GetStructInfo(user.Account.Uid);
             int lineCount = 0, stateRost = 0, stateStart = 0, blocked = 0;
+            string myreferals = "Список приглашенных людей:\n";
             foreach(var i in list)
             {
                 if (i.States == States.Blocked) blocked++;
                 if (i.Status) stateRost++;
                 else stateStart++;
+                myreferals += i.Referal + "\n";
             }
-            Session.MySql.GetCountFollows(user.Account.Uid, out count);
-            Session.Bot?.SendTextMessageAsync(user.TelegramID, 
-                $"Ваша структура: \nобщее колличество рефералов = {+list.Count} \n" +
-                $"из них: \n Линия РОСТа = {stateRost}\n в статусе СТАРТ = {stateStart} \n" +
-                $" заблокированных = {blocked}");
+            if (isStruct)
+            {
+                Session.MySql.GetCountFollows(user.Account.Uid, out count);
+                Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                    $"Ваша структура: \nобщее колличество рефералов = {+list.Count} \n" +
+                    $"из них: \n Линия РОСТа = {stateRost}\n в статусе СТАРТ = {stateStart} \n" +
+                    $" заблокированных = {blocked}");
+            }
+            else
+                Session.Bot?.SendTextMessageAsync(user.TelegramID, myreferals);
         }
         void ShowMyRedList(ActionBot user)
         {
@@ -146,6 +158,7 @@ namespace InstagramBot.Net.Packets
             ReplyKeyboardMarkup keyboard = adminList.Contains(user.TelegramID)? new ReplyKeyboardMarkup(new[]
                {
                     new[] {new KeyboardButton(Config.MenuList.MyReferals) },
+                     new[] {new KeyboardButton(Config.MenuList.MyListUsers) },
                     new[] {new KeyboardButton(Config.MenuList.MyPrivateFollows) },
                     new[] {new KeyboardButton(Config.MenuList.Status) },
                     new[] {new KeyboardButton(Config.MenuList.Struct) },
@@ -157,6 +170,7 @@ namespace InstagramBot.Net.Packets
                 new ReplyKeyboardMarkup(new[]
                {
                     new[] {new KeyboardButton(Config.MenuList.MyReferals) },
+                    new[] {new KeyboardButton(Config.MenuList.MyListUsers) },
                     new[] {new KeyboardButton(Config.MenuList.MyPrivateFollows) },
                     new[] {new KeyboardButton(Config.MenuList.Status) },
                     new[] {new KeyboardButton(Config.MenuList.Struct) },

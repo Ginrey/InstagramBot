@@ -67,7 +67,7 @@
     <Compile Include="Data\StateEventArgs.cs" />
     <Compile Include="Data\States.cs" />
     <Compile Include="Data\UnixTime.cs" />
-    <Compile Include="Net\ActionPacket.cs" />
+    <Compile Include="Net\IActionPacket.cs" />
     <Compile Include="Net\Connection.cs" />
     <Compile Include="Net\PacketsRegistry.cs" />
     <Compile Include="Net\Packets\OnAlreadyUsing.cs" />

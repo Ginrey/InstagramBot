@@ -51,7 +51,7 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
-        public virtual bool InsertNewAccount(long pid, string referal,long telegramId, long fromReferal, States state)
+        public virtual bool InsertNewAccount(long pid, string referal,long telegramId, long fromReferal, States state, DateTime date)
         {
             throw new NotImplementedException();
         }

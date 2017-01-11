@@ -219,7 +219,7 @@ namespace InstagramBot.Data.SQL
             GetReferal(referalId, out referal);
             return true;
         }
-        public override bool InsertNewAccount(long pid, string referal,long telegramiD, long fromReferal, States state)
+        public override bool InsertNewAccount(long pid, string referal,long telegramiD, long fromReferal, States state, DateTime date)
         {
             var args = new[]
             {
@@ -227,7 +227,8 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("Referal", SqlDbType.VarChar, 50) {Value = referal},
                 new SqlParameter("TelegramID", SqlDbType.BigInt) {Value = telegramiD},
                 new SqlParameter("FromReferal", SqlDbType.BigInt) {Value = fromReferal},
-                new SqlParameter("State", SqlDbType.Int) {Value = (int) state}
+                new SqlParameter("State", SqlDbType.Int) {Value = (int) state},
+                new SqlParameter("Date", SqlDbType.Date) {Value = date}
             };
             var result = CallFunction("InsertNewAccount", args);
             return result;

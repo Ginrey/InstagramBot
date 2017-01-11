@@ -6,7 +6,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace InstagramBot.Net.Packets
 {
-    public class OnWaitUrl : ActionPacket
+    public class OnWaitUrl : IActionPacket
     {
         public Session Session { get; set; }
         public void Serialize(ActionBot user, StateEventArgs e)
@@ -30,6 +30,7 @@ namespace InstagramBot.Net.Packets
                             "Чтобы пользоваться сервисом вам необходимо еще " +
                             $"{(100 - user.Account.Following < 0 ? 0 : 100 - user.Account.Following)} подписчиков и {(50 - user.Account.Posts < 0 ? 50 : 50 - user.Account.Posts)} публикаций");
                         Console.WriteLine("[{0}] {1} Не прошел по критериям", DateTime.Now, user.Account.Referal);
+                        System.IO.File.AppendAllText(@"notRegistering.txt", $"{user.TelegramID}-{user.Account.Referal}");
                     }
                     else
                     {

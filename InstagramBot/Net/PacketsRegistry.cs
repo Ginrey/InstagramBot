@@ -8,7 +8,7 @@ namespace InstagramBot.Net
     public class PacketsRegistry
     {
         public Session Session { get; set; }
-        Dictionary<States, ActionPacket> packets = new Dictionary<States, ActionPacket>();
+        Dictionary<States, IActionPacket> packets = new Dictionary<States, IActionPacket>();
         public PacketsRegistry(Session session)
         {
             Session = session;
@@ -23,16 +23,16 @@ namespace InstagramBot.Net
             packets[States.Blocked] = new OnBlocked { Session = session };
         }
 
-        public ActionPacket GetPacketType(States state)
+        public IActionPacket GetPacketType(States state)
         {
-            ActionPacket type;
+            IActionPacket type;
             if (!TryGetPacketType(state, out type))
             {
                 throw new Exception("Unknown action");
             }
             return type;
         }
-        public bool TryGetPacketType(States state, out ActionPacket type)
+        public bool TryGetPacketType(States state, out IActionPacket type)
         {
             return packets.TryGetValue(state, out type);
         }

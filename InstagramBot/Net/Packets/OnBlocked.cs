@@ -4,7 +4,7 @@ using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
 {
-    public class OnBlocked : ActionPacket
+    public class OnBlocked : IActionPacket
     {
         public Session Session { get; set; }
         public void Serialize(ActionBot user, StateEventArgs e)

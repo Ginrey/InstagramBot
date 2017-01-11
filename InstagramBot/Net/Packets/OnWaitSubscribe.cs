@@ -8,7 +8,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace InstagramBot.Net.Packets
 {
-    public class OnWaitSubscribe : ActionPacket
+    public class OnWaitSubscribe : IActionPacket
     {
         public Session Session { get; set; }
         Random rnd = new Random();
@@ -21,8 +21,8 @@ namespace InstagramBot.Net.Packets
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             Session.Bot?.SendTextMessageAsync(user.TelegramID,
-                "Подпишитесь в Instagram на данные аккаунты\n" +
-                "Если вы уже были подписаны на указанные аккаунты: отпишитесь и заново подпишитесь");
+                "Подпишитесь в Instagram на данные аккаунты.\n" +
+                "Если вы уже были подписаны на указанные аккаунты: отпишитесь и заново подпишитесь.");
             long referalid;
             string referal;
 
@@ -37,8 +37,8 @@ namespace InstagramBot.Net.Packets
             }
 
             user.Account.ToReferalId = referalid;
-            if (!user.NeedFollows.ContainsKey(referal))
-                user.NeedFollows.Add(referal, false);
+            if (!user.NeedFollows.ContainsKey(user.Account.FromReferal.ToLower()))
+                user.NeedFollows.Add(user.Account.FromReferal.ToLower(), false);
 
             if (user.NeedFollows.Count < 3)
             {
@@ -88,7 +88,9 @@ namespace InstagramBot.Net.Packets
                         user.State++;
                 }
             }
-            catch { Session.Bot?.SendTextMessageAsync(user.TelegramID, "Ошибка, повторите попытку.Ваш аккаунт не должен быть приватным"); }
+            catch(Exception ex)
+            {
+                Session.Bot?.SendTextMessageAsync(user.TelegramID, "Ошибка, повторите попытку.Ваш аккаунт не должен быть приватным"); }
         }
     }
 }

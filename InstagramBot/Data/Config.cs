@@ -45,6 +45,7 @@ namespace InstagramBot.Data
             public const string BackToMenu = "🔙 Главное меню";
             public const string PromoMaterials = "💼 ПРОМО МАТЕРИАЛЫ";
             public const string HowMachUsers = "Количество пользователей";
+            public const string MyListUsers = "Список";
             public const string WhereReferals = "🌳 Откуда подписчики";
         }
     }

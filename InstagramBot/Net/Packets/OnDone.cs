@@ -6,15 +6,15 @@ using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
 {
-   public class OnDone : ActionPacket
+   public class OnDone : IActionPacket
     {
         public Session Session { get; set; }
         public void Serialize(ActionBot user, StateEventArgs e)
         {
-            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Поздравляем! Вы прошли первый этап: ваш статус \"СТАРТ\"");
-            Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.TelegramID, user.Account.ToReferalId, States.OnAlreadyUsing);
+            Session.Bot?.SendTextMessageAsync(user.TelegramID, "Поздравляем! Вы прошли первый этап: ваш статус \"СТАРТ\".");
+            Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.TelegramID, user.Account.ToReferalId, States.OnAlreadyUsing, DateTime.Now);
             Session.Bot?.SendTextMessageAsync(user.TelegramID,
-                "Пригласите минимум 3 пользователей Instagram для получения статуса \"РОСТ\"");
+                "Пригласите минимум 3 пользователей Instagram для получения статуса \"РОСТ\".\nДля приглашения воспользуйтесь вашей реферальный ссылкой.");
             int count;
             Session.MySql.GetCountFollows(user.Account.FromReferalId, out count);
             long telegramId;
@@ -24,7 +24,7 @@ namespace InstagramBot.Net.Packets
             {
                 Session.MySql.UpdateStatus(user.Account.FromReferalId, true);
                 if(telegramId != 0) Session.Bot?.SendTextMessageAsync(telegramId,
-                    "Поздравляем! Вы получили статус \"РОСТ\"\n" +
+                    "Поздравляем:balloon: Вы получили статус \"РОСТ\"\n" +
                     "С этого момента каждый приглашенный вами человек будет приносить вам новых подписчиков \n" +
                     "Для получения новых подписчиков в ваш Instagram, пригласите друзей в scs110100bot по вашей реферальный ссылке: https://t.me/scs110100bot?start=" +
                         user.Account.FromReferal);

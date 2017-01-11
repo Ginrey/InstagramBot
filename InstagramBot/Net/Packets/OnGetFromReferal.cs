@@ -3,7 +3,7 @@ using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
 {
-    class OnGetFromReferal : ActionPacket
+    class OnGetFromReferal : IActionPacket
     {
         public Session Session { get; set; }
         public void Serialize(ActionBot user, StateEventArgs e)
@@ -12,7 +12,7 @@ namespace InstagramBot.Net.Packets
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "Ввидите ник того, кто вас пригласил. У вас есть 3 попытки.");
             else
             {
-                Session.Bot?.SendTextMessageAsync(user.TelegramID, "Вы пришли по ссылке ["+user.FromReferal+"]. Если он не подойдет, введите другую ссылку");
+                Session.Bot?.SendTextMessageAsync(user.TelegramID, "Вы пришли по ссылке ["+user.FromReferal+"].");
                 e.Message = new Telegram.Bot.Types.Message {Text = user.FromReferal};
                 Deserialize(user, e);
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using InstagramBot.Data.Accounts;
 using Newtonsoft.Json;
 
@@ -69,7 +70,7 @@ namespace InstagramBot.Net.Web
             }
         }
 
-        protected FollowedUser GetFollowsListById(long referalId)
+        protected  FollowedUser GetFollowsListById(long referalId)
         {
             try
             {

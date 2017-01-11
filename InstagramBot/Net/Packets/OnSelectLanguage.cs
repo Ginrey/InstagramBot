@@ -5,7 +5,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace InstagramBot.Net.Packets
 {
-    public class OnSelectLanguage : ActionPacket
+    public class OnSelectLanguage : IActionPacket
     {
         public Session Session { get; set; }
         public void Serialize(ActionBot user, StateEventArgs e)
