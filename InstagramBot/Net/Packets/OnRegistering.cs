@@ -10,7 +10,7 @@ namespace InstagramBot.Net.Packets
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             Session.Bot?.SendTextMessageAsync(user.TelegramID, "Добро пожаловать!\nПосмотрите видео\nСсылка на видео: https://youtu.be/MVG4pY-3Sls \n" +
-                                                               "/n--------/nДля старта введите ваш ник в instagram/n--------");
+                                                               "\n--------\nДля старта введите ваш ник в instagram\n--------");
             
             Console.WriteLine("[{0}] {1} Начинает регистрацию", DateTime.Now, user.TelegramID);
         }

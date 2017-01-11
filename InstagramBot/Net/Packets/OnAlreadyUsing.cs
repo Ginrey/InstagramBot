@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using Telegram.Bot.Types;
@@ -39,8 +38,10 @@ namespace InstagramBot.Net.Packets
                 case Config.MenuList.ReferalUrl:
                 case "/get_referal":
                     Session.Bot?.SendTextMessageAsync(user.TelegramID,
-                        "Реферальная ссылка:\n" + "https://t.me/scs110100bot?start=" +
-                        user.Account.Referal+ "\nТакже, при регистрации, реферал может использовать ваш ник в Instagram");
+                        "При регистрации, реферал может использовать ваш ник в Instagram\n" +
+                        "Реферальная ссылка:");
+                    Session.Bot?.SendTextMessageAsync(user.TelegramID,
+                      "t.me/scs110100bot?start=" + user.Account.Referal);
                     break;
                 case Config.MenuList.MyReferals:
                 case "/count_follows":
@@ -73,7 +74,7 @@ namespace InstagramBot.Net.Packets
                     break;
                 case Config.MenuList.PromoMaterials:
                     Session.Bot?.SendTextMessageAsync(user.TelegramID,Config.TextUpVideo);
-                    Session.Bot?.SendVideoAsync(user.TelegramID, "BAADAgADIQADLiR6DtDX7_XxczQ5Ag");
+                    Session.Bot?.SendVideoAsync(user.TelegramID, "BAADAgADQAADLiR6DqVNPQgJAvFTAg");
                     Session.Bot?.SendTextMessageAsync(user.TelegramID, Config.TextDownVideo);
                     break;
                 case Config.MenuList.WhereReferals:
