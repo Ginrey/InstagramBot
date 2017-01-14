@@ -9,42 +9,54 @@ namespace InstagramBot.Net.Packets
     public class OnWaitUrl : IActionPacket
     {
         public Session Session { get; set; }
+
         public async void Serialize(ActionBot user, StateEventArgs e)
         {
-            var keyboard = new InlineKeyboardMarkup(new[]
+            try
             {
-                new InlineKeyboardButton("Да","/Yes"),
-                new InlineKeyboardButton("Нет", "/No")
-            });
-           await Session.Bot?.SendTextMessageAsync(user.TelegramID, "Это ваш аккаунт?\nhttp://instagram.com/" + user.Account.Referal, replyMarkup : keyboard);
+                var keyboard = new InlineKeyboardMarkup(new[]
+                {
+                    new InlineKeyboardButton("Да", "/Yes"),
+                    new InlineKeyboardButton("Нет", "/No")
+                });
+                await
+                    Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                        "Это ваш аккаунт?\nhttp://instagram.com/" + user.Account.Referal, replyMarkup: keyboard);
+            }catch(Exception ex) { }
         }
+
         public async void Deserialize(ActionBot user, StateEventArgs e)
         {
-            if (e.Message.Text.StartsWith("/Yes"))
-            {
-                if (!Session.MySql.IsPresentLicense(user.Account.Uid))
+            try {
+                if (e.Message.Text.StartsWith("/Yes"))
                 {
-                    if (user.Account.Following - 100 < 0 || user.Account.Posts - 50 < 0)
+                    if (!Session.MySql.IsPresentLicense(user.Account.Uid))
                     {
-                        await Session.Bot?.SendTextMessageAsync(user.TelegramID,
-                            "Чтобы пользоваться сервисом вам необходимо еще " +
-                            $"{(100 - user.Account.Following < 0 ? 0 : 100 - user.Account.Following)} подписчиков и {(50 - user.Account.Posts < 0 ? 50 : 50 - user.Account.Posts)} публикаций");
-                        Console.WriteLine("[{0}] {1} Не прошел по критериям", DateTime.Now, user.Account.Referal);
-                        System.IO.File.AppendAllText(@"notRegistering.txt", $"{user.TelegramID}-{user.Account.Referal}\n");
+                        if (user.Account.Following - 70 < 0 || user.Account.Posts - 30 < 0)
+                        {
+
+                            await Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                                "Чтобы пользоваться сервисом вам необходимо еще " +
+                                $"{(70 - user.Account.Following < 0 ? 0 : 70 - user.Account.Following)} подписчиков и {(30 - user.Account.Posts < 0 ? 0 : 30 - user.Account.Posts)} публикаций");
+                            Console.WriteLine("[{0}] {1} Не прошел по критериям", DateTime.Now, user.Account.Referal);
+                            System.IO.File.AppendAllText(@"notRegistering.txt",
+                                $"{user.TelegramId}-{user.Account.Referal}\n");
+                        }
+                        else
+                        {
+                            Console.WriteLine("[{0}] {1} Подтвердил свой аккаунт", DateTime.Now, user.Account.Referal);
+                            user.SetState(States.WaitUrlFrom);
+                        }
                     }
                     else
-                    {
-                        Console.WriteLine("[{0}] {1} Подтвердил свой аккаунт", DateTime.Now, user.Account.Referal);
-                        user.State++;
-                    }
+                        await Session.Bot?.SendTextMessageAsync(user.TelegramId, "Данный аккаунт уже зарегистрирован");
                 }
                 else
-                   await Session.Bot?.SendTextMessageAsync(user.TelegramID, "Данный аккаунт уже зарегистрирован");
+                {
+                    user.SetState(States.Registering);
+                }
             }
-            else
-            {
-                user.State = States.Registering;
-            }
+            catch (Exception ex) { }
         }
     }
 }

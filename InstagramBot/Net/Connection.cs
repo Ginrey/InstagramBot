@@ -42,18 +42,19 @@ namespace InstagramBot.Net
         private void OnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             var message = messageEventArgs.Message;
+       
             if (message.Type == MessageType.TextMessage)
             {
                 if (message.Text.StartsWith("/start"))
                 {
+                    if (Session.BlackList.Contains(message.Chat.Id)) return;
+                        Session.BlackList.Add(message.Chat.Id);
                     string[] lines = message.Text.Split();
                     string fromreferal = lines.Length == 2 ? lines[1] : "";
-                    // if (!Users.ContainsKey(message.Chat.Id))
-                    {
                         long id = message.Chat.Id;
-                        Users[id] = new ActionBot(id, Session, GetLicenseState(id), fromreferal);
-                    }
-                    return;
+                    var state = GetLicenseState(id);
+                    Users[id] = new ActionBot(id, Session, GetLicenseState(id), fromreferal);
+                    Users[id].SetState(state);
                 }
                 else
                 {
@@ -62,18 +63,18 @@ namespace InstagramBot.Net
                     if (Users.ContainsKey(id))
                     {
                         user = Users[message.Chat.Id];
+                        user.NextStep(message);
                     }
                     else
                     {
-                        Users[id] = new ActionBot(id, Session, GetLicenseState(id), "");
+                        var state = GetLicenseState(id);
+                        Users[id] = new ActionBot(id, Session, state, "");
+                        Users[id].SetState(state);
                         user = Users[message.Chat.Id];
                     }
-                    user.NextStep(message);
+                  //  user.NextStep(message);
                     return;
                 }
-               /* if (!Users.ContainsKey(message.Chat.Id)) return;
-                var user = Users[message.Chat.Id];
-                user.NextStep(message);*/
             }
         }
 

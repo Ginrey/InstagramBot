@@ -58,15 +58,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Accounts\AccountInstagram.cs" />
+    <Compile Include="Data\Accounts\AdditionInfo.cs" />
     <Compile Include="Data\Accounts\FullInfo.cs" />
     <Compile Include="Data\Accounts\ActionBot.cs" />
     <Compile Include="Data\Accounts\StructInfo.cs" />
+    <Compile Include="Data\BlackList.cs" />
     <Compile Include="Data\Config.cs" />
     <Compile Include="Data\SQL\Database.cs" />
     <Compile Include="Data\SQL\MySqlDatabase.cs" />
     <Compile Include="Data\StateEventArgs.cs" />
     <Compile Include="Data\States.cs" />
     <Compile Include="Data\UnixTime.cs" />
+    <Compile Include="IO\Language.cs" />
     <Compile Include="Net\IActionPacket.cs" />
     <Compile Include="Net\Connection.cs" />
     <Compile Include="Net\PacketsRegistry.cs" />

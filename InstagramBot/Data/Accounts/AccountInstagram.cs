@@ -8,6 +8,7 @@
         public long FromReferalId { get; set; }
         public string FromReferal { get; set; }
         public long ToReferalId { get; set; }
+        public long TempReferalId { get; set; }
         public int Posts { get; set; }
         public int Folowers { get; set; }
         public int Following { get; set; }

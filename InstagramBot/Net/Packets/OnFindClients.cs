@@ -9,20 +9,29 @@ namespace InstagramBot.Net.Packets
 
       public  void Deserialize(ActionBot user, StateEventArgs e)
       {
-          string referal = e.Message.Text;
-          if (string.IsNullOrEmpty(referal) || referal.Length > 40)
+          try
           {
-              Session.Bot?.SendTextMessageAsync(user.TelegramID, "Неверные данные");
-                return;
-          }
-          string present = Session.MySql.IsPresentReferal(referal) ? "уже" : "не";
-          Session.Bot?.SendTextMessageAsync(user.TelegramID, "Данный человек " + present + " использует данный сервис");
-          user.State = States.OnAlreadyUsing;
+              string referal = e.Message.Text;
+              if (string.IsNullOrEmpty(referal) || referal.Length > 40)
+              {
+                  Session.Bot?.SendTextMessageAsync(user.TelegramId, "Неверные данные");
+                  return;
+              }
+              string present = Session.MySql.IsPresentReferal(referal) ? "уже" : "не";
+              Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                  "Данный человек " + present + " использует данный сервис");
+              user.State = States.OnAlreadyUsing;
+            }
+            catch { }
       }
 
       public  void Serialize(ActionBot user, StateEventArgs e)
       {
-          Session.Bot?.SendTextMessageAsync(user.TelegramID, "Введите ник человека");
+          try
+          {
+              Session.Bot?.SendTextMessageAsync(user.TelegramId, "Введите ник человека");
+            }
+            catch { }
       }
     }
 }

@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading;
+using System.Threading.Tasks;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Data.SQL
 {
     public class MySqlDatabase : Database
     {
-        public static SqlConnection MySqlConnection { get; set; }
+        public SqlConnection MySqlConnection { get; set; }
+
+        SqlDataReader reader;
 
         public MySqlDatabase(string connectionString)
         {
@@ -25,7 +28,7 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("State", SqlDbType.Int) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("GetLicenseState", args);
-            if (args[1].Value == DBNull.Value)
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 state = States.SelectLanguage;
                 return false;
@@ -42,7 +45,7 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("GetCountFollows", args);
-            if (args[1].Value == DBNull.Value)
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 count = 0;
                 return false;
@@ -54,21 +57,21 @@ namespace InstagramBot.Data.SQL
         public override bool GetRedList(long uid, out List<string> list)
         {
             var args = new[]
-           {
+            {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
                 new SqlParameter("Red1", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output},
-                 new SqlParameter("Red2", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output},
-                  new SqlParameter("Red3", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
+                new SqlParameter("Red2", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output},
+                new SqlParameter("Red3", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("GetRedList", args);
             list = new List<string>();
-            if (args[1].Value == DBNull.Value)
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 return false;
             }
-            list.Add((string)args[1].Value);
-            list.Add((string)args[2].Value);
-            list.Add((string)args[3].Value);
+            list.Add((string) args[1].Value);
+            list.Add((string) args[2].Value);
+            list.Add((string) args[3].Value);
             return result;
         }
 
@@ -80,7 +83,7 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("Referal", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
             };
             bool result = CallFunction("GetReferal", args);
-            if (args[1].Value == DBNull.Value)
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 referal = "";
                 return false;
@@ -97,14 +100,15 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("Referal", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
             };
             bool result = CallFunction("GetReferalByTelegramId", args);
-            if (args[1].Value == DBNull.Value)
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 referal = "";
                 return false;
             }
-            referal = (string)args[1].Value;
+            referal = (string) args[1].Value;
             return result;
         }
+
         public override bool GetTelegramId(long uid, out long telegramId)
         {
             var args = new[]
@@ -113,14 +117,15 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("TelegramID", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
             };
             bool result = CallFunction("GetTelegramID", args);
-            if (args[1].Value == DBNull.Value)
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 telegramId = 0;
                 return false;
             }
-            telegramId = (long)args[1].Value;
+            telegramId = (long) args[1].Value;
             return result;
         }
+
         public override bool GetFromReferalId(long uid, out long referalId)
         {
             var args = new[]
@@ -129,7 +134,7 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("ReferalId", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
             };
             bool result = CallFunction("GetFromReferalId", args);
-            if (args[1].Value == DBNull.Value)
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 referalId = 0;
                 return false;
@@ -138,31 +143,44 @@ namespace InstagramBot.Data.SQL
             return result;
         }
 
+        Random random = new Random();
+
         public override List<string> GetPriorityList(int priority)
         {
-            lock (MySqlConnection)
+            List<string> list = new List<string>();
+            using (
+                var command =
+                    new SqlCommand(
+                        "select PriorityLevels.Referal from PriorityLevels where PriorityLevels.Priority = " +
+                        priority, MySqlConnection))
             {
-                List<string> list = new List<string>();
-                using (
-                    var command =
-                        new SqlCommand(
-                            "select PriorityLevels.Referal from PriorityLevels where PriorityLevels.Priority = " +
-                            priority, MySqlConnection))
+                command.CommandType = CommandType.Text;
+                lock (start)
                 {
-                    command.CommandType = CommandType.Text;
-                    var reader = command.ExecuteReader();
+                    reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        list.Add(reader["Referal"].ToString());
+                        string referal = reader["Referal"].ToString();
+                        int j = random.Next(list.Count + 1);
+                        if (j == list.Count)
+                        {
+                            list.Add(referal);
+                        }
+                        else
+                        {
+                            list.Add(list[j]);
+                            list[j] = referal;
+                        }
                     }
                     reader.Close();
                 }
-                return list;
             }
+            return list;
         }
+
         public override List<StructInfo> GetStructInfo(long fromId)
         {
-            lock (MySqlConnection)
+            lock (reader)
             {
                 List<StructInfo> list = new List<StructInfo>();
                 using (
@@ -172,21 +190,22 @@ namespace InstagramBot.Data.SQL
                             fromId, MySqlConnection))
                 {
                     command.CommandType = CommandType.Text;
-                    var reader = command.ExecuteReader();
+                    reader = command.ExecuteReader();
+
                     while (reader.Read())
                     {
                         list.Add(new StructInfo
                         {
                             Referal = reader["Referal"].ToString(),
-                            States = (States)reader["State"],
-                            Status = (bool)reader["Status"]
+                            States = (States) reader["State"],
+                            Status = (bool) reader["Status"]
                         });
                     }
                     reader.Close();
                 }
-                return list;
-            }
+            return list;
         }
+    }
 
         public List<long> GetTelegrams()
         {
@@ -199,10 +218,10 @@ namespace InstagramBot.Data.SQL
                             "select Accounts.TelegramID from Accounts", MySqlConnection))
                 {
                     command.CommandType = CommandType.Text;
-                    var reader = command.ExecuteReader();
+                    reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        list.Add((long)reader["TelegramID"]);
+                        list.Add((long) reader["TelegramID"]);
                     }
                     reader.Close();
                 }
@@ -219,7 +238,16 @@ namespace InstagramBot.Data.SQL
             GetReferal(referalId, out referal);
             return true;
         }
-        public override bool InsertNewAccount(long pid, string referal,long telegramiD, long fromReferal, States state, DateTime date)
+
+        public bool GetTreeFollow(long uid, out long referalId, out string referal)
+        {
+            GetFromReferalId(uid, out referalId);
+            GetReferal(referalId, out referal);
+            return true;
+        }
+
+        public override bool InsertNewAccount(long pid, string referal, long telegramiD, long fromReferal, States state,
+            DateTime date)
         {
             var args = new[]
             {
@@ -233,10 +261,11 @@ namespace InstagramBot.Data.SQL
             var result = CallFunction("InsertNewAccount", args);
             return result;
         }
+
         public override bool InsertRedList(long pid, string red1, string red2, string red3)
         {
             var args = new[]
-          {
+            {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = pid},
                 new SqlParameter("Red1", SqlDbType.VarChar, 50) {Value = red1},
                 new SqlParameter("Red2", SqlDbType.VarChar, 50) {Value = red2},
@@ -276,11 +305,11 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("Status", SqlDbType.Bit) {Direction = ParameterDirection.Output}
             };
             CallFunction("IsLicenseStart", args);
-            if (args[1].Value == DBNull.Value)
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 return false;
             }
-            return (bool)args[1].Value;
+            return (bool) args[1].Value;
         }
 
         public override bool UpdateStatus(long uid, bool status)
@@ -303,27 +332,42 @@ namespace InstagramBot.Data.SQL
             return CallFunction("UpdateCountFollows", args);
         }
 
+        object start = new object();
+
         public bool CallFunction(string functionName, params SqlParameter[] parameters)
         {
             if (MySqlConnection.State != ConnectionState.Open)
             {
                 Connect();
             }
-            using (var command = new SqlCommand(functionName, MySqlConnection))
+            lock (start)
             {
-                command.CommandType = CommandType.StoredProcedure;
+                try
+                {
+                    using (var command = new SqlCommand(functionName, MySqlConnection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
 
-                command.Parameters.AddRange(parameters);
-                return command.ExecuteNonQuery() != 0;
+                        command.Parameters.AddRange(parameters);
+                        return command.ExecuteNonQuery() != 0;
+                    }
+                }
+                catch
+                {
+                    MySqlConnection = new SqlConnection(MySqlConnection.ConnectionString);
+                    Connect();
+                    return false;
+                }
             }
         }
+
         public void Connect()
         {
-            lock (MySqlConnection)
+            // lock (MySqlConnection)
             {
-                while (MySqlConnection.State == ConnectionState.Connecting)
+                //  while (MySqlConnection.State == ConnectionState.Connecting)
                 {
-                    Thread.Sleep(10);
+                    // Thread.Sleep(10);
                 }
                 if (MySqlConnection.State == ConnectionState.Open)
                 {

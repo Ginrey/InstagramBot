@@ -1,40 +1,41 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Web
 {
    public class WebInstagram : Authorization
     {
-        public WebInstagram(string login = "", string password = "") : base(login,password)
+        public WebInstagram(string login = "", string password = "", string proxy = "", string domainpassword = "") : base(login,password, proxy, domainpassword)
         {
             Auth();
         }
-        public async Task<FollowedUser> GetListFollowing(string referal)
+        public  FollowedUser GetListFollowing(string referal)
         {
-            return await GetFollowingListById((await GetAccount(referal)).Uid);
+            return  GetFollowingListById(( GetAccount(referal)).Uid);
         }
-        public async Task<FollowedUser> GetListFollows(string referal)
+        public  FollowedUser GetListFollows(string referal)
         {
-            var acc = await GetAccount(referal);
+            var acc =  GetAccount(referal);
             if (acc == null) return null;
-            return await GetFollowsListById(acc.Uid);
+            return  GetFollowsListById(acc.Uid);
         }
-        public async Task<UserInfo> GetUser(string referal)
+        public UserInfo GetUser(string referal)
         {
             try
             {
-                return await GetUserFromUrl("https://www.instagram.com/" + referal + "/?__a=1");
+                if (referal.Any(wordByte => wordByte > 127) || referal.Contains(' ') || referal.Contains("/"))  return new UserInfo();
+                return  GetUserFromUrl("https://www.instagram.com/" + referal + "/?__a=1");
             }
             catch
             {
                 return new UserInfo();
             }
         }
-        public async Task<AccountInstagram> GetAccount(string referal)
+        public AccountInstagram GetAccount(string referal)
         {
             try
             {
-                User userInfo = (await GetUser(referal)).user;
+                User userInfo =  GetUser(referal).user;
                 if (string.IsNullOrEmpty(userInfo?.id)) return null;
                 return new AccountInstagram
                 {

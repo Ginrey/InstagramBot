@@ -1,4 +1,7 @@
-﻿using InstagramBot.Data.SQL;
+﻿using System;
+using System.Collections.Generic;
+using InstagramBot.Data;
+using InstagramBot.Data.SQL;
 using InstagramBot.Net;
 using InstagramBot.Net.Web;
 using Telegram.Bot;
@@ -8,17 +11,47 @@ namespace InstagramBot
     public class Session
     {
         public Connection Connection { get; }
-        public MySqlDatabase MySql { get; set; }
+        public BlackList BlackList = new BlackList();
+        List<MySqlDatabase> listsql = new List<MySqlDatabase>();
+        int indexSql = 0, indexWeb = 0;
+
+        public MySqlDatabase MySql
+        {
+            get
+            {
+                indexSql++;
+                if (indexSql == listsql.Count - 1) indexSql = 0;
+                return listsql[indexSql];
+            }
+        }
+
         public TelegramBotClient Bot { get; set; }
-        public WebInstagram WebInstagram { get; set; }
+        public WebInstagram WebInstagram
+        {
+            get
+            {
+                indexWeb++;
+                if (indexWeb > ListWebInstagram.Count - 1) indexWeb = 0;
+                return ListWebInstagram[indexWeb];
+            }
+        }
+      
+        public List<WebInstagram> ListWebInstagram { get; set; }
         string Token { get; }
         bool Started { get; set; }
+        
         public Session(string token = "")
         {
             Token = token;
             if (!string.IsNullOrEmpty(Token)) Bot = new TelegramBotClient(Token);
-            MySql = new MySqlDatabase("SERVER=DESKTOP-VBFBI8T;DATABASE=Instagram_DB;Trusted_Connection=True");
-            Connection = new Connection(this);
+            for (int i = 0; i < 100; i++)
+            {
+                //DESKTOP-VBFBI8T
+                //WIN-344VU98D3RU\\SQLEXPRESS
+                listsql.Add(new MySqlDatabase("SERVER=WIN-344VU98D3RU\\SQLEXPRESS;DATABASE=Instagram_DB;Trusted_Connection=True"));
+                listsql[i].Connect();
+            }
+           Connection = new Connection(this);
         }
 
         public void Start()
