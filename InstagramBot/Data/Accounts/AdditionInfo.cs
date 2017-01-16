@@ -11,6 +11,7 @@ namespace InstagramBot.Data.Accounts
         public void AddLink(string text)
         {
             text = text.ToLower();
+            if(ListForLink.Count < 9)
             if (!ListForLink.ContainsKey(text))
                 ListForLink.Add(text, false);
         }

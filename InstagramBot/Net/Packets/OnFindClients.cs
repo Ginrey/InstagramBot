@@ -14,24 +14,31 @@ namespace InstagramBot.Net.Packets
               string referal = e.Message.Text;
               if (string.IsNullOrEmpty(referal) || referal.Length > 40)
               {
-                  Session.Bot?.SendTextMessageAsync(user.TelegramId, "Неверные данные");
+                  Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                      string.Format(Session.Language.Get(user.Language, "ofc_invalid_data")));
                   return;
               }
-              string present = Session.MySql.IsPresentReferal(referal) ? "уже" : "не";
               Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                  "Данный человек " + present + " использует данный сервис");
+                  Session.MySql.IsPresentReferal(referal)
+                      ? string.Format(Session.Language.Get(user.Language, "ofc_already_used"))
+                      : string.Format(Session.Language.Get(user.Language, "ofc_not_used")));
               user.State = States.OnAlreadyUsing;
-            }
-            catch { }
+          }
+          catch
+          {
+          }
       }
 
       public  void Serialize(ActionBot user, StateEventArgs e)
       {
           try
           {
-              Session.Bot?.SendTextMessageAsync(user.TelegramId, "Введите ник человека");
-            }
-            catch { }
+              Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                  string.Format(Session.Language.Get(user.Language, "ofc_enter_username")));
+          }
+          catch
+          {
+          }
       }
     }
 }

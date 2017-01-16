@@ -13,20 +13,21 @@ namespace InstagramBot.Net.Packets
     {
         public Session Session { get; set; }
        
-        public async void Serialize(ActionBot user, StateEventArgs e)
+        public void Serialize(ActionBot user, StateEventArgs e)
         {
             try { 
             string referal;
             if (user.Account != null) return;
             if (Session.MySql.GetReferalByTelegramId(user.TelegramId, out referal))
             {
-                user.Account =   Session.WebInstagram.GetAccount(referal);
+                user.Account = Session.WebInstagram.GetAccount(referal);
 
                 if (user.Account == null)
-                   await Session.Bot?.SendTextMessageAsync(user.TelegramId, "Не удалось войти, повторите попытку");
-                else
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                                string.Format(Session.Language.Get(user.Language, "oau_login_failed")));
+                    else
                 {
-                    Console.WriteLine("[{0}] {1} Заходит на аккаунт", DateTime.Now, user.Account.Referal);
+                    Console.WriteLine("[{0}] {1} Enter to account", DateTime.Now, user.Account.Referal);
                     ShowMainMenu(user);
                 }
                 }
@@ -34,47 +35,43 @@ namespace InstagramBot.Net.Packets
             catch (Exception ex) { }
         }
 
-        public async void Deserialize(ActionBot user, StateEventArgs e)
+        public void Deserialize(ActionBot user, StateEventArgs e)
         {
             try
             {
                 if (string.IsNullOrEmpty(e.Message.Text) || user.Account == null) return;
-                switch (e.Message.Text)
+                string command = Session.Language.GetReverse(user.Language, e.Message.Text);
+                switch (command)
                 {
                     case Config.MenuList.ReferalUrl:
-                    case "/get_referal":
-                        await Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                            "При регистрации, реферал может использовать ваш ник в Instagram\n" +
-                            "Реферальная ссылка:");
-                        await Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            string.Format(Session.Language.Get(user.Language, "oau_signing_up")));
+                         Session.Bot?.SendTextMessageAsync(user.TelegramId,
                             "t.me/scs110100bot?start=" + user.Account.Referal);
                         break;
                     case Config.MenuList.MyReferals:
-                    case "/count_follows":
                         int count;
                         Session.MySql.GetCountFollows(user.Account.Uid, out count);
-
-                        await
-                            Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                                "Количество людей зарегистрированных по вашей ссылке: " + count +
-                                "\nПрограмма min = "+ (count < 2 ? count : 2));
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                           string.Format(Session.Language.Get(user.Language, Config.MenuList.ReferalUrl)));
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId, 
+                            string.Format(Session.Language.Get(user.Language, "oau_signing_up"), count, count < 2 ? count : 2));
                         break;
                     case Config.MenuList.MyListUsers:
                         ShowStruct(user, false);
                         break;
                     case Config.MenuList.MyPrivateFollows:
-                    case "/need_follows":
                         ShowMyRedList(user);
                         break;
+
                     case Config.MenuList.Order:
-                    case "/order":
-                        await Session.Bot?.SendTextMessageAsync(user.TelegramId, Config.Order);
+                         Session.Bot?.SendTextMessageAsync(user.TelegramId, Config.Order(user.Language));
                         break;
                     case Config.MenuList.PrivateOffice:
                         ShowLK(user);
                         break;
                     case Config.MenuList.BackToMenu:
-                        ShowMainMenu(user, "⬇ Главное меню ⬇");
+                        ShowMainMenu(user, Config.MenuList.MainMenu);
                         break;
                     case Config.MenuList.Status:
                         ShowStatus(user);
@@ -83,26 +80,29 @@ namespace InstagramBot.Net.Packets
                         ShowStruct(user, true);
                         break;
                     case Config.MenuList.CheckUsersOnInstagram:
-                        user.SetState(States.OnFindClients);
+                        user.State = States.OnFindClients;
                         break;
                     case Config.MenuList.PromoMaterials:
-                        await Session.Bot?.SendTextMessageAsync(user.TelegramId, Config.TextUpVideo);
-                        await Session.Bot?.SendVideoAsync(user.TelegramId, "BAADAgADbAADLiR6DvSBzS8xagy0Ag");
-                        await Session.Bot?.SendTextMessageAsync(user.TelegramId, Config.TextDownVideo);
+                         Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "promo_1"));
+                        FileToSend video = new FileToSend("BAADAgADcAADLiR6DtKW-1XLqIZ_Ag");
+                         Session.Bot?.SendVideoAsync(user.TelegramId, video);
+                         Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "promo_2"));
                         break;
                     case Config.MenuList.WhereReferals:
-                        await Session.Bot?.SendVideoAsync(user.TelegramId, "BAADAgADLwADLiR6DhSg_EdEBaRkAg");
+                         Session.Bot?.SendTextMessageAsync(user.TelegramId, "https://youtu.be/nWdoU7e1OxU");
                         break;
 
                     case Config.MenuList.HowMachUsers:
                         if (!adminList.Contains(user.TelegramId)) return;
                         var list = Session.MySql.GetTelegrams();
-                        await Session.Bot?.SendTextMessageAsync(user.TelegramId, "Всего пользователей: " + list.Count);
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            string.Format(Session.Language.Get(user.Language, "oau_all_users"), list.Count));
+
                         break;
                     case "1111qqqqaaal344asdw":
                         var list3 = Session.MySql.GetTelegrams();
                         foreach(var v in list3)
-                            await Session.Bot?.SendTextMessageAsync(v, @"ИТОГИ 1 ДНЯ РАБОТЫ scs110100bot
+                             Session.Bot?.SendTextMessageAsync(v, @"ИТОГИ 1 ДНЯ РАБОТЫ scs110100bot
 Обращение к пользователям автора проекта Ильи Столбова(100LBOV)
 https://youtu.be/Zv70LJ8nLFM");
                         break;
@@ -121,8 +121,11 @@ https://youtu.be/Zv70LJ8nLFM");
         };
         void ShowStatus(ActionBot user)
         {
-            string status = Session.MySql.IsLicenseStart(user.Account.Uid) ? "РОСТ" : "СТАРТ";
-            Session.Bot?.SendTextMessageAsync(user.TelegramId, " Ваш статус: "+status);
+            string status = Session.MySql.IsLicenseStart(user.Account.Uid) ? 
+                Session.Language.Get(user.Language, "status_growth") : 
+                Session.Language.Get(user.Language, "status_start");
+            Session.Bot?.SendTextMessageAsync(user.TelegramId, 
+                string.Format(Session.Language.Get(user.Language, "oau_your_status"), status));
         }
 
         void ShowStruct(ActionBot user, bool isStruct)
@@ -130,7 +133,7 @@ https://youtu.be/Zv70LJ8nLFM");
             int count;
             var list = Session.MySql.GetStructInfo(user.Account.Uid);
             int lineCount = 0, stateRost = 0, stateStart = 0, blocked = 0;
-            string myreferals = "Список приглашенных людей:\n";
+            string myreferals = Session.Language.Get(user.Language, "oau_invite_list");
             foreach(var i in list)
             {
                 if (i.States == States.Blocked) blocked++;
@@ -141,10 +144,8 @@ https://youtu.be/Zv70LJ8nLFM");
             if (isStruct)
             {
                 Session.MySql.GetCountFollows(user.Account.Uid, out count);
-                Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    $"Ваша структура: \nобщее колличество рефералов = {+list.Count} \n" +
-                    $"из них: \n Линия РОСТа = {stateRost}\n в статусе СТАРТ = {stateStart} \n" +
-                    $" заблокированных = {blocked}");
+               Session.Bot?.SendTextMessageAsync(user.TelegramId,
+               string.Format(Session.Language.Get(user.Language, "oau_your_structure"), list.Count, stateRost, stateStart, blocked));
             }
             else
                 Session.Bot?.SendTextMessageAsync(user.TelegramId, myreferals);
@@ -153,12 +154,12 @@ https://youtu.be/Zv70LJ8nLFM");
         {
             List<string> redlist;
             Session.MySql.GetRedList(user.Account.Uid, out redlist);
-            string text = redlist.Aggregate("", (current, t) => current + (t + "\n"));
+            string text = redlist.Aggregate("", (current, t) => current + t + "\n");
             Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                " REDLIST(мои личные подписки):\n" + text);
+                string.Format(Session.Language.Get(user.Language, "oau_redlist"), text));
         }
 
-        void ShowMainMenu(ActionBot user, string text= "Вход успешно выполнен")
+        void ShowMainMenu(ActionBot user, string text = Config.MenuList.CompleteEnter)
         {
             ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup(new[]
                {
@@ -174,27 +175,26 @@ https://youtu.be/Zv70LJ8nLFM");
         {
             ReplyKeyboardMarkup keyboard = adminList.Contains(user.TelegramId)? new ReplyKeyboardMarkup(new[]
                {
-                    new[] {new KeyboardButton(Config.MenuList.MyReferals) },
-                     new[] {new KeyboardButton(Config.MenuList.MyListUsers) },
-                    new[] {new KeyboardButton(Config.MenuList.MyPrivateFollows) },
-                    new[] {new KeyboardButton(Config.MenuList.Status) },
-                    new[] {new KeyboardButton(Config.MenuList.Struct) },
-                    new[] {new KeyboardButton(Config.MenuList.HowMachUsers) },
-                     new[] {new KeyboardButton(Config.MenuList.CheckUsersOnInstagram) },
-                    
-                    new[] {new KeyboardButton(Config.MenuList.BackToMenu) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyReferals)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyListUsers)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyPrivateFollows)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.Status)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.Struct)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.HowMachUsers)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.CheckUsersOnInstagram)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.BackToMenu)) },
                 }) :
                 new ReplyKeyboardMarkup(new[]
                {
-                    new[] {new KeyboardButton(Config.MenuList.MyReferals) },
-                    new[] {new KeyboardButton(Config.MenuList.MyListUsers) },
-                    new[] {new KeyboardButton(Config.MenuList.MyPrivateFollows) },
-                    new[] {new KeyboardButton(Config.MenuList.Status) },
-                    new[] {new KeyboardButton(Config.MenuList.Struct) },
-                     new[] {new KeyboardButton(Config.MenuList.CheckUsersOnInstagram) },
-                    new[] {new KeyboardButton(Config.MenuList.BackToMenu) },
+                      new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyReferals)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyListUsers)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyPrivateFollows)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.Status)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.Struct)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.CheckUsersOnInstagram)) },
+                    new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.BackToMenu)) },
                 });
-            Session.Bot?.SendTextMessageAsync(user.TelegramId, "⬇ Личный кабинет ⬇", replyMarkup: keyboard);
+            Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, Config.MenuList.LK), replyMarkup: keyboard);
            
         }
     }

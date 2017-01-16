@@ -28,11 +28,13 @@ namespace InstagramBot.Net.Packets
             //todo выбор языков
            if(e.Message.Text.Contains("/Russian"))
            {
-               user.SetState(States.Registering);
+               user.Language = IO.Language.Russian;
+               user.State = States.Registering;
            }
             if (e.Message.Text.Contains("/English"))
             {
-                user.SetState(States.Registering);
+                user.Language = IO.Language.English;
+                user.State = States.Registering;
             }
         }
     }

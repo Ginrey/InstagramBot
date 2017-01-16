@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Threading;
-using System.Threading.Tasks;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Data.SQL
@@ -56,22 +54,22 @@ namespace InstagramBot.Data.SQL
 
         public override bool GetRedList(long uid, out List<string> list)
         {
-            var args = new[]
+            List<SqlParameter> args = new List<SqlParameter>();
+            args.Add(new SqlParameter("ID", SqlDbType.BigInt) { Value = uid });
+            for (int i = 0; i < 9; i++)
             {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("Red1", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output},
-                new SqlParameter("Red2", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output},
-                new SqlParameter("Red3", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
-            };
-            var result = CallFunction("GetRedList", args);
+                args.Add(new SqlParameter("Red" + (i + 1), SqlDbType.VarChar, 50) { Direction = ParameterDirection.Output });
+            }
+            var result = CallFunction("GetRedList", args.ToArray());
+
             list = new List<string>();
             if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 return false;
             }
-            list.Add((string) args[1].Value);
-            list.Add((string) args[2].Value);
-            list.Add((string) args[3].Value);
+            for (int i = 1; i <= 9; i++)
+                if(args[i].Value != DBNull.Value && args[i].Value != null)
+                list.Add((string)args[i].Value);
             return result;
         }
 
@@ -123,6 +121,23 @@ namespace InstagramBot.Data.SQL
                 return false;
             }
             telegramId = (long) args[1].Value;
+            return result;
+        }
+
+        public bool GetLanguage(long uid, out int lang)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("Language", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            bool result = CallFunction("GetLanguage", args);
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            {
+                lang = 0;
+                return false;
+            }
+            lang = (int)args[1].Value;
             return result;
         }
 
@@ -180,7 +195,7 @@ namespace InstagramBot.Data.SQL
 
         public override List<StructInfo> GetStructInfo(long fromId)
         {
-            lock (reader)
+            lock (start)
             {
                 List<StructInfo> list = new List<StructInfo>();
                 using (
@@ -262,16 +277,16 @@ namespace InstagramBot.Data.SQL
             return result;
         }
 
-        public override bool InsertRedList(long pid, string red1, string red2, string red3)
+        public override bool InsertRedList(long pid, params string[] reds)
         {
-            var args = new[]
+            List<SqlParameter> parameters = new List<SqlParameter>();
+            parameters.Add(new SqlParameter("ID", SqlDbType.BigInt) {Value = pid});
+            for(int i = 0; i < reds.Length; i++)
             {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = pid},
-                new SqlParameter("Red1", SqlDbType.VarChar, 50) {Value = red1},
-                new SqlParameter("Red2", SqlDbType.VarChar, 50) {Value = red2},
-                new SqlParameter("Red3", SqlDbType.VarChar, 50) {Value = red3}
-            };
-            var result = CallFunction("InsertRedList", args);
+                parameters.Add(new SqlParameter("Red" + (i+1), SqlDbType.VarChar, 50) {Value = reds[i]});
+            }
+           
+            var result = CallFunction("InsertRedList", parameters.ToArray());
             return result;
         }
 
@@ -333,6 +348,8 @@ namespace InstagramBot.Data.SQL
         }
 
         object start = new object();
+        public bool isWork
+        { get; set; }
 
         public bool CallFunction(string functionName, params SqlParameter[] parameters)
         {
@@ -340,24 +357,25 @@ namespace InstagramBot.Data.SQL
             {
                 Connect();
             }
-            lock (start)
+            try
             {
-                try
+                lock (start)
                 {
                     using (var command = new SqlCommand(functionName, MySqlConnection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
-
                         command.Parameters.AddRange(parameters);
                         return command.ExecuteNonQuery() != 0;
                     }
                 }
-                catch
-                {
-                    MySqlConnection = new SqlConnection(MySqlConnection.ConnectionString);
-                    Connect();
-                    return false;
-                }
+            }
+            catch
+            {
+                Console.WriteLine("Reconnect");
+                isWork = false;
+                //MySqlConnection = new SqlConnection(MySqlConnection.ConnectionString);
+                //Connect();
+                return false;
             }
         }
 
@@ -374,6 +392,7 @@ namespace InstagramBot.Data.SQL
                     return;
                 }
                 MySqlConnection.Open();
+                isWork = true;
             }
         }
     }

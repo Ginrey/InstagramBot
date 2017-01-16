@@ -13,7 +13,7 @@ namespace InstagramBot.Net.Packets
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            Session.Bot?.SendTextMessageAsync(user.TelegramId, "Вы заблокированы на этом сервисе");
+            Session.Bot?.SendTextMessageAsync(user.TelegramId,string.Format(Session.Language.Get(user.Language, "ob_banned")));    
         }
     }
 }

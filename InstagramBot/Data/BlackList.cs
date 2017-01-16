@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Net;
 using System.Threading;
 
 namespace InstagramBot.Data
@@ -12,11 +11,11 @@ namespace InstagramBot.Data
         {
             lock (List)
             {
-                if (state != null && !List.ContainsKey(state))
+                if (!List.ContainsKey(state))
                 {
                     ActionTimer tmr = new ActionTimer(Delete, state);
                     List.Add(state, tmr);
-                    tmr.Start(5000, -1);
+                    tmr.Start(3500, -1);
                 }
             }
         }

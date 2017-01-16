@@ -10,7 +10,7 @@ namespace InstagramBot.Net.Packets
     {
         public Session Session { get; set; }
 
-        public async void Serialize(ActionBot user, StateEventArgs e)
+        public void Serialize(ActionBot user, StateEventArgs e)
         {
             try
             {
@@ -19,44 +19,50 @@ namespace InstagramBot.Net.Packets
                     new InlineKeyboardButton("Да", "/Yes"),
                     new InlineKeyboardButton("Нет", "/No")
                 });
-                await
-                    Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                        "Это ваш аккаунт?\nhttp://instagram.com/" + user.Account.Referal, replyMarkup: keyboard);
-            }catch(Exception ex) { }
+                Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                    string.Format(Session.Language.Get(user.Language, "owu_it_is_you"), user.Account.Referal));
+            }
+            catch (Exception ex)
+            {
+            }
         }
 
-        public async void Deserialize(ActionBot user, StateEventArgs e)
+        public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            try {
+            try
+            {
                 if (e.Message.Text.StartsWith("/Yes"))
                 {
                     if (!Session.MySql.IsPresentLicense(user.Account.Uid))
                     {
                         if (user.Account.Following - 70 < 0 || user.Account.Posts - 30 < 0)
                         {
-
-                            await Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                                "Чтобы пользоваться сервисом вам необходимо еще " +
-                                $"{(70 - user.Account.Following < 0 ? 0 : 70 - user.Account.Following)} подписчиков и {(30 - user.Account.Posts < 0 ? 0 : 30 - user.Account.Posts)} публикаций");
-                            Console.WriteLine("[{0}] {1} Не прошел по критериям", DateTime.Now, user.Account.Referal);
+                            Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                                string.Format(Session.Language.Get(user.Language, "owu_to_use"),
+                                    (70 - user.Account.Following < 0 ? 0 : 70 - user.Account.Following),
+                                    (30 - user.Account.Posts < 0 ? 0 : 30 - user.Account.Posts)));
+                            Console.WriteLine("[{0}] {1} Don't have criteries", DateTime.Now, user.Account.Referal);
                             System.IO.File.AppendAllText(@"notRegistering.txt",
                                 $"{user.TelegramId}-{user.Account.Referal}\n");
                         }
                         else
                         {
-                            Console.WriteLine("[{0}] {1} Подтвердил свой аккаунт", DateTime.Now, user.Account.Referal);
-                            user.SetState(States.WaitUrlFrom);
+                            Console.WriteLine("[{0}] {1} Accept account", DateTime.Now, user.Account.Referal);
+                            user.State = States.WaitUrlFrom;
                         }
                     }
                     else
-                        await Session.Bot?.SendTextMessageAsync(user.TelegramId, "Данный аккаунт уже зарегистрирован");
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            Session.Language.Get(user.Language, "owu_allready_registred"));
                 }
                 else
                 {
-                    user.SetState(States.Registering);
+                    user.State = States.Registering;
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+            }
         }
     }
 }

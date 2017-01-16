@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using InstagramBot.IO;
 using Telegram.Bot.Types;
 
 namespace InstagramBot.Data.Accounts
@@ -8,6 +9,7 @@ namespace InstagramBot.Data.Accounts
         public AccountInstagram Account { get; set; }
         public Message Message { get; set; }
         public AdditionInfo AdditionInfo { get; set; }
+        public Language Language { get; set; }
         public long TelegramId { get; set; }
         Session session;
         States _state;
@@ -22,7 +24,7 @@ namespace InstagramBot.Data.Accounts
                         .Serialize(this, new StateEventArgs(Message, value));
             }
         }
-        public  ActionBot(long tid, Session session, States state = States.Registering, string fromreferal = "")
+        public  ActionBot(long tid, Session session, string fromreferal = "")
         {
             AdditionInfo = new AdditionInfo
             {
@@ -30,8 +32,6 @@ namespace InstagramBot.Data.Accounts
             };
             TelegramId = tid;
             this.session = session;
-          
-      
         }
         void Wait()
         {

@@ -14,36 +14,37 @@ namespace InstagramBot.Net.Packets
         {
             try
             {
-                Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    "Поздравляем! Вы прошли первый этап: ваш статус \"СТАРТ\".");
-             
+                Session.Bot?.SendTextMessageAsync(user.TelegramId, 
+                    string.Format(Session.Language.Get(user.Language, "od_start")));
+
                 Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.TelegramId,
                     user.Account.ToReferalId, States.OnAlreadyUsing, DateTime.Now);
+
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    "Пригласите минимум 3 пользователей Instagram для получения статуса \"РОСТ\".\nДля приглашения воспользуйтесь вашей реферальный ссылкой.");
+                     string.Format(Session.Language.Get(user.Language, "od_invite")));
+
                 int count;
                 Session.MySql.GetCountFollows(user.Account.FromReferalId, out count);
                 long telegramId;
                 Session.MySql.GetTelegramId(user.Account.FromReferalId, out telegramId);
-                Session.Bot?.SendTextMessageAsync(telegramId,
-                    "По вашей ссылке зарегистрировался " + user.Account.Referal);
+
+                Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                    string.Format(Session.Language.Get(user.Language, "od_registred_via_link"), user.Account.Referal));
+               
                 if (count == 1)
                 {
                     Session.MySql.UpdateStatus(user.Account.FromReferalId, true);
                     if (telegramId != 0)
-                        Session.Bot?.SendTextMessageAsync(telegramId,
-                            "Поздравляем! Вы получили статус \"РОСТ\"\n" +
-                            "С этого момента каждый приглашенный вами человек будет приносить вам новых подписчиков \n" +
-                            "Для получения новых подписчиков в ваш Instagram, пригласите друзей в scs110100bot по вашей реферальный ссылке: https://t.me/scs110100bot?start=" +
-                            user.Account.FromReferal);
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            string.Format(Session.Language.Get(user.Language, "od_growth")));
                 }
 
                 Session.MySql.UpdateCountFollows(user.Account.FromReferalId, count + 1);
                 List<string> redlist = user.AdditionInfo.ListForLink.Keys.ToList();
-                Session.MySql.InsertRedList(user.Account.Uid, redlist[0], redlist[1], redlist[2]);
-                Console.WriteLine("[{0}] {1} Успешно зарегистрировался", DateTime.Now, user.Account.Referal);
+                Session.MySql.InsertRedList(user.Account.Uid, redlist.ToArray());
+                Console.WriteLine("[{0}] {1} Complete register", DateTime.Now, user.Account.Referal);
                 user.Account = null;
-                user.SetState(States.OnAlreadyUsing);
+                user.State = States.OnAlreadyUsing;
             }
             catch { }
         }

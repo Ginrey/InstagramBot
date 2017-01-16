@@ -69,7 +69,7 @@
     <Compile Include="Data\StateEventArgs.cs" />
     <Compile Include="Data\States.cs" />
     <Compile Include="Data\UnixTime.cs" />
-    <Compile Include="IO\Language.cs" />
+    <Compile Include="IO\Languages.cs" />
     <Compile Include="Net\IActionPacket.cs" />
     <Compile Include="Net\Connection.cs" />
     <Compile Include="Net\PacketsRegistry.cs" />

@@ -55,7 +55,7 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
-        public virtual bool InsertRedList(long pid, string red1, string red2, string red3)
+        public virtual bool InsertRedList(long pid, params string[] reds)
         {
             throw new NotImplementedException();
         }

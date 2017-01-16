@@ -11,12 +11,12 @@ namespace InstagramBot.Net.Packets
             try
             {
                 if (string.IsNullOrEmpty(user.AdditionInfo.FromReferal))
-                    Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                        "Ввидите ник того, кто вас пригласил. У вас есть 3 попытки.");
+                Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            string.Format(Session.Language.Get(user.Language, "ogfr_enter_inviter")));
                 else
                 {
                     Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                        "Вы пришли по ссылке [" + user.AdditionInfo.FromReferal + "].");
+                            string.Format(Session.Language.Get(user.Language, "ofgr_come_to_link"), user.AdditionInfo.FromReferal));
                     e.Message = new Telegram.Bot.Types.Message {Text = user.AdditionInfo.FromReferal};
                     Deserialize(user, e);
                 }
@@ -24,7 +24,7 @@ namespace InstagramBot.Net.Packets
             catch { }
         }
 
-        public async void Deserialize(ActionBot user, StateEventArgs e)
+        public void Deserialize(ActionBot user, StateEventArgs e)
         {
             try
             {
@@ -35,14 +35,14 @@ namespace InstagramBot.Net.Packets
                 user.Account.FromReferalId = acc.Uid;
                 if (Session.MySql.IsPresentLicense(user.Account.FromReferalId))
                 {
-                    user.SetState(States.WaitSubscribe);
+                    user.State = States.WaitSubscribe;
                     return;
                 }
                 error:
                 user.AdditionInfo.ErrorCounter++;
-                await Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    "Пользователь не зарегистрирован!\n[Попыток осталось: " + (3 - user.AdditionInfo.ErrorCounter) + "]");
-            }
+                Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            string.Format(Session.Language.Get(user.Language, "ofgr_user_not_registred"), 3 - user.AdditionInfo.ErrorCounter));
+           }
             catch { }
         }
     }

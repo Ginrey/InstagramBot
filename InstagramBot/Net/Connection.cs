@@ -4,9 +4,7 @@ using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using Telegram.Bot;
 using Telegram.Bot.Args;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace InstagramBot.Net
 {
@@ -42,18 +40,17 @@ namespace InstagramBot.Net
         private void OnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             var message = messageEventArgs.Message;
-       
+            if (Session.BlackList.Contains(message.Chat.Id)) return;
+            Session.BlackList.Add(message.Chat.Id);
             if (message.Type == MessageType.TextMessage)
             {
                 if (message.Text.StartsWith("/start"))
                 {
-                    if (Session.BlackList.Contains(message.Chat.Id)) return;
-                        Session.BlackList.Add(message.Chat.Id);
                     string[] lines = message.Text.Split();
                     string fromreferal = lines.Length == 2 ? lines[1] : "";
                         long id = message.Chat.Id;
                     var state = GetLicenseState(id);
-                    Users[id] = new ActionBot(id, Session, GetLicenseState(id), fromreferal);
+                    Users[id] = new ActionBot(id, Session, fromreferal);
                     Users[id].SetState(state);
                 }
                 else
@@ -68,7 +65,7 @@ namespace InstagramBot.Net
                     else
                     {
                         var state = GetLicenseState(id);
-                        Users[id] = new ActionBot(id, Session, state, "");
+                        Users[id] = new ActionBot(id, Session, "");
                         Users[id].SetState(state);
                         user = Users[message.Chat.Id];
                     }

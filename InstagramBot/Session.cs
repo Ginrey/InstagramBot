@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using InstagramBot.Data;
 using InstagramBot.Data.SQL;
+using InstagramBot.IO;
 using InstagramBot.Net;
 using InstagramBot.Net.Web;
 using Telegram.Bot;
@@ -14,6 +14,7 @@ namespace InstagramBot
         public BlackList BlackList = new BlackList();
         List<MySqlDatabase> listsql = new List<MySqlDatabase>();
         int indexSql = 0, indexWeb = 0;
+        public Languages Language { get; set; } = new Languages();
 
         public MySqlDatabase MySql
         {
@@ -21,6 +22,11 @@ namespace InstagramBot
             {
                 indexSql++;
                 if (indexSql == listsql.Count - 1) indexSql = 0;
+                while (!listsql[indexSql].isWork)
+                {
+                    indexSql++;
+                    if (indexSql == listsql.Count - 1) indexSql = 0;
+                }
                 return listsql[indexSql];
             }
         }

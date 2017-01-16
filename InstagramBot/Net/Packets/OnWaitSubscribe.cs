@@ -29,7 +29,7 @@ namespace InstagramBot.Net.Packets
             }
             iks[items.Count] = new[]
             {
-                new InlineKeyboardButton("Проверить подписку", "/Check")
+                new InlineKeyboardButton(Session.Language.Get(_ab.Language, "ows_check_subs"), "/Check")
             };
 
             return iks;
@@ -37,58 +37,63 @@ namespace InstagramBot.Net.Packets
 
         void AddTree(ActionBot user)
         {
+            var topList = Session.MySql.GetPriorityList(1);
+            foreach (var t in topList)
+            {
+                if (user.AdditionInfo.ListForLink.Count >= 9) break;
+                if (string.Equals(t, user.Account.Referal, StringComparison.OrdinalIgnoreCase)) continue;
+                user.AdditionInfo.AddLink(t);
+            }
+            topList = null;
+            long referalid = 0;
+            string referal = "";
 
+            while (referal == "")
+                Session.MySql.GetNeedReferalForFollow(user.Account.FromReferalId, out referalid, out referal);
+
+            user.Account.ToReferalId = referalid;
+            user.AdditionInfo.AddLink(referal);
+            user.AdditionInfo.AddLink(user.Account.FromReferal);
+
+            user.Account.TempReferalId = user.Account.FromReferalId;
+            while (user.Account.TempReferalId != 1647550018 && user.Account.TempReferalId != 442320062 && user.AdditionInfo.ListForLink.Count < 9)
+            {
+                Session.MySql.GetTreeFollow(user.Account.TempReferalId, out referalid, out referal);
+                if (referalid == 0) continue;
+                user.Account.TempReferalId = referalid;
+                user.AdditionInfo.AddLink(referal);
+            }
+            int div = 9 - user.AdditionInfo.ListForLink.Count;
+            int priority2 = div % 2 == 0 ? div / 2 + 3 : div / 2 + 3;//todo
+            int priority3 = div / 2;
+            for (int i = 0; i < priority2; i++)
+            {
+                while (topList == null)
+                    topList = Session.MySql.GetPriorityList(2);
+                user.AdditionInfo.AddLink(topList[i]);
+            }
+            topList = null;
+            for (int i = 0; i < priority3; i++)
+            {
+                while (topList == null)
+                    topList = Session.MySql.GetPriorityList(3);
+                user.AdditionInfo.AddLink(topList[i]);
+            }
         }
 
+        ActionBot _ab;
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             try
             {
+                _ab = user;
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    "Подпишитесь в Instagram на данные аккаунты.\n" +
-                    "Если вы уже были подписаны на указанные аккаунты: отпишитесь и заново подпишитесь.");
-                long referalid = 0;
-                string referal = "";
+                           string.Format(Session.Language.Get(user.Language, "ows_follow_this"), user.AdditionInfo.FromReferal));
 
-                var topList = Session.MySql.GetPriorityList(1);
-                foreach (var t in topList)
-                {
-                    if (user.AdditionInfo.ListForLink.Count >= 9) break;
-                    if (string.Equals(t, user.Account.Referal, StringComparison.OrdinalIgnoreCase)) continue;
-                    user.AdditionInfo.AddLink(t);
-                }
-                topList = null;
+                AddTree(user);
 
-                while (referal == "")
-                    Session.MySql.GetNeedReferalForFollow(user.Account.FromReferalId, out referalid, out referal);
-
-                user.Account.ToReferalId = referalid;
-                user.AdditionInfo.AddLink(referal);
-                user.AdditionInfo.AddLink(user.Account.FromReferal);
-
-                user.Account.TempReferalId = user.Account.FromReferalId;
-                while(user.Account.TempReferalId != 1647550018 && user.Account.TempReferalId != 442320062)
-                {
-                    Session.MySql.GetTreeFollow(user.Account.TempReferalId, out referalid, out referal);
-                    if (referalid == 0) continue;
-                    user.Account.TempReferalId = referalid;
-                    user.AdditionInfo.AddLink(referal);
-                }
-
-                if (user.AdditionInfo.ListForLink.Count < 9)
-                {
-                    while (topList == null)
-                        topList = Session.MySql.GetPriorityList(2);
-                    foreach (var t in topList)
-                    {
-                        if (user.AdditionInfo.ListForLink.Count >= 9) break;
-                        if (string.Equals(t, user.Account.Referal, StringComparison.OrdinalIgnoreCase)) continue;
-                        user.AdditionInfo.AddLink(t);
-                    }
-                }
-               
                 var keyboard = new InlineKeyboardMarkup(InlineKeyboardMarkupMaker(user.AdditionInfo.ListForLink));
-                Session.Bot?.SendTextMessageAsync(user.TelegramId, "Список:", replyMarkup: keyboard);
+                Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "ows_list"), replyMarkup: keyboard);
             }
             catch
             {
@@ -105,10 +110,10 @@ namespace InstagramBot.Net.Packets
                     bool temp = true;
                     var follows = Session.WebInstagram.GetListFollows(user.Account.Referal);
 
-                    if(follows.follows == null)
+                    if(follows.follows.nodes == null)
                     {
                         Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                   "Ошибка, повторите попытку.Ваш аккаунт не должен быть приватным");
+                  Session.Language.Get(user.Language, "ows_list"));
                         return;
                     }
                     foreach (var u in follows.follows.nodes)
@@ -122,15 +127,15 @@ namespace InstagramBot.Net.Packets
                     }
                     if (!temp)
                         Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                            "Вы не подписались. Подпишитесь и повторите попытку, отправив команду /Check");
+                             Session.Language.Get(user.Language, "ows_check"));
                     else
-                        user.SetState(States.Done);
+                        user.State = States.Done;
                 }
             }
             catch (Exception ex)
             {
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    "Неизвестная ошибка, пожалуйста сообщите о ней");
+                      Session.Language.Get(user.Language, "ows_unknown_error"));
             }
         }
     }
