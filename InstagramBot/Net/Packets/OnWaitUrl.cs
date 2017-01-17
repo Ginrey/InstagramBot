@@ -16,11 +16,11 @@ namespace InstagramBot.Net.Packets
             {
                 var keyboard = new InlineKeyboardMarkup(new[]
                 {
-                    new InlineKeyboardButton("Да", "/Yes"),
-                    new InlineKeyboardButton("Нет", "/No")
+                    new InlineKeyboardButton(Session.Language.Get(user.Language, "owu_yes"), "/Yes"),
+                    new InlineKeyboardButton(Session.Language.Get(user.Language, "owu_no"), "/No")
                 });
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    string.Format(Session.Language.Get(user.Language, "owu_it_is_you"), user.Account.Referal));
+                    string.Format(Session.Language.Get(user.Language, "owu_it_is_you"), user.Account.Referal), replyMarkup : keyboard);
             }
             catch (Exception ex)
             {

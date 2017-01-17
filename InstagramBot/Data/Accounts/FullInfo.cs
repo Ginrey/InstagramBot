@@ -10,10 +10,17 @@ namespace InstagramBot.Data.Accounts
             public string full_name { get; set; }
             public string username { get; set; }
         }
-
+        public class PageInfo
+        {
+            public bool has_previous_page { get; set; }
+            public string start_cursor { get; set; }
+            public bool has_next_page { get; set; }
+            public string end_cursor { get; set; }
+        }
         public class FollowedBy
         {
             public List<Node> nodes { get; set; }
+            public PageInfo page_info { get; set; }
         }
     }
     public class FollowedUser

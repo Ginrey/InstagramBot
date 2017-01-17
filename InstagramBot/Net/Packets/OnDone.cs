@@ -42,6 +42,7 @@ namespace InstagramBot.Net.Packets
                 Session.MySql.UpdateCountFollows(user.Account.FromReferalId, count + 1);
                 List<string> redlist = user.AdditionInfo.ListForLink.Keys.ToList();
                 Session.MySql.InsertRedList(user.Account.Uid, redlist.ToArray());
+                Session.MySql.InsertLanguage(user.Account.Uid, user.Language);
                 Console.WriteLine("[{0}] {1} Complete register", DateTime.Now, user.Account.Referal);
                 user.Account = null;
                 user.State = States.OnAlreadyUsing;

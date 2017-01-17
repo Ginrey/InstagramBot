@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Web
@@ -11,7 +13,32 @@ namespace InstagramBot.Net.Web
         }
         public  FollowedUser GetListFollowing(string referal)
         {
-            return  GetFollowingListById(( GetAccount(referal)).Uid);
+            return  GetFollowingListById(GetAccount(referal).Uid);
+        }
+
+        public FollowedUser GetFullListFollowing(string referal)
+        {
+            var account = GetAccount(referal);
+            List<string> lst = new List<string>();
+            var following = GetFollowingListById(account.Uid);
+            
+                while (following.followed_by.page_info.has_next_page)
+                {
+                    foreach (var f in following.followed_by.nodes)
+                        if (!lst.Contains(f.id + " - " + f.username))
+                            lst.Add(f.id + " - " + f.username);
+                    string next = following.followed_by.page_info.end_cursor;
+                    following = GetFullFollowingListById(account.Uid, next);
+                    while(following.followed_by == null)
+                    {
+                        System.Threading.Thread.Sleep(20050);
+                    following = GetFullFollowingListById(account.Uid, next);
+                }
+                    File.WriteAllText(referal + ".txt", string.Join("\n",lst.ToArray()));
+                    System.Threading.Thread.Sleep(50);
+                }
+           
+            return GetFollowingListById(GetAccount(referal).Uid);
         }
         public  FollowedUser GetListFollows(string referal)
         {

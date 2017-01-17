@@ -70,11 +70,13 @@
     <Compile Include="Data\States.cs" />
     <Compile Include="Data\UnixTime.cs" />
     <Compile Include="IO\Languages.cs" />
+    <Compile Include="IO\Menu.cs" />
     <Compile Include="Net\IActionPacket.cs" />
     <Compile Include="Net\Connection.cs" />
     <Compile Include="Net\PacketsRegistry.cs" />
     <Compile Include="Net\Packets\OnAlreadyUsing.cs" />
     <Compile Include="Net\Packets\OnBlocked.cs" />
+    <Compile Include="Net\Packets\OnChangeLanguage.cs" />
     <Compile Include="Net\Packets\OnDone.cs" />
     <Compile Include="Net\Packets\OnFindClients.cs" />
     <Compile Include="Net\Packets\OnGetFromReferal.cs" />

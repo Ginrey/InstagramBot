@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using InstagramBot.Data.Accounts;
+using InstagramBot.IO;
 
 namespace InstagramBot.Data.SQL
 {
@@ -124,7 +125,7 @@ namespace InstagramBot.Data.SQL
             return result;
         }
 
-        public bool GetLanguage(long uid, out int lang)
+        public bool GetLanguage(long uid, out Language lang)
         {
             var args = new[]
             {
@@ -137,7 +138,7 @@ namespace InstagramBot.Data.SQL
                 lang = 0;
                 return false;
             }
-            lang = (int)args[1].Value;
+            lang = (Language)args[1].Value;
             return result;
         }
 
@@ -224,7 +225,7 @@ namespace InstagramBot.Data.SQL
 
         public List<long> GetTelegrams()
         {
-            lock (MySqlConnection)
+            lock (start)
             {
                 List<long> list = new List<long>();
                 using (
@@ -244,6 +245,27 @@ namespace InstagramBot.Data.SQL
             }
         }
 
+        public List<long> GetBlockList()
+        {
+            lock (start)
+            {
+                List<long> list = new List<long>();
+                using (
+                    var command =
+                        new SqlCommand(
+                            "select Accounts.ID from Accounts where State = "+ (int)States.Blocked, MySqlConnection))
+                {
+                    command.CommandType = CommandType.Text;
+                    reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        list.Add((long)reader["ID"]);
+                    }
+                    reader.Close();
+                }
+                return list;
+            }
+        }
         public override bool GetNeedReferalForFollow(long uid, out long referalId, out string referal)
         {
             if (IsLicenseStart(uid))
@@ -289,6 +311,17 @@ namespace InstagramBot.Data.SQL
             var result = CallFunction("InsertRedList", parameters.ToArray());
             return result;
         }
+        public bool InsertLanguage(long pid, Language lang)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = pid},
+                new SqlParameter("Language", SqlDbType.Int) {Value = (int)lang}
+            };
+
+            var result = CallFunction("InsertLanguage", args);
+            return result;
+        }
 
         public override bool IsPresentLicense(long uid)
         {
@@ -327,6 +360,10 @@ namespace InstagramBot.Data.SQL
             return (bool) args[1].Value;
         }
 
+        public bool BlockLicense(long uid)
+        {
+            return UpdateState(uid, (int)States.Blocked);
+        }
         public override bool UpdateStatus(long uid, bool status)
         {
             var args = new[]
@@ -335,6 +372,15 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("Status", SqlDbType.Bit) {Value = status}
             };
             return CallFunction("UpdateStatus", args);
+        }
+        public  bool UpdateState(long uid, int state)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("State", SqlDbType.Int) {Value = state}
+            };
+            return CallFunction("UpdateState", args);
         }
 
         public override bool UpdateCountFollows(long uid, int count)
@@ -346,11 +392,18 @@ namespace InstagramBot.Data.SQL
             };
             return CallFunction("UpdateCountFollows", args);
         }
+        public bool UpdateLanguage(long uid, Language lang)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+                new SqlParameter("Language", SqlDbType.Int) {Value = (int)lang}
+            };
+            return CallFunction("UpdateLanguage", args);
+        }
 
         object start = new object();
-        public bool isWork
-        { get; set; }
-
+        
         public bool CallFunction(string functionName, params SqlParameter[] parameters)
         {
             if (MySqlConnection.State != ConnectionState.Open)
@@ -372,28 +425,20 @@ namespace InstagramBot.Data.SQL
             catch
             {
                 Console.WriteLine("Reconnect");
-                isWork = false;
-                //MySqlConnection = new SqlConnection(MySqlConnection.ConnectionString);
-                //Connect();
+                MySqlConnection.Close();
+                MySqlConnection = new SqlConnection(MySqlConnection.ConnectionString);
+                Connect();
                 return false;
             }
         }
 
         public void Connect()
         {
-            // lock (MySqlConnection)
+            if (MySqlConnection.State == ConnectionState.Open)
             {
-                //  while (MySqlConnection.State == ConnectionState.Connecting)
-                {
-                    // Thread.Sleep(10);
-                }
-                if (MySqlConnection.State == ConnectionState.Open)
-                {
-                    return;
-                }
-                MySqlConnection.Open();
-                isWork = true;
+                return;
             }
+            MySqlConnection.Open();
         }
     }
 }

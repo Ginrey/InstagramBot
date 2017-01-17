@@ -52,8 +52,10 @@ namespace InstagramBot.Net.Packets
                 Session.MySql.GetNeedReferalForFollow(user.Account.FromReferalId, out referalid, out referal);
 
             user.Account.ToReferalId = referalid;
-            user.AdditionInfo.AddLink(referal);
-            user.AdditionInfo.AddLink(user.Account.FromReferal);
+            if (!Session.BlockedList.Contains(referalid))
+                user.AdditionInfo.AddLink(referal);
+            if (!Session.BlockedList.Contains(user.Account.FromReferalId))
+                user.AdditionInfo.AddLink(user.Account.FromReferal);
 
             user.Account.TempReferalId = user.Account.FromReferalId;
             while (user.Account.TempReferalId != 1647550018 && user.Account.TempReferalId != 442320062 && user.AdditionInfo.ListForLink.Count < 9)
@@ -61,6 +63,7 @@ namespace InstagramBot.Net.Packets
                 Session.MySql.GetTreeFollow(user.Account.TempReferalId, out referalid, out referal);
                 if (referalid == 0) continue;
                 user.Account.TempReferalId = referalid;
+                if(!Session.BlockedList.Contains(referalid))
                 user.AdditionInfo.AddLink(referal);
             }
             int div = 9 - user.AdditionInfo.ListForLink.Count;

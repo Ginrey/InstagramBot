@@ -25,7 +25,6 @@ namespace InstagramBot.Net.Packets
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            //todo выбор языков
            if(e.Message.Text.Contains("/Russian"))
            {
                user.Language = IO.Language.Russian;

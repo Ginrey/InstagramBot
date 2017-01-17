@@ -21,6 +21,7 @@ namespace InstagramBot.Net
             packets[States.OnAlreadyUsing] = new OnAlreadyUsing { Session = session };
             packets[States.OnFindClients] = new OnFindClients { Session = session };
             packets[States.Blocked] = new OnBlocked { Session = session };
+            packets[States.ChangeLanguage] = new OnChangeLanguage {Session = session};
         }
 
         public IActionPacket GetPacketType(States state)

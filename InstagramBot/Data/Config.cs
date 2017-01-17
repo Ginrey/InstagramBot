@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using InstagramBot.IO;
 
 
@@ -16,7 +15,7 @@ namespace InstagramBot.Data
             {
                 if(!orderDict.ContainsKey(lang))
                 {
-                    orderDict[lang] = File.ReadAllText(lang +"Order.txt", Encoding.Default);
+                    orderDict[lang] = File.ReadAllText(lang +"Order.txt");
                 }
                 return orderDict[lang];
             }
@@ -39,6 +38,7 @@ namespace InstagramBot.Data
             public const string WhereReferals = "ml_where_referals";
             public const string MainMenu = "ml_main_menu";
             public const string LK = "ml_lk";
+            public const string ChangeLanguage = "ml_change_language";
             public const string CompleteEnter = "login_success";
         }
     }

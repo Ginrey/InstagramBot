@@ -15,6 +15,7 @@ namespace InstagramBot
         List<MySqlDatabase> listsql = new List<MySqlDatabase>();
         int indexSql = 0, indexWeb = 0;
         public Languages Language { get; set; } = new Languages();
+        public List<long> BlockedList { get; set; }
 
         public MySqlDatabase MySql
         {
@@ -22,11 +23,6 @@ namespace InstagramBot
             {
                 indexSql++;
                 if (indexSql == listsql.Count - 1) indexSql = 0;
-                while (!listsql[indexSql].isWork)
-                {
-                    indexSql++;
-                    if (indexSql == listsql.Count - 1) indexSql = 0;
-                }
                 return listsql[indexSql];
             }
         }
@@ -50,14 +46,20 @@ namespace InstagramBot
         {
             Token = token;
             if (!string.IsNullOrEmpty(Token)) Bot = new TelegramBotClient(Token);
+            string connectionString = "SERVER=WIN-344VU98D3RU\\SQLEXPRESS;DATABASE=Instagram_DB;Trusted_Connection=True";
+#if DEBUG
+            connectionString = "SERVER=DESKTOP-VBFBI8T;DATABASE=Instagram_DB;Trusted_Connection=True";
+#endif
             for (int i = 0; i < 100; i++)
             {
                 //DESKTOP-VBFBI8T
                 //WIN-344VU98D3RU\\SQLEXPRESS
-                listsql.Add(new MySqlDatabase("SERVER=WIN-344VU98D3RU\\SQLEXPRESS;DATABASE=Instagram_DB;Trusted_Connection=True"));
+                listsql.Add(new MySqlDatabase(connectionString));
                 listsql[i].Connect();
             }
-           Connection = new Connection(this);
+            Connection = new Connection(this);
+            Menu.Session = this;
+            BlockedList = MySql.GetBlockList();
         }
 
         public void Start()

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
-using InstagramBot.IO;
 using InstagramBot.Net.Web;
 
 namespace InstagramBot
@@ -11,8 +10,11 @@ namespace InstagramBot
         {
             //310136073:AAHEP0i318aIkB8y3lAOTtwYxMf7jwtp51w - Hierarchy
             //326705762:AAHtag0VT3_wk0Hc1GCyrIyOL_OXeg-CAHQ - 110100
-            Languages Language = new Languages();
-            Session Session = new Session("326705762:AAHtag0VT3_wk0Hc1GCyrIyOL_OXeg-CAHQ")
+            string connectionString = "326705762:AAHtag0VT3_wk0Hc1GCyrIyOL_OXeg-CAHQ";
+#if DEBUG
+            connectionString = "310136073:AAHEP0i318aIkB8y3lAOTtwYxMf7jwtp51w";
+#endif
+            Session Session = new Session(connectionString)
             {
                 ListWebInstagram = new List<WebInstagram> {
                     new WebInstagram("vitaliirogoza", "qwerty2"),

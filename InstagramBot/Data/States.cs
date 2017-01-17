@@ -11,6 +11,7 @@
         OnAlreadyUsing,
         OnFindClients,
         Blocked,
+        ChangeLanguage,
         Null
     }
 }
