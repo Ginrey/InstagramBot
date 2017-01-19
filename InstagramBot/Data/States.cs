@@ -12,6 +12,8 @@
         OnFindClients,
         Blocked,
         ChangeLanguage,
+        FirstStep,
+        SecondStep,
         Null
     }
 }

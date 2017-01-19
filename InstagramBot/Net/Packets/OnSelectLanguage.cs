@@ -1,4 +1,5 @@
-﻿using InstagramBot.Data;
+﻿using System;
+using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -25,15 +26,16 @@ namespace InstagramBot.Net.Packets
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-           if(e.Message.Text.Contains("/Russian"))
+            
+            if (e.Message.Text.Contains("/Russian"))
            {
                user.Language = IO.Language.Russian;
-               user.State = States.Registering;
+               user.State = States.FirstStep;
            }
             if (e.Message.Text.Contains("/English"))
             {
                 user.Language = IO.Language.English;
-                user.State = States.Registering;
+                user.State = States.FirstStep;
             }
         }
     }

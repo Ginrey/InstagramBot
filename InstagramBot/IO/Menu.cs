@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using Telegram.Bot.Types;
@@ -47,23 +44,40 @@ namespace InstagramBot.IO
 
        public static void ShowStruct(ActionBot user, bool isStruct)
        {
-           int count;
+          
            var list = Session.MySql.GetStructInfo(user.Account.Uid);
-           int lineCount = 0, stateRost = 0, stateStart = 0, blocked = 0;
+           int lineCount = 0, 
+                stateRost = 0, 
+                unlimitedLine = 0, 
+                blocked = 0,
+                nonActive = 0;
+           
            string myreferals = Session.Language.Get(user.Language, "oau_invite_list");
-           foreach (var i in list)
+           int index = list.Count;
+           for(int i = 0; i < list.Count; i++)
            {
-               if (i.States == States.Blocked) blocked++;
-               if (i.Status) stateRost++;
-               else stateStart++;
-               myreferals += i.Referal + "\n";
+               var info = list[i];
+               if (info.States == States.Blocked) blocked++;
+               if (info.Status) stateRost++;
+               else unlimitedLine++;
+               if (info.CountFollows == 0) nonActive++;
+               if( i < 50)
+               myreferals += list[index--].Referal + "\n";
            }
            if (isStruct)
            {
-               Session.MySql.GetCountFollows(user.Account.Uid, out count);
-               Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                   string.Format(Session.Language.Get(user.Language, "oau_your_structure"), list.Count, stateRost,
-                       stateStart, blocked));
+               Session.MySql.GetCountFollows(user.Account.Uid, out lineCount);
+                int min = lineCount < 2 ? lineCount : 2;
+                lineCount = lineCount < 2 ? 0 : lineCount - 2;
+                Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                   string.Format(Session.Language.Get(user.Language, "oau_your_structure"), 
+                   lineCount, 
+                     min,
+                       list.Count - lineCount - min,
+                       list.Count,
+                       unlimitedLine,
+                       nonActive, 
+                       blocked));
            }
            else
                Session.Bot?.SendTextMessageAsync(user.TelegramId, myreferals);
@@ -71,10 +85,12 @@ namespace InstagramBot.IO
 
         public static void ShowPromo(ActionBot user)
         {
-            Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "promo_1"));
-            FileToSend video = new FileToSend("BAADAgADBAADUQ2IDnXWKI0cjPv7Ag");
-            Session.Bot?.SendVideoAsync(user.TelegramId, video);
-            Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "promo_2"));
+            var keyboard = new InlineKeyboardMarkup(new[]
+               {
+                    new InlineKeyboardButton(Session.Language.Get(user.Language,"ofs_next"), "/Next") {Url = "https://t.me/Promo110100bot?start=promo" }
+                });
+            Session.Bot?.SendTextMessageAsync(user.TelegramId, "Для получения промо материалов нажмите",
+                replyMarkup: keyboard);
         }
 
         public static void ShowMyRedList(ActionBot user)
@@ -113,7 +129,7 @@ namespace InstagramBot.IO
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.CheckUsersOnInstagram))});
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.ChangeLanguage))});
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.BackToMenu))});
-
+        
            ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup(listMenu.ToArray());
            Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, Config.MenuList.LK),
                replyMarkup: keyboard);

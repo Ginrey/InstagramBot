@@ -13,8 +13,6 @@ namespace InstagramBot.Net.Packets
             try
             {
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    string.Format(Session.Language.Get(user.Language, "or_welcome"), "https://youtu.be/nWdoU7e1OxU \n"));
-                Session.Bot?.SendTextMessageAsync(user.TelegramId,
                     string.Format(Session.Language.Get(user.Language, "or_to_start")));
 
                 Console.WriteLine("[{0}] {1} Starting register", DateTime.Now, user.TelegramId);

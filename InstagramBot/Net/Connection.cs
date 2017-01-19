@@ -40,8 +40,6 @@ namespace InstagramBot.Net
         private void OnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             var message = messageEventArgs.Message;
-            if (Session.BlackList.Contains(message.Chat.Id)) return;
-            Session.BlackList.Add(message.Chat.Id);
             if (message.Type == MessageType.TextMessage)
             {
                 if (message.Text.StartsWith("/start"))
@@ -72,6 +70,10 @@ namespace InstagramBot.Net
                   //  user.NextStep(message);
                     return;
                 }
+            }
+            if (message.Type == MessageType.VideoMessage)
+            {
+                Session.Bot?.SendVideoAsync(message.Chat.Id, message.Video.FileId);
             }
         }
 

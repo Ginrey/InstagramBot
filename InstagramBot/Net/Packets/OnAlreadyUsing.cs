@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
+
 
 namespace InstagramBot.Net.Packets
 {
@@ -99,7 +95,7 @@ namespace InstagramBot.Net.Packets
                         break;
                 }
             }
-            catch
+            catch(Exception ex)
             {
             }
         }

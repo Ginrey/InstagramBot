@@ -15,7 +15,7 @@ namespace InstagramBot.Data
                 {
                     ActionTimer tmr = new ActionTimer(Delete, state);
                     List.Add(state, tmr);
-                    tmr.Start(2000, -1);
+                    tmr.Start(1000, -1);
                 }
             }
         }

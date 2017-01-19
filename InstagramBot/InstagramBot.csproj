@@ -24,7 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -79,8 +79,10 @@
     <Compile Include="Net\Packets\OnChangeLanguage.cs" />
     <Compile Include="Net\Packets\OnDone.cs" />
     <Compile Include="Net\Packets\OnFindClients.cs" />
+    <Compile Include="Net\Packets\OnFirstStep.cs" />
     <Compile Include="Net\Packets\OnGetFromReferal.cs" />
     <Compile Include="Net\Packets\OnRegistering.cs" />
+    <Compile Include="Net\Packets\OnSecondStep.cs" />
     <Compile Include="Net\Packets\OnSelectLanguage.cs" />
     <Compile Include="Net\Packets\OnWaitSubscribe.cs" />
     <Compile Include="Net\Packets\OnWaitUrl.cs" />

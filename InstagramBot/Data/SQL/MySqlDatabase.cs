@@ -202,7 +202,7 @@ namespace InstagramBot.Data.SQL
                 using (
                     var command =
                         new SqlCommand(
-                            "select Accounts.Referal, Accounts.State, Accounts.Status from Accounts where Accounts.FromReferal = " +
+                            "select Accounts.Referal, Accounts.State, Accounts.Status, Accounts.CountFollows from Accounts where Accounts.FromReferal = " +
                             fromId, MySqlConnection))
                 {
                     command.CommandType = CommandType.Text;
@@ -214,7 +214,8 @@ namespace InstagramBot.Data.SQL
                         {
                             Referal = reader["Referal"].ToString(),
                             States = (States) reader["State"],
-                            Status = (bool) reader["Status"]
+                            Status = (bool) reader["Status"],
+                            CountFollows = (int)reader["CountFollows"]
                         });
                     }
                     reader.Close();

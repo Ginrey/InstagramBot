@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using InstagramBot.IO;
 using Telegram.Bot.Types;
 
@@ -14,6 +15,7 @@ namespace InstagramBot.Data.Accounts
         Session session;
         States _state;
         Task Task;
+        DateTime lastMessageTime;
         public  States State
         {
             get { return _state; }
@@ -31,34 +33,31 @@ namespace InstagramBot.Data.Accounts
                 FromReferal = fromreferal
             };
             TelegramId = tid;
+            lastMessageTime = DateTime.Now;
             this.session = session;
         }
-        void Wait()
+        bool Wait()
         {
-            if (Task != null && Task.Status != TaskStatus.RanToCompletion)
-            {
-                Task.Wait();
-                Task.Dispose();
-            }
+            if (lastMessageTime.Subtract(DateTime.Now) > TimeSpan.Zero) return false;
+            lastMessageTime = DateTime.Now + TimeSpan.FromSeconds(1);
+            return true;
         }
         public void SetState(States state)
         {
-            Wait();
+            if (!Wait()) return;
             Task = new Task(() => { State = state; });
             Task.Start();
-           // Wait();
         }
 
         public void NextStep(Message message)
         {
-            Wait();
+            if (!Wait()) return;
             Task = new Task(() =>
             {
                 session.Connection.PacketsRegistry.GetPacketType(State)
                     .Deserialize(this, new StateEventArgs(message, State));
             });
             Task.Start();
-           // Wait();
         }
     }
 }

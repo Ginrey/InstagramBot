@@ -30,17 +30,19 @@ namespace InstagramBot.IO
 
        void LoadLanguages(Language lang, string[] lines)
        {
-           Dictionary<string, string> translate =
-               lines.Select(line => line.Replace("\\n", "\n"))
-                   .Where(l => !string.IsNullOrEmpty(l))
-                   .ToDictionary(l => l.Split('=')[0], l => l.Split('=')[1]);
-           Translate.Add(lang, translate);
+           
+               Dictionary<string, string> translate =
+                   lines.Select(line => line.Replace("\\n", "\n"))
+                       .Where(l => !string.IsNullOrEmpty(l))
+                       .ToDictionary(l => l.Split('|')[0], l => l.Split('|')[1]);
+               Translate.Add(lang, translate);
 
-           foreach (var line in lines)
-           {
-               var l = line.Replace("\\n", "\n");
-               if (!string.IsNullOrEmpty(l)) ReverseTranslate.Add(l.Split('=')[1], l.Split('=')[0]);
-           }
+               foreach (var line in lines)
+               {
+                   var l = line.Replace("\\n", "\n");
+                   if (!string.IsNullOrEmpty(l)) ReverseTranslate.Add(l.Split('|')[1], l.Split('|')[0]);
+               }
+         
        }
 
        public string Get(Language lang, string key)
