@@ -31,7 +31,7 @@ namespace InstagramBot.Net.Packets
         {
             try
             {
-                user.Account.From.URL = e.Message.Text.Replace("@", "");
+                user.Account.From.Set(e.Message.Text.Replace("@", ""));
                 if (user.AdditionInfo.ErrorCounter >= 3)
                 {
                     user.Account.From = new MiniInfo(442320062, "100lbov");
@@ -39,7 +39,7 @@ namespace InstagramBot.Net.Packets
                 }
                 var acc = Session.WebInstagram.GetAccount(user.Account.From.URL);
                 if (acc == null) goto error;
-                user.Account.From.ID = acc.Uid;
+                user.Account.From.Set(acc.Uid);
               
                 if (Session.MySql.IsPresentInstagram(user.Account.From.ID))
                 {

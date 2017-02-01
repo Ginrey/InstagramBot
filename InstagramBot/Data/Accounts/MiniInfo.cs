@@ -14,5 +14,13 @@
             ID = -1;
             URL = "";
         }
+        public void Set(long id)
+        {
+            ID = id;
+        }
+        public void Set(string url)
+        {
+            URL = url;
+        }
     }
 }

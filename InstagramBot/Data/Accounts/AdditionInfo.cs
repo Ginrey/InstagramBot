@@ -8,6 +8,7 @@ namespace InstagramBot.Data.Accounts
         public int ErrorCounter { get; set; }
         public List<string> Uses = new List<string>();
         public bool Complete { get; set; }
+        public bool Full => ListForLink.Count >= 9;
         public List<StructInfo> StructsInfo { get; set; }
         public string FromReferal { get; set; }
         public Dictionary<string, bool> ListForLink = new Dictionary<string, bool>();

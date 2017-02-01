@@ -87,14 +87,14 @@ namespace InstagramBot.Data.SQL
         }
         public override bool GetBaseInstagram(long id, out MiniInfo info)
         {
-            info = new MiniInfo(-1,"");
+            info = new MiniInfo();
             var args = new[]
             {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("NextId", SqlDbType.BigInt) {Direction = ParameterDirection.Output},
                 new SqlParameter("NextURL", SqlDbType.Text) {Direction = ParameterDirection.Output}
             };
-            var result = CallFunction("GetRedList", args);
+            var result = CallFunction("GetBaseInstagram", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 return false;
@@ -202,10 +202,22 @@ namespace InstagramBot.Data.SQL
             return result;
         }
 
-        public override bool GetTreeFollow(long id, out MiniInfo info)
+        public override bool GetTreeInstagram(long id, out MiniInfo info)
         {
-            GetFromReferalId(uid, out referalId);
-            GetReferal(referalId, out referal);
+            info = new MiniInfo();
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("NextId", SqlDbType.BigInt) {Direction = ParameterDirection.Output},
+                new SqlParameter("NextURL", SqlDbType.Text) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetTreeInstagram", args);
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            {
+                return false;
+            }
+            info.ID = (long)args[1].Value;
+            info.URL = (string)args[2].Value;
             return true;
         }
 

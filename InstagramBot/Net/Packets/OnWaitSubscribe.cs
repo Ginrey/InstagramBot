@@ -65,11 +65,11 @@ namespace InstagramBot.Net.Packets
             Session.MySql.GetPriority(1, out topList);
             foreach (var t in topList)
             {
-                if (user.AdditionInfo.ListForLink.Count >= 9) return;
+                if (user.AdditionInfo.Full) return;
                 if (string.Equals(t.URL, user.Account.Referal, StringComparison.OrdinalIgnoreCase)) continue;
                 user.AdditionInfo.AddLink(t.URL);
             }
-            if (user.AdditionInfo.ListForLink.Count >= 9) return;//todo Коррупционный список
+            if (user.AdditionInfo.Full) return;//todo Коррупционный список
             topList = null;
 
             MiniInfo info = new MiniInfo();
@@ -84,42 +84,41 @@ namespace InstagramBot.Net.Packets
             if (!Session.BlockedList.Contains(info.ID))
                 user.AdditionInfo.AddLink(info.URL);
             user.Account.To = info;
-        
-            if (user.AdditionInfo.ListForLink.Count >= 9) return;
+
+            if (user.AdditionInfo.Full) return;
 
             user.Account.Temp = user.Account.To;
             while (user.Account.Temp.ID != 1647550018 && user.Account.Temp.ID != 442320062 && user.AdditionInfo.ListForLink.Count < 9)
             {
-                Session.MySql.GetTreeFollow(user.Account.TempReferalId, out referalid, out referal);
-                if (referalid == 0) continue;
-                user.Account.TempReferalId = referalid;
-                if(!Session.BlockedList.Contains(referalid))
-                user.AdditionInfo.AddLink(referal);
+                Session.MySql.GetTreeInstagram(user.Account.Temp.ID, out info);
+                if (info.ID == -1) continue;
+                user.Account.Temp = info;
+                if(!Session.BlockedList.Contains(info.ID))
+                user.AdditionInfo.AddLink(info.URL);
             }
-            if (user.AdditionInfo.ListForLink.Count >= 9) return;
-            int div = 9 - user.AdditionInfo.ListForLink.Count;
-            int priority2 = div % 2 == 0 ? div / 2 + 6 : div / 2 + 5;//todo
-            int priority3 = div / 2;
-            for (int i = 0; i < priority2; i++)
+            if (user.AdditionInfo.Full) return;
+         
+            while (topList == null)
+                 Session.MySql.GetPriority(2, out topList);
+           
+            foreach (MiniInfo t in topList)
             {
-                while (topList == null)
-                    topList = Session.MySql.GetPriorityList(2);
-                if (topList.Count == i || user.AdditionInfo.ListForLink.Count >= 9) break;
-                user.AdditionInfo.AddLink(topList[i]);
+                if (user.AdditionInfo.Full) return;
+                user.AdditionInfo.AddLink(t.URL);
             }
-            if (user.AdditionInfo.ListForLink.Count >= 9) return;
             topList = null;
-            for (int i = 0; i < priority3; i++)
-            {
-                while (topList == null)
-                    topList = Session.MySql.GetPriorityList(3);
-                if (topList.Count == i || user.AdditionInfo.ListForLink.Count >= 9) break;
-                user.AdditionInfo.AddLink(topList[i]);
-            }
-            if (user.AdditionInfo.ListForLink.Count < 9) AddTree(user);
-        }
 
-      //  ActionBot tempBot;
+            while (topList == null)
+                Session.MySql.GetPriority(3, out topList);
+
+            foreach (MiniInfo t in topList)
+            {
+                if (user.AdditionInfo.Full) return;
+                user.AdditionInfo.AddLink(t.URL);
+            }
+
+            if (!user.AdditionInfo.Full) AddTree(user);
+        }
 
         public async void Serialize(ActionBot user, StateEventArgs e)
         {

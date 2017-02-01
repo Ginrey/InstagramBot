@@ -46,7 +46,7 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
-        public virtual bool GetTreeFollow(long id, out MiniInfo info)
+        public virtual bool GetTreeInstagram(long id, out MiniInfo info)
         {
             throw new NotImplementedException();
         }
