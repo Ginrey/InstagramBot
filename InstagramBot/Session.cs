@@ -62,7 +62,9 @@ namespace InstagramBot
             Multithreading = new Multithreading(Environment.ProcessorCount);
             Connection = new Connection(this);
             Menu.Session = this;
-            BlockedList = MySql.GetBlockList();
+            List<long> list;
+            MySql.GetBlockList(out list);
+            BlockedList = list;
         }
 
         public void Start()

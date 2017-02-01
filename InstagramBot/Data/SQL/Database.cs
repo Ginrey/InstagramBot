@@ -26,6 +26,10 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
+        public virtual bool GetBlockList(out List<long> list)
+        {
+            throw new NotImplementedException();
+        }
         public virtual bool GetPriority(int level, out List<MiniInfo> list)
         {
             throw new NotImplementedException();

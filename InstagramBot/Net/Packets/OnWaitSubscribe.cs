@@ -131,7 +131,7 @@ namespace InstagramBot.Net.Packets
 
                 ShowLink(user);
             }
-            catch
+            catch(Exception ex)
             {
             }
         }
@@ -168,35 +168,6 @@ namespace InstagramBot.Net.Packets
                     }
                     Check(user);
                 }
-                /*      var dictBool = user.AdditionInfo.ListForLink.ToDictionary(k => k.Key.ToLower(), v => v.Value);
-                    bool temp = true;
-                       string unsubscribes = "";
-
-                    var follows = Session.WebInstagram.GetListFollows(tempBot.Account.Referal);
-
-                    if (follows?.follows.nodes == null)
-                    {
-                        Session.Bot?.SendTextMessageAsync(tempBot.TelegramId, Session.Language.Get(tempBot.Language, "ows_nodes_null"));
-                        return;
-                    }
-                     foreach (var u in follows.follows.nodes)
-                    {
-                        if(dictBool.ContainsKey(u.username))
-                            tempBot.AdditionInfo.ListForLink[u.username] = true;
-                    }
-
-                    foreach (var b in dictBool)
-                    {
-                        if (b.Value) continue;
-                        temp = false;
-                        unsubscribes += "\n" + b.Key;
-                    }
-                 if (!temp)
-                     Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                          Session.Language.Get(user.Language, "ows_check")+"\nВы не подписались на:"+unsubscribes);
-                 else
-                     user.State = States.Done;
-                }*/
                 if (e.Message.Text.StartsWith("/Private"))
                 {
                     string[] command = e.Message.Text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);

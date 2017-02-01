@@ -103,6 +103,19 @@ namespace InstagramBot.Data.SQL
             info.URL = (string)args[2].Value;
             return true;
         }
+        public override bool GetBlockList(out List<long> list)
+        {
+            list = new List<long>();
+            SqlParameter[] args = {};
+            var dataReader = CallFunctionReader("GetBlockList", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+                while (dataReader.Read())
+                {
+                  list.Add((long)dataReader["Id"]);
+                }
+            return true;
+        }
         public override bool GetPriority(int level, out List<MiniInfo> list)
         {
             list = new List<MiniInfo>();
