@@ -1,4 +1,5 @@
-﻿using InstagramBot.Data;
+﻿using System;
+using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
@@ -10,6 +11,7 @@ namespace InstagramBot.Net.Packets
         {
             try
             {
+                user.AdditionInfo.ErrorCounter = 0;
                 if (string.IsNullOrEmpty(user.AdditionInfo.FromReferal))
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
                             string.Format(Session.Language.Get(user.Language, "ogfr_enter_inviter")));
@@ -21,19 +23,25 @@ namespace InstagramBot.Net.Packets
                     Deserialize(user, e);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            { }
         }
-
+       
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
             try
             {
-                user.Account.FromReferal = e.Message.Text.Replace("@", "");
-                if (user.AdditionInfo.ErrorCounter == 3) user.Account.Referal = "100lbov";
-                var acc = Session.WebInstagram.GetAccount(user.Account.FromReferal);
+                user.Account.From.URL = e.Message.Text.Replace("@", "");
+                if (user.AdditionInfo.ErrorCounter >= 3)
+                {
+                    user.Account.From = new MiniInfo(442320062, "100lbov");
+                    user.State = States.WaitSubscribe;
+                }
+                var acc = Session.WebInstagram.GetAccount(user.Account.From.URL);
                 if (acc == null) goto error;
-                user.Account.FromReferalId = acc.Uid;
-                if (Session.MySql.IsPresentLicense(user.Account.FromReferalId))
+                user.Account.From.ID = acc.Uid;
+              
+                if (Session.MySql.IsPresentInstagram(user.Account.From.ID))
                 {
                     user.State = States.WaitSubscribe;
                     return;
@@ -43,7 +51,8 @@ namespace InstagramBot.Net.Packets
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
                             string.Format(Session.Language.Get(user.Language, "ofgr_user_not_registred"), 3 - user.AdditionInfo.ErrorCounter));
            }
-            catch { }
+            catch (Exception ex)
+            { }
         }
     }
 }

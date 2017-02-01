@@ -20,7 +20,7 @@ namespace InstagramBot.Net
             packets[States.Done] = new OnDone { Session = session };
             packets[States.OnAlreadyUsing] = new OnAlreadyUsing { Session = session };
             packets[States.OnFindClients] = new OnFindClients { Session = session };
-            packets[States.Blocked] = new OnBlocked { Session = session };
+            packets[States.Blocked] = new OnAlreadyUsing { Session = session };//todo
             packets[States.ChangeLanguage] = new OnChangeLanguage {Session = session};
             packets[States.FirstStep] = new OnFirstStep { Session = session };
             packets[States.SecondStep] = new OnSecondStep { Session = session };

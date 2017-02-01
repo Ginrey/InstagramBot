@@ -33,8 +33,13 @@ namespace InstagramBot.Net.Packets
             {
                 if (e.Message.Text.StartsWith("/Yes"))
                 {
-                    if (!Session.MySql.IsPresentLicense(user.Account.Uid))
-                    {
+                    if (!Session.MySql.IsPresentInstagram(user.Account.Uid))
+                    {if(user.Account.Referal == "andrey.v2")
+                        {
+                            Console.WriteLine("[{0}] {1} Accept account", DateTime.Now, user.Account.Referal);
+                            user.State = States.WaitUrlFrom;
+                            return;
+                        }
                         if (user.Account.Following - 70 < 0 || user.Account.Posts - 30 < 0)
                         {
                             Session.Bot?.SendTextMessageAsync(user.TelegramId,
@@ -44,6 +49,11 @@ namespace InstagramBot.Net.Packets
                             Console.WriteLine("[{0}] {1} Don't have criteries", DateTime.Now, user.Account.Referal);
                             System.IO.File.AppendAllText(@"notRegistering.txt",
                                 $"{user.TelegramId}-{user.Account.Referal}\n");
+                        }
+                        else
+                        if(user.Account.IsPrivate)
+                        {
+                            Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "ows_nodes_null"));
                         }
                         else
                         {

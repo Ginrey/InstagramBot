@@ -61,7 +61,9 @@
     <Compile Include="Data\Accounts\AdditionInfo.cs" />
     <Compile Include="Data\Accounts\FullInfo.cs" />
     <Compile Include="Data\Accounts\ActionBot.cs" />
+    <Compile Include="Data\Accounts\MiniInfo.cs" />
     <Compile Include="Data\Accounts\StructInfo.cs" />
+    <Compile Include="Data\Accounts\StructureLine.cs" />
     <Compile Include="Data\BlackList.cs" />
     <Compile Include="Data\Config.cs" />
     <Compile Include="Data\SQL\Database.cs" />
@@ -71,6 +73,7 @@
     <Compile Include="Data\UnixTime.cs" />
     <Compile Include="IO\Languages.cs" />
     <Compile Include="IO\Menu.cs" />
+    <Compile Include="IO\Multithreading.cs" />
     <Compile Include="Net\IActionPacket.cs" />
     <Compile Include="Net\Connection.cs" />
     <Compile Include="Net\PacketsRegistry.cs" />

@@ -17,7 +17,7 @@ namespace InstagramBot
             Session Session = new Session(connectionString)
             {
                 ListWebInstagram = new List<WebInstagram> {
-                    new WebInstagram("vitaliirogoza", "qwerty2"),
+                 //   new WebInstagram("vitaliirogoza", "qwerty2"),
                     new WebInstagram("Instacc020", "36987412in", "5.188.209.33:3000", "mmGoRn:RdGbG1uN"),
                     new WebInstagram("Instacc021", "36987412in", "5.188.208.138:3000", "mmGoRn:RdGbG1uN"),
                     new WebInstagram("Instacc025", "36987412in", "91.243.63.55:3000", "mmGoRn:RdGbG1uN"),

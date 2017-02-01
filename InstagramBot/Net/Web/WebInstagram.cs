@@ -43,7 +43,7 @@ namespace InstagramBot.Net.Web
         public  FollowedUser GetListFollows(string referal)
         {
             var acc =  GetAccount(referal);
-            if (acc == null) return null;
+            if (acc == null || acc.IsPrivate) return null;
             return  GetFollowsListById(acc.Uid);
         }
         public UserInfo GetUser(string referal)
@@ -56,6 +56,17 @@ namespace InstagramBot.Net.Web
             catch
             {
                 return new UserInfo();
+            }
+        }
+        public User GetUser(long id)
+        {
+            try
+            {
+                return GetUserFromUrl(id);
+            }
+            catch
+            {
+                return new User();
             }
         }
         public AccountInstagram GetAccount(string referal)
@@ -71,7 +82,30 @@ namespace InstagramBot.Net.Web
                     Referal = userInfo.username,
                     Following = userInfo.followed_by.count,
                     Folowers = userInfo.follows.count,
-                    Posts = userInfo.media.count
+                    Posts = userInfo.media.count,
+                    IsPrivate = userInfo.is_private
+                };
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public AccountInstagram GetAccount(long id)
+        {
+            try
+            {
+                User userInfo = GetUser(id);
+                if (string.IsNullOrEmpty(userInfo?.id)) return null;
+                return new AccountInstagram
+                {
+                    Uid = long.Parse(userInfo.id),
+                    Name = userInfo.full_name,
+                    Referal = userInfo.username,
+                    Following = userInfo.followed_by.count,
+                    Folowers = userInfo.follows.count,
+                    Posts = userInfo.media.count,
+                    IsPrivate = userInfo.is_private
                 };
             }
             catch

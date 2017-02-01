@@ -14,12 +14,13 @@ namespace InstagramBot.Net.Packets
         {
             try
             {
-                string referal;
+                long UID;
                 if (user.Account != null) return;
-                if (Session.MySql.GetReferalByTelegramId(user.TelegramId, out referal))
+                if (Session.MySql.GetIDByTelegramId(user.TelegramId, out UID))
                 {
-                    user.Account = Session.WebInstagram.GetAccount(referal);
-
+                    user.Account = Session.WebInstagram.GetAccount(UID);
+                    if(Session.BlockedList.Contains(UID)) Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                             string.Format(Session.Language.Get(user.Language, "ob_banned")));
                     if (user.Account == null)
                     {
                         user.Language = Language.Russian;
@@ -78,6 +79,12 @@ namespace InstagramBot.Net.Packets
                         break;
                     case Config.MenuList.Struct:
                         Menu.ShowStruct(user, true);
+                        break;
+                    case Config.MyListUser:
+                        Menu.ShowListStruct(user, 1);
+                        break;
+                    case Config.MyNullListUser:
+                        Menu.ShowListStruct(user, 0);
                         break;
                     case Config.MenuList.CheckUsersOnInstagram:
                         user.State = States.OnFindClients;

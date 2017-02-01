@@ -18,6 +18,7 @@ namespace InstagramBot.Net
         public Connection(Session session)
         {
             Session = session;
+            Session.Multithreading.Start();
             PacketsRegistry = new PacketsRegistry(session);
             Bot.OnMessage += OnMessageReceived;
             Bot.OnCallbackQuery += OnInlineQueryReceived;
@@ -36,7 +37,7 @@ namespace InstagramBot.Net
             Bot?.StopReceiving();
             Console.Title = "Closed";
         }
-       
+      
         private void OnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             var message = messageEventArgs.Message;
@@ -54,10 +55,9 @@ namespace InstagramBot.Net
                 else
                 {
                     long id = message.Chat.Id;
-                    ActionBot user = null;
                     if (Users.ContainsKey(id))
                     {
-                        user = Users[message.Chat.Id];
+                        var user = Users[message.Chat.Id];
                         user.NextStep(message);
                     }
                     else
@@ -65,7 +65,6 @@ namespace InstagramBot.Net
                         var state = GetLicenseState(id);
                         Users[id] = new ActionBot(id, Session, "");
                         Users[id].SetState(state);
-                        user = Users[message.Chat.Id];
                     }
                   //  user.NextStep(message);
                     return;

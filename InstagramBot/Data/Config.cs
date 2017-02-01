@@ -21,6 +21,8 @@ namespace InstagramBot.Data
             }
         }
 
+        public const string MyListUser = "oau_my_list_users";
+        public const string MyNullListUser = "oau_my_nulllist_users";
         public static class MenuList
         {
             public const string PrivateOffice = "ml_private_office";

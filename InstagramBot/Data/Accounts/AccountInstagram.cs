@@ -5,12 +5,12 @@
         public long Uid { get; set; }
         public string Name { get; set; }
         public string Referal { get; set; }
-        public long FromReferalId { get; set; }
-        public string FromReferal { get; set; }
-        public long ToReferalId { get; set; }
-        public long TempReferalId { get; set; }
+        public MiniInfo From { get; set; }
+        public MiniInfo To { get; set; } 
+        public MiniInfo Temp { get; set; }
         public int Posts { get; set; }
         public int Folowers { get; set; }
         public int Following { get; set; }
+        public bool IsPrivate { get; set; }
     }
 }

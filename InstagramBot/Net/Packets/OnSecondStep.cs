@@ -13,18 +13,17 @@ namespace InstagramBot.Net.Packets
         {
             try
             {
-               await  Session.Bot?.SendTextMessageAsync(user.TelegramId, "Как работает бот \n https://youtu.be/76b6r9spW1k");
+               await  Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "oss_how_work") +"\n https://youtu.be/76b6r9spW1k");
                
-                //  await  Session.Bot?.SendVideoAsync(user.TelegramId, "BAADAgADIQADNf4AAUgNJ_9g8ZiqrwI");
-
                 var keyboard = new InlineKeyboardMarkup(new[]
                 {
                     new InlineKeyboardButton(Session.Language.Get(user.Language,"ofs_next"), "/Next")
                 });
-              await  Session.Bot?.SendTextMessageAsync(user.TelegramId, "Нажмите после просмотра",
+              await  Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "ofs_press_after"),
                       replyMarkup: keyboard);
             }
-            catch { }
+            catch (Exception ex)
+            { }
         }
 
         public void Deserialize(ActionBot user, StateEventArgs e)
@@ -36,7 +35,8 @@ namespace InstagramBot.Net.Packets
                     user.State = States.Registering;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            { }
         }
     }
 }

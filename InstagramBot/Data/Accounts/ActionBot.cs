@@ -7,6 +7,7 @@ namespace InstagramBot.Data.Accounts
 {
     public class ActionBot
     {
+      
         public AccountInstagram Account { get; set; }
         public Message Message { get; set; }
         public AdditionInfo AdditionInfo { get; set; }
@@ -46,7 +47,7 @@ namespace InstagramBot.Data.Accounts
         {
             if (!Wait()) return;
             Task = new Task(() => { State = state; });
-            Task.Start();
+            session.Multithreading.Add(Task);
         }
 
         public void NextStep(Message message)
@@ -57,7 +58,7 @@ namespace InstagramBot.Data.Accounts
                 session.Connection.PacketsRegistry.GetPacketType(State)
                     .Deserialize(this, new StateEventArgs(message, State));
             });
-            Task.Start();
+            session.Multithreading.Add(Task);
         }
     }
 }

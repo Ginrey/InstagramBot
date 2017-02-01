@@ -132,5 +132,24 @@ namespace InstagramBot.Net.Web
                 return new UserInfo();
             }
         }
+
+        protected User GetUserFromUrl(long id)
+        {
+            try
+            {
+                Dictionary<string, string> code = new Dictionary<string, string>
+                {
+                    {"q", "ig_user(" + id + "){id,username,full_name,followed_by{count},follows{count},media{count},is_private}"}
+                };
+                instWC.ResetHeaders();
+                var data = instWC.UploadString("https://www.instagram.com/query/", code);
+                User info = JsonConvert.DeserializeObject<User>(data);
+                return info;
+            }
+            catch
+            {
+                return new User();
+            }
+        }
     }
 }

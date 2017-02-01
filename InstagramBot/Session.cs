@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using InstagramBot.Data;
 using InstagramBot.Data.SQL;
 using InstagramBot.IO;
@@ -13,6 +14,7 @@ namespace InstagramBot
         public Connection Connection { get; }
         public BlackList BlackList = new BlackList();
         List<MySqlDatabase> listsql = new List<MySqlDatabase>();
+        public Multithreading Multithreading { get; set; }
         int indexSql = 0, indexWeb = 0;
         public Languages Language { get; set; } = new Languages();
         public List<long> BlockedList { get; set; }
@@ -57,6 +59,7 @@ namespace InstagramBot
                 listsql.Add(new MySqlDatabase(connectionString));
                 listsql[i].Connect();
             }
+            Multithreading = new Multithreading(Environment.ProcessorCount);
             Connection = new Connection(this);
             Menu.Session = this;
             BlockedList = MySql.GetBlockList();

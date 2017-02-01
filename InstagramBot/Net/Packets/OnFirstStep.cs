@@ -15,13 +15,12 @@ namespace InstagramBot.Net.Packets
             {
               await  Session.Bot?.SendTextMessageAsync(user.TelegramId,
                    string.Format(Session.Language.Get(user.Language, "or_welcome"), "https://youtu.be/nOCia6abu3E"));
-             //   Session.Bot?.SendVideoAsync(user.TelegramId, "BAADAgADHwADNf4AAUiMH8oazAp5qQI");
 
                 var keyboard = new InlineKeyboardMarkup(new[]
                 {
                     new InlineKeyboardButton(Session.Language.Get(user.Language,"ofs_next"), "/Next")
                 });
-             await   Session.Bot?.SendTextMessageAsync(user.TelegramId, "Нажмите после просмотра",
+             await   Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "ofs_press_after"),
                     replyMarkup: keyboard);
             }
             catch(Exception ex)

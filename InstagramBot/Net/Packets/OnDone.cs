@@ -20,23 +20,20 @@ namespace InstagramBot.Net.Packets
                 Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.TelegramId,
                     user.Account.ToReferalId, States.OnAlreadyUsing, DateTime.Now);
 
-                Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                     string.Format(Session.Language.Get(user.Language, "od_invite")));
-
                 int count;
                 Session.MySql.GetCountFollows(user.Account.FromReferalId, out count);
                 long telegramId;
                 Session.MySql.GetTelegramId(user.Account.FromReferalId, out telegramId);
 
-                Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                Session.Bot?.SendTextMessageAsync(telegramId,
                     string.Format(Session.Language.Get(user.Language, "od_registred_via_link"), user.Account.Referal));
-               
+
+              
                 if (count == 1)
                 {
                     Session.MySql.UpdateStatus(user.Account.FromReferalId, true);
-                    if (telegramId != 0)
-                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                            string.Format(Session.Language.Get(user.Language, "od_growth")));
+                    Session.Bot?.SendTextMessageAsync(telegramId,
+                        string.Format(Session.Language.Get(user.Language, "od_growth"),user.Account.FromReferal));
                 }
 
                 Session.MySql.UpdateCountFollows(user.Account.FromReferalId, count + 1);

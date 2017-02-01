@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
@@ -53,22 +54,21 @@ namespace InstagramBot.IO
                 nonActive = 0;
            
            string myreferals = Session.Language.Get(user.Language, "oau_invite_list");
-           int index = list.Count;
-           for(int i = 0; i < list.Count; i++)
+           
+           foreach (var info in list)
            {
-               var info = list[i];
                if (info.States == States.Blocked) blocked++;
                if (info.Status) stateRost++;
                else unlimitedLine++;
                if (info.CountFollows == 0) nonActive++;
-               if( i < 50)
-               myreferals += list[index--].Referal + "\n";
            }
            if (isStruct)
            {
                Session.MySql.GetCountFollows(user.Account.Uid, out lineCount);
                 int min = lineCount < 2 ? lineCount : 2;
                 lineCount = lineCount < 2 ? 0 : lineCount - 2;
+               int maxCount;
+               Session.MySql.GetCountRedFollows(user.Account.Referal, out maxCount);
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
                    string.Format(Session.Language.Get(user.Language, "oau_your_structure"), 
                    lineCount, 
@@ -76,6 +76,7 @@ namespace InstagramBot.IO
                        list.Count - lineCount - min,
                        list.Count,
                        unlimitedLine,
+                       maxCount,
                        nonActive, 
                        blocked));
            }
@@ -83,6 +84,35 @@ namespace InstagramBot.IO
                Session.Bot?.SendTextMessageAsync(user.TelegramId, myreferals);
        }
 
+       public static void ShowListStruct(ActionBot user, int typer)
+       {
+           var list = Session.MySql.GetStructInfo(user.Account.Uid);
+           list.Reverse();
+           string myreferals = "";
+           if (typer == 0)
+           {
+               int max = 0;
+               foreach (StructInfo t in list)
+               {
+                   if (max > 50) break;
+                   if (t.CountFollows == 0)
+                   {
+                       myreferals += t.Referal + "\n";
+                       max++;
+                   }
+               }
+           }
+            if (typer == 1)
+            {
+                myreferals = Session.Language.Get(user.Language, "oau_invite_list");
+                int max = list.Count > 50 ? 50 : list.Count;
+                for (int i = 0; i < max; i++)
+                {
+                    myreferals += list[i].Referal + "\n";
+                }
+            }
+            Session.Bot?.SendTextMessageAsync(user.TelegramId, myreferals);
+       }
         public static void ShowPromo(ActionBot user)
         {
             var keyboard = new InlineKeyboardMarkup(new[]
@@ -119,10 +149,10 @@ namespace InstagramBot.IO
        public static void ShowLK(ActionBot user)
        {
            List<KeyboardButton[]> listMenu = new List<KeyboardButton[]>();
-           listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyReferals))});
-           listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyListUsers))});
+          // listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyReferals))});
+          // listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyListUsers))});
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyPrivateFollows))});
-           listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.Status))});
+        //   listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.Status))});
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.Struct))});
            if (adminList.Contains(user.TelegramId))
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.HowMachUsers))});

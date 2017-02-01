@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
 
@@ -12,358 +13,310 @@ namespace InstagramBot.Data.SQL
         public SqlConnection MySqlConnection { get; set; }
 
         SqlDataReader reader;
-
+        Random random = new Random();
         public MySqlDatabase(string connectionString)
         {
             if (MySqlConnection == null)
                 MySqlConnection = new SqlConnection(connectionString);
         }
-
-        public override bool GetLicenseState(long uid, out States state)
+        public override bool GetCountInstagrams(out int count)
         {
             var args = new[]
             {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("State", SqlDbType.Int) {Direction = ParameterDirection.Output}
+                new SqlParameter("Count", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
             };
-            var result = CallFunction("GetLicenseState", args);
-            if (args[1].Value == DBNull.Value || args[1].Value == null)
-            {
-                state = States.SelectLanguage;
-                return false;
-            }
-            state = (States) args[1].Value;
-            return result;
-        }
-
-        public override bool GetCountFollows(long uid, out int count)
-        {
-            var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
-            };
-            var result = CallFunction("GetCountFollows", args);
-            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            var result = CallFunction("GetCountInstagrams", args);
+            if (args[0].Value == DBNull.Value || args[0].Value == null)
             {
                 count = 0;
                 return false;
             }
-            count = (int) args[1].Value;
+            count = (int) args[0].Value;
+            return true;
+        }
+        public override bool GetFromTo(long id, out long fromId, out long toId)
+        {
+            var args = new[]
+             {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("FromId", SqlDbType.BigInt) {Direction = ParameterDirection.Output},
+                new SqlParameter("ToId", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetFromTo", args);
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            {
+                fromId = toId = -1;
+                return false;
+            }
+            fromId = (long)args[1].Value;
+            toId = (long)args[2].Value;
             return result;
         }
 
-        public override bool GetRedList(long uid, out List<string> list)
+        public override bool GetIdByTelegramId(long telegramId, out List<MiniInfo> list)
         {
-            List<SqlParameter> args = new List<SqlParameter>();
-            args.Add(new SqlParameter("ID", SqlDbType.BigInt) { Value = uid });
-            for (int i = 0; i < 9; i++)
+            list = new List<MiniInfo>();
+            var args = new[]
             {
-                args.Add(new SqlParameter("Red" + (i + 1), SqlDbType.VarChar, 50) { Direction = ParameterDirection.Output });
+                new SqlParameter("TelegramID", SqlDbType.BigInt) {Value = telegramId}
+            };
+            var dataReader = CallFunctionReader("GetIdByTelegramId", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+             while (dataReader.Read())
+            {
+                list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
             }
-            var result = CallFunction("GetRedList", args.ToArray());
-
-            list = new List<string>();
+            return true;
+        }
+        public override bool GetLanguage(long telegramId, out int language)
+        {
+            var args = new[]
+             {
+                new SqlParameter("TelegramID", SqlDbType.BigInt) {Value = telegramId},
+                new SqlParameter("Language", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetLanguage", args);
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            {
+                language = 0;
+                return false;
+            }
+            language = (int)args[1].Value;
+            return result;
+        }
+        public override bool GetBaseInstagram(long id, out MiniInfo info)
+        {
+            info = new MiniInfo(-1,"");
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("NextId", SqlDbType.BigInt) {Direction = ParameterDirection.Output},
+                new SqlParameter("NextURL", SqlDbType.Text) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetRedList", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 return false;
             }
-            for (int i = 1; i <= 9; i++)
-                if(args[i].Value != DBNull.Value && args[i].Value != null)
-                list.Add((string)args[i].Value);
-            return result;
+            info.ID = (long)args[1].Value;
+            info.URL = (string)args[2].Value;
+            return true;
         }
-
-        public override bool GetReferal(long uid, out string referal)
+        public override bool GetPriority(int level, out List<MiniInfo> list)
         {
+            list = new List<MiniInfo>();
             var args = new[]
             {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("Referal", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
+                new SqlParameter("Level", SqlDbType.BigInt) {Value = level}
+            };
+            var dataReader = CallFunctionReader("GetPriority", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+                while (dataReader.Read())
+                {
+                    var info = new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]);
+                    int j = random.Next(list.Count + 1);
+                    if (j == list.Count)
+                    {
+                        list.Add(info);
+                    }
+                    else
+                    {
+                        list.Add(list[j]);
+                        list[j] = info;
+                    }
+                }
+            return true;
+        }
+        public override bool GetRedList(long id, out List<MiniInfo> list)
+        {
+            list = new List<MiniInfo>();
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id}
+            };
+            var dataReader = CallFunctionReader("GetRedList", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+             while (dataReader.Read())
+            {
+                list.Add(new MiniInfo((long)dataReader["Id"], (string)dataReader["URL"]));
+            }
+            return true;
+        }
+        public override bool GetReferal(long id, out MiniInfo info)
+        {
+            info = new MiniInfo();
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("URL", SqlDbType.Text) {Direction = ParameterDirection.Output}
             };
             bool result = CallFunction("GetReferal", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
-                referal = "";
                 return false;
             }
-            referal = (string) args[1].Value;
+            info.ID = id;
+            info.URL = (string)args[1].Value;
             return result;
         }
-
-        public override bool GetReferalByTelegramId(long tid, out string referal)
+        public override bool GetStructure(long id, out StructureLine structure)
         {
             var args = new[]
             {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = tid},
-                new SqlParameter("Referal", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id}
             };
-            bool result = CallFunction("GetReferalByTelegramId", args);
+            bool result = CallFunction("GetStructure", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
-                referal = "";
+                structure = null;
                 return false;
             }
-            referal = (string) args[1].Value;
+            structure = new StructureLine
+            {
+                ID = id,
+                CountFromMyURL = (int) args[1].Value,
+                CountFromFriends = (int) args[2].Value,
+                CountUlimited = (int) args[3].Value,
+                CountMinimum = (int) args[4].Value
+            };
             return result;
         }
 
-        public override bool GetTelegramId(long uid, out long telegramId)
+        public override bool GetTelegramId(long id, out long telegramId)
         {
             var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
+             {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("TelegramID", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
             };
-            bool result = CallFunction("GetTelegramID", args);
+            var result = CallFunction("GetLanguage", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 telegramId = 0;
                 return false;
             }
-            telegramId = (long) args[1].Value;
+            telegramId = (long)args[1].Value;
             return result;
         }
 
-        public bool GetLanguage(long uid, out Language lang)
-        {
-            var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("Language", SqlDbType.Int) {Direction = ParameterDirection.Output}
-            };
-            bool result = CallFunction("GetLanguage", args);
-            if (args[1].Value == DBNull.Value || args[1].Value == null)
-            {
-                lang = 0;
-                return false;
-            }
-            lang = (Language)args[1].Value;
-            return result;
-        }
-
-        public override bool GetFromReferalId(long uid, out long referalId)
-        {
-            var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("ReferalId", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
-            };
-            bool result = CallFunction("GetFromReferalId", args);
-            if (args[1].Value == DBNull.Value || args[1].Value == null)
-            {
-                referalId = 0;
-                return false;
-            }
-            referalId = (long) args[1].Value;
-            return result;
-        }
-
-        Random random = new Random();
-
-        public override List<string> GetPriorityList(int priority)
-        {
-            List<string> list = new List<string>();
-            using (
-                var command =
-                    new SqlCommand(
-                        "select PriorityLevels.Referal from PriorityLevels where PriorityLevels.Priority = " +
-                        priority, MySqlConnection))
-            {
-                command.CommandType = CommandType.Text;
-                lock (start)
-                {
-                    reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        string referal = reader["Referal"].ToString();
-                        int j = random.Next(list.Count + 1);
-                        if (j == list.Count)
-                        {
-                            list.Add(referal);
-                        }
-                        else
-                        {
-                            list.Add(list[j]);
-                            list[j] = referal;
-                        }
-                    }
-                    reader.Close();
-                }
-            }
-            return list;
-        }
-
-        public override List<StructInfo> GetStructInfo(long fromId)
-        {
-            lock (start)
-            {
-                List<StructInfo> list = new List<StructInfo>();
-                using (
-                    var command =
-                        new SqlCommand(
-                            "select Accounts.Referal, Accounts.State, Accounts.Status, Accounts.CountFollows from Accounts where Accounts.FromReferal = " +
-                            fromId, MySqlConnection))
-                {
-                    command.CommandType = CommandType.Text;
-                    reader = command.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        list.Add(new StructInfo
-                        {
-                            Referal = reader["Referal"].ToString(),
-                            States = (States) reader["State"],
-                            Status = (bool) reader["Status"],
-                            CountFollows = (int)reader["CountFollows"]
-                        });
-                    }
-                    reader.Close();
-                }
-            return list;
-        }
-    }
-
-        public List<long> GetTelegrams()
-        {
-            lock (start)
-            {
-                List<long> list = new List<long>();
-                using (
-                    var command =
-                        new SqlCommand(
-                            "select Accounts.TelegramID from Accounts", MySqlConnection))
-                {
-                    command.CommandType = CommandType.Text;
-                    reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        list.Add((long) reader["TelegramID"]);
-                    }
-                    reader.Close();
-                }
-                return list;
-            }
-        }
-
-        public List<long> GetBlockList()
-        {
-            lock (start)
-            {
-                List<long> list = new List<long>();
-                using (
-                    var command =
-                        new SqlCommand(
-                            "select Accounts.ID from Accounts where State = "+ (int)States.Blocked, MySqlConnection))
-                {
-                    command.CommandType = CommandType.Text;
-                    reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        list.Add((long)reader["ID"]);
-                    }
-                    reader.Close();
-                }
-                return list;
-            }
-        }
-        public override bool GetNeedReferalForFollow(long uid, out long referalId, out string referal)
-        {
-            if (IsLicenseStart(uid))
-                referalId = uid;
-            else
-                GetFromReferalId(uid, out referalId);
-            GetReferal(referalId, out referal);
-            return true;
-        }
-
-        public bool GetTreeFollow(long uid, out long referalId, out string referal)
+        public override bool GetTreeFollow(long id, out MiniInfo info)
         {
             GetFromReferalId(uid, out referalId);
             GetReferal(referalId, out referal);
             return true;
         }
 
-        public override bool InsertNewAccount(long pid, string referal, long telegramiD, long fromReferal, States state,
-            DateTime date)
+        public override bool InsertInstagram(long id, string url)
         {
             var args = new[]
             {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = pid},
-                new SqlParameter("Referal", SqlDbType.VarChar, 50) {Value = referal},
-                new SqlParameter("TelegramID", SqlDbType.BigInt) {Value = telegramiD},
-                new SqlParameter("FromReferal", SqlDbType.BigInt) {Value = fromReferal},
-                new SqlParameter("State", SqlDbType.Int) {Value = (int) state},
-                new SqlParameter("Date", SqlDbType.Date) {Value = date}
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("URL", SqlDbType.Text) {Value = url}
             };
-            var result = CallFunction("InsertNewAccount", args);
+            bool result = CallFunction("InsertInstagram", args);
             return result;
         }
 
-        public override bool InsertRedList(long pid, params string[] reds)
+        public override bool InsertLanguage(long telegramId, int language)
         {
-            List<SqlParameter> parameters = new List<SqlParameter>();
-            parameters.Add(new SqlParameter("ID", SqlDbType.BigInt) {Value = pid});
-            for(int i = 0; i < reds.Length; i++)
+            var args = new[]
+             {
+                new SqlParameter("TelegramId", SqlDbType.BigInt) {Value = telegramId},
+                new SqlParameter("Language", SqlDbType.Int) {Value = language}
+            };
+            bool result = CallFunction("InsertLanguage", args);
+            return result;
+        }
+        public override bool InsertRedList(long id, params long[] redIds)
+        {
+            List<SqlParameter> parameters = new List<SqlParameter>
             {
-                parameters.Add(new SqlParameter("Red" + (i+1), SqlDbType.VarChar, 50) {Value = reds[i]});
-            }
-           
+                new SqlParameter("Id", SqlDbType.BigInt) {Value = id}
+            };
+            parameters.AddRange(redIds.Select((t, i) => new SqlParameter("RedID" + (i + 1), SqlDbType.BigInt) {Value = t}));
             var result = CallFunction("InsertRedList", parameters.ToArray());
             return result;
         }
-        public bool InsertLanguage(long pid, Language lang)
+
+        public override bool InsertTelegram(long telegramId, long instagramId)
         {
             var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = pid},
-                new SqlParameter("Language", SqlDbType.Int) {Value = (int)lang}
+             {
+                new SqlParameter("TelegramId", SqlDbType.BigInt) {Value = telegramId},
+                new SqlParameter("InstagramId", SqlDbType.Int) {Value = instagramId}
             };
-
-            var result = CallFunction("InsertLanguage", args);
+            bool result = CallFunction("InsertTelegram", args);
             return result;
         }
 
-        public override bool IsPresentLicense(long uid)
+        public override bool InsertTree(long id, long fromId, long toId)
         {
             var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("State", SqlDbType.Int) {Direction = ParameterDirection.Output}
+             {
+                new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("FromId", SqlDbType.Int) {Value = fromId},
+                new SqlParameter("ToId", SqlDbType.Int) {Value = toId}
             };
-            var result = CallFunction("IsPresentLicense", args);
-            return args[1].Value != DBNull.Value && result;
+            bool result = CallFunction("InsertTree", args);
+            return result;
         }
 
-        public override bool IsPresentReferal(string referal)
+        public override bool IsBlocked(long id)
         {
             var args = new[]
-            {
-                new SqlParameter("Referal", SqlDbType.VarChar, 50) {Value = referal},
-                new SqlParameter("State", SqlDbType.Int) {Direction = ParameterDirection.Output}
+             {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Block", SqlDbType.Bit) {Direction = ParameterDirection.Output}
             };
-            var result = CallFunction("IsPresentReferal", args);
-            return args[1].Value != DBNull.Value && result;
+            var result = CallFunction("IsBlocked", args);
+            return args[1].Value != DBNull.Value && (bool)args[1].Value;
         }
 
-        public override bool IsLicenseStart(long uid)
+        public override bool IsPresentInstagram(long id)
         {
             var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("Status", SqlDbType.Bit) {Direction = ParameterDirection.Output}
+             {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Present", SqlDbType.Bit) {Direction = ParameterDirection.Output}
             };
-            CallFunction("IsLicenseStart", args);
-            if (args[1].Value == DBNull.Value || args[1].Value == null)
-            {
-                return false;
-            }
-            return (bool) args[1].Value;
+            var result = CallFunction("IsPresentInstagram", args);
+            return args[1].Value != DBNull.Value && (bool)args[1].Value;
         }
 
-        public bool BlockLicense(long uid)
+        public override bool IsPresentURL(string url)
         {
-            return UpdateState(uid, (int)States.Blocked);
+            var args = new[]
+             {
+                new SqlParameter("URL", SqlDbType.Text) {Value = url},
+                new SqlParameter("Present", SqlDbType.Bit) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("IsPresentURL", args);
+            return args[1].Value != DBNull.Value && (bool)args[1].Value;
+        }
+
+        public override bool IsStart(long id)
+        {
+            var args = new[]
+           {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Start", SqlDbType.Bit) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("IsStart", args);
+            return args[1].Value != DBNull.Value && (bool)args[1].Value;
+        }
+
+        public override bool UpdateBlock(long id, bool block)
+        {
+            var args = new[]
+              {
+                new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Block", SqlDbType.Int) {Value = block}
+            };
+            bool result = CallFunction("UpdateBlock", args);
+            return result;
         }
         public override bool UpdateStatus(long uid, bool status)
         {
@@ -374,31 +327,12 @@ namespace InstagramBot.Data.SQL
             };
             return CallFunction("UpdateStatus", args);
         }
-        public  bool UpdateState(long uid, int state)
+        public override bool UpdateLanguage(long id, int language)
         {
             var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("State", SqlDbType.Int) {Value = state}
-            };
-            return CallFunction("UpdateState", args);
-        }
-
-        public override bool UpdateCountFollows(long uid, int count)
-        {
-            var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("Count", SqlDbType.Int) {Value = count}
-            };
-            return CallFunction("UpdateCountFollows", args);
-        }
-        public bool UpdateLanguage(long uid, Language lang)
-        {
-            var args = new[]
-            {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = uid},
-                new SqlParameter("Language", SqlDbType.Int) {Value = (int)lang}
+          {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Language", SqlDbType.Int) {Value = language}
             };
             return CallFunction("UpdateLanguage", args);
         }
@@ -423,16 +357,42 @@ namespace InstagramBot.Data.SQL
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                Console.WriteLine("Reconnect");
+                Console.WriteLine($"Reconnect:{functionName} [{ex.Message}]");
                 MySqlConnection.Close();
                 MySqlConnection = new SqlConnection(MySqlConnection.ConnectionString);
                 Connect();
                 return false;
             }
         }
-
+        public SqlDataReader CallFunctionReader(string functionName, params SqlParameter[] parameters)
+        {
+            if (MySqlConnection.State != ConnectionState.Open)
+            {
+                Connect();
+            }
+            try
+            {
+                lock (start)
+                {
+                    using (var command = new SqlCommand(functionName, MySqlConnection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddRange(parameters);
+                        return command.ExecuteReader();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Reconnect:{functionName} [{ex.Message}]");
+                MySqlConnection.Close();
+                MySqlConnection = new SqlConnection(MySqlConnection.ConnectionString);
+                Connect();
+                return null;
+            }
+        }
         public void Connect()
         {
             if (MySqlConnection.State == ConnectionState.Open)

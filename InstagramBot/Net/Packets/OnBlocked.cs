@@ -1,6 +1,7 @@
 ﻿using System;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
+using InstagramBot.IO;
 
 namespace InstagramBot.Net.Packets
 {
@@ -13,7 +14,8 @@ namespace InstagramBot.Net.Packets
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            Session.Bot?.SendTextMessageAsync(user.TelegramId,string.Format(Session.Language.Get(user.Language, "ob_banned")));    
+            Session.Bot?.SendTextMessageAsync(user.TelegramId,string.Format(Session.Language.Get(user.Language, "ob_banned")));
+            Menu.ShowMyRedList(user);
         }
     }
 }
