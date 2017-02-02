@@ -67,7 +67,7 @@ namespace InstagramBot.Net.Packets
             {
                 if (user.AdditionInfo.Full) return;
                 if (string.Equals(t.URL, user.Account.Referal, StringComparison.OrdinalIgnoreCase)) continue;
-                user.AdditionInfo.AddLink(t.URL);
+                user.AdditionInfo.AddLink(t);
             }
             if (user.AdditionInfo.Full) return;//todo Коррупционный список
             topList = null;
@@ -76,25 +76,25 @@ namespace InstagramBot.Net.Packets
             while (string.IsNullOrEmpty(info.URL))
                 Session.MySql.GetReferal(user.Account.From.ID, out info);
             if (!Session.BlockedList.Contains(info.ID))
-                user.AdditionInfo.AddLink(info.URL);
+                user.AdditionInfo.AddLink(info);
             info.Reset();
 
             while (string.IsNullOrEmpty(info.URL))
                 Session.MySql.GetBaseInstagram(user.Account.From.ID, out info);
             if (!Session.BlockedList.Contains(info.ID))
-                user.AdditionInfo.AddLink(info.URL);
-            user.Account.To = info;
+                user.AdditionInfo.AddLink(info);
+            user.Account.To = info.Copy;
 
             if (user.AdditionInfo.Full) return;
 
-            user.Account.Temp = user.Account.To;
+            user.Account.Temp = user.Account.To.Copy;
             while (user.Account.Temp.ID != 1647550018 && user.Account.Temp.ID != 442320062 && user.AdditionInfo.ListForLink.Count < 9)
             {
                 Session.MySql.GetTreeInstagram(user.Account.Temp.ID, out info);
                 if (info.ID == -1) continue;
-                user.Account.Temp = info;
+                user.Account.Temp = info.Copy;
                 if(!Session.BlockedList.Contains(info.ID))
-                user.AdditionInfo.AddLink(info.URL);
+                user.AdditionInfo.AddLink(info);
             }
             if (user.AdditionInfo.Full) return;
          
@@ -104,7 +104,7 @@ namespace InstagramBot.Net.Packets
             foreach (MiniInfo t in topList)
             {
                 if (user.AdditionInfo.Full) return;
-                user.AdditionInfo.AddLink(t.URL);
+                user.AdditionInfo.AddLink(t);
             }
             topList = null;
 
@@ -114,7 +114,7 @@ namespace InstagramBot.Net.Packets
             foreach (MiniInfo t in topList)
             {
                 if (user.AdditionInfo.Full) return;
-                user.AdditionInfo.AddLink(t.URL);
+                user.AdditionInfo.AddLink(t);
             }
 
             if (!user.AdditionInfo.Full) AddTree(user);

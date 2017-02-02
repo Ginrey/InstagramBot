@@ -19,7 +19,7 @@ namespace InstagramBot.Net.Packets
                   return;
               }
               Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                  Session.MySql.IsPresentReferal(referal)
+                  Session.MySql.IsPresentURL(referal)
                       ? string.Format(Session.Language.Get(user.Language, "ofc_already_used"))
                       : string.Format(Session.Language.Get(user.Language, "ofc_not_used")));
               user.State = States.OnAlreadyUsing;

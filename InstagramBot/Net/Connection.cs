@@ -85,9 +85,7 @@ namespace InstagramBot.Net
 
         States GetLicenseState(long uid)
         {
-            States state;
-            Session.MySql.GetLicenseState(uid, out state);
-            return state;
+            return Session.MySql.IsPresentTelegram(uid) ? States.OnAlreadyUsing : States.FirstStep;
         }
     }
 }

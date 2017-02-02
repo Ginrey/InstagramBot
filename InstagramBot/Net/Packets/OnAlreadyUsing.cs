@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
@@ -14,12 +15,13 @@ namespace InstagramBot.Net.Packets
         {
             try
             {
-                long UID;
+                List<MiniInfo> info;
                 if (user.Account != null) return;
-                if (Session.MySql.GetIDByTelegramId(user.TelegramId, out UID))
+                if (Session.MySql.GetIdByTelegramId( user.TelegramId, out info))
                 {
-                    user.Account = Session.WebInstagram.GetAccount(UID);
-                    if(Session.BlockedList.Contains(UID)) Session.Bot?.SendTextMessageAsync(user.TelegramId,
+
+                    user.Account = Session.WebInstagram.GetAccount(info[0].ID);
+                    if(Session.BlockedList.Contains(info[0].ID)) Session.Bot?.SendTextMessageAsync(user.TelegramId,
                              string.Format(Session.Language.Get(user.Language, "ob_banned")));
                     if (user.Account == null)
                     {

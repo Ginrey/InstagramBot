@@ -14,11 +14,13 @@ namespace InstagramBot.Data.SQL
 
         SqlDataReader reader;
         Random random = new Random();
+
         public MySqlDatabase(string connectionString)
         {
             if (MySqlConnection == null)
                 MySqlConnection = new SqlConnection(connectionString);
         }
+
         public override bool GetCountInstagrams(out int count)
         {
             var args = new[]
@@ -34,10 +36,62 @@ namespace InstagramBot.Data.SQL
             count = (int) args[0].Value;
             return true;
         }
+
+        public override bool GetCountRedList(long id, out int count)
+        {
+            var args = new[]
+            {
+                new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetCountRedList", args);
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            {
+                count = 0;
+                return false;
+            }
+            count = (int) args[1].Value;
+            return true;
+        }
+
+        public override bool GetListFromMyURL(long id, out List<MiniInfo> list)
+        {
+            list = new List<MiniInfo>();
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id}
+            };
+            var dataReader = CallFunctionReader("GetListFromMyURL", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+                while (dataReader.Read())
+                {
+                    list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
+                }
+            return true;
+        }
+
+        public override bool GetListNonActiveFromMyURL(long id, out List<MiniInfo> list)
+        {
+            list = new List<MiniInfo>();
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id}
+            };
+            var dataReader = CallFunctionReader("GetListNonActiveFromMyURL", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+                while (dataReader.Read())
+                {
+                    list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
+                }
+            return true;
+        }
+
         public override bool GetFromTo(long id, out long fromId, out long toId)
         {
             var args = new[]
-             {
+            {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("FromId", SqlDbType.BigInt) {Direction = ParameterDirection.Output},
                 new SqlParameter("ToId", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
@@ -48,8 +102,8 @@ namespace InstagramBot.Data.SQL
                 fromId = toId = -1;
                 return false;
             }
-            fromId = (long)args[1].Value;
-            toId = (long)args[2].Value;
+            fromId = (long) args[1].Value;
+            toId = (long) args[2].Value;
             return result;
         }
 
@@ -63,16 +117,17 @@ namespace InstagramBot.Data.SQL
             var dataReader = CallFunctionReader("GetIdByTelegramId", args);
             if (dataReader == null) return false;
             lock (dataReader)
-             while (dataReader.Read())
-            {
-                list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
-            }
+                while (dataReader.Read())
+                {
+                    list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
+                }
             return true;
         }
-        public override bool GetLanguage(long telegramId, out int language)
+
+        public override bool GetLanguage(long telegramId, out Language language)
         {
             var args = new[]
-             {
+            {
                 new SqlParameter("TelegramID", SqlDbType.BigInt) {Value = telegramId},
                 new SqlParameter("Language", SqlDbType.Int) {Direction = ParameterDirection.Output}
             };
@@ -82,9 +137,10 @@ namespace InstagramBot.Data.SQL
                 language = 0;
                 return false;
             }
-            language = (int)args[1].Value;
+            language = (Language) args[1].Value;
             return result;
         }
+
         public override bool GetBaseInstagram(long id, out MiniInfo info)
         {
             info = new MiniInfo();
@@ -92,17 +148,18 @@ namespace InstagramBot.Data.SQL
             {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("NextId", SqlDbType.BigInt) {Direction = ParameterDirection.Output},
-                new SqlParameter("NextURL", SqlDbType.Text) {Direction = ParameterDirection.Output}
+                new SqlParameter("NextURL", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("GetBaseInstagram", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 return false;
             }
-            info.ID = (long)args[1].Value;
-            info.URL = (string)args[2].Value;
+            info.ID = (long) args[1].Value;
+            info.URL = (string) args[2].Value;
             return true;
         }
+
         public override bool GetBlockList(out List<long> list)
         {
             list = new List<long>();
@@ -112,10 +169,11 @@ namespace InstagramBot.Data.SQL
             lock (dataReader)
                 while (dataReader.Read())
                 {
-                  list.Add((long)dataReader["Id"]);
+                    list.Add((long) dataReader["Id"]);
                 }
             return true;
         }
+
         public override bool GetPriority(int level, out List<MiniInfo> list)
         {
             list = new List<MiniInfo>();
@@ -142,6 +200,7 @@ namespace InstagramBot.Data.SQL
                 }
             return true;
         }
+
         public override bool GetRedList(long id, out List<MiniInfo> list)
         {
             list = new List<MiniInfo>();
@@ -152,19 +211,20 @@ namespace InstagramBot.Data.SQL
             var dataReader = CallFunctionReader("GetRedList", args);
             if (dataReader == null) return false;
             lock (dataReader)
-             while (dataReader.Read())
-            {
-                list.Add(new MiniInfo((long)dataReader["Id"], (string)dataReader["URL"]));
-            }
+                while (dataReader.Read())
+                {
+                    list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
+                }
             return true;
         }
+
         public override bool GetReferal(long id, out MiniInfo info)
         {
             info = new MiniInfo();
             var args = new[]
             {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
-                new SqlParameter("URL", SqlDbType.Text) {Direction = ParameterDirection.Output}
+                new SqlParameter("URL", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
             };
             bool result = CallFunction("GetReferal", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
@@ -172,14 +232,21 @@ namespace InstagramBot.Data.SQL
                 return false;
             }
             info.ID = id;
-            info.URL = (string)args[1].Value;
+            info.URL = (string) args[1].Value;
             return result;
         }
+
         public override bool GetStructure(long id, out StructureLine structure)
         {
             var args = new[]
             {
-                new SqlParameter("ID", SqlDbType.BigInt) {Value = id}
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("CountFromMyURL", SqlDbType.Int) {Direction = ParameterDirection.Output},
+                new SqlParameter("CountFromFriends", SqlDbType.Int) {Direction = ParameterDirection.Output},
+                new SqlParameter("CountUlimited", SqlDbType.Int) {Direction = ParameterDirection.Output},
+                new SqlParameter("CountMinimum", SqlDbType.Int) {Direction = ParameterDirection.Output},
+                new SqlParameter("CountBlock", SqlDbType.Int) {Direction = ParameterDirection.Output},
+                new SqlParameter("CountNull", SqlDbType.Int) {Direction = ParameterDirection.Output}
             };
             bool result = CallFunction("GetStructure", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
@@ -193,7 +260,9 @@ namespace InstagramBot.Data.SQL
                 CountFromMyURL = (int) args[1].Value,
                 CountFromFriends = (int) args[2].Value,
                 CountUlimited = (int) args[3].Value,
-                CountMinimum = (int) args[4].Value
+                CountMinimum = (int) args[4].Value,
+                CountBlock = (int) args[5].Value,
+                CountNull = (int) args[6].Value
             };
             return result;
         }
@@ -201,7 +270,7 @@ namespace InstagramBot.Data.SQL
         public override bool GetTelegramId(long id, out long telegramId)
         {
             var args = new[]
-             {
+            {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("TelegramID", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
             };
@@ -211,7 +280,7 @@ namespace InstagramBot.Data.SQL
                 telegramId = 0;
                 return false;
             }
-            telegramId = (long)args[1].Value;
+            telegramId = (long) args[1].Value;
             return result;
         }
 
@@ -222,15 +291,15 @@ namespace InstagramBot.Data.SQL
             {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("NextId", SqlDbType.BigInt) {Direction = ParameterDirection.Output},
-                new SqlParameter("NextURL", SqlDbType.Text) {Direction = ParameterDirection.Output}
+                new SqlParameter("NextURL", SqlDbType.VarChar, 50) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("GetTreeInstagram", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 return false;
             }
-            info.ID = (long)args[1].Value;
-            info.URL = (string)args[2].Value;
+            info.ID = (long) args[1].Value;
+            info.URL = (string) args[2].Value;
             return true;
         }
 
@@ -239,29 +308,31 @@ namespace InstagramBot.Data.SQL
             var args = new[]
             {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
-                new SqlParameter("URL", SqlDbType.Text) {Value = url}
+                new SqlParameter("URL", SqlDbType.VarChar, 50) {Value = url}
             };
             bool result = CallFunction("InsertInstagram", args);
             return result;
         }
 
-        public override bool InsertLanguage(long telegramId, int language)
+        public override bool InsertLanguage(long telegramId, Language language)
         {
             var args = new[]
-             {
+            {
                 new SqlParameter("TelegramId", SqlDbType.BigInt) {Value = telegramId},
-                new SqlParameter("Language", SqlDbType.Int) {Value = language}
+                new SqlParameter("Language", SqlDbType.Int) {Value = (int)language}
             };
             bool result = CallFunction("InsertLanguage", args);
             return result;
         }
+
         public override bool InsertRedList(long id, params long[] redIds)
         {
             List<SqlParameter> parameters = new List<SqlParameter>
             {
                 new SqlParameter("Id", SqlDbType.BigInt) {Value = id}
             };
-            parameters.AddRange(redIds.Select((t, i) => new SqlParameter("RedID" + (i + 1), SqlDbType.BigInt) {Value = t}));
+            parameters.AddRange(
+                redIds.Select((t, i) => new SqlParameter("RedID" + (i + 1), SqlDbType.BigInt) {Value = t}));
             var result = CallFunction("InsertRedList", parameters.ToArray());
             return result;
         }
@@ -269,7 +340,7 @@ namespace InstagramBot.Data.SQL
         public override bool InsertTelegram(long telegramId, long instagramId)
         {
             var args = new[]
-             {
+            {
                 new SqlParameter("TelegramId", SqlDbType.BigInt) {Value = telegramId},
                 new SqlParameter("InstagramId", SqlDbType.Int) {Value = instagramId}
             };
@@ -280,7 +351,7 @@ namespace InstagramBot.Data.SQL
         public override bool InsertTree(long id, long fromId, long toId)
         {
             var args = new[]
-             {
+            {
                 new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("FromId", SqlDbType.Int) {Value = fromId},
                 new SqlParameter("ToId", SqlDbType.Int) {Value = toId}
@@ -292,57 +363,67 @@ namespace InstagramBot.Data.SQL
         public override bool IsBlocked(long id)
         {
             var args = new[]
-             {
+            {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("Block", SqlDbType.Bit) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("IsBlocked", args);
-            return args[1].Value != DBNull.Value && (bool)args[1].Value;
+            return args[1].Value != DBNull.Value && (bool) args[1].Value;
         }
 
         public override bool IsPresentInstagram(long id)
         {
             var args = new[]
-             {
+            {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("Present", SqlDbType.Bit) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("IsPresentInstagram", args);
+            return args[1].Value != DBNull.Value && (bool) args[1].Value;
+        }
+        public override bool IsPresentTelegram(long id)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Present", SqlDbType.Bit) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("IsPresentTelegram", args);
             return args[1].Value != DBNull.Value && (bool)args[1].Value;
         }
-
         public override bool IsPresentURL(string url)
         {
             var args = new[]
-             {
-                new SqlParameter("URL", SqlDbType.Text) {Value = url},
+            {
+                new SqlParameter("URL", SqlDbType.VarChar, 50) {Value = url},
                 new SqlParameter("Present", SqlDbType.Bit) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("IsPresentURL", args);
-            return args[1].Value != DBNull.Value && (bool)args[1].Value;
+            return args[1].Value != DBNull.Value && (bool) args[1].Value;
         }
 
         public override bool IsStart(long id)
         {
             var args = new[]
-           {
+            {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("Start", SqlDbType.Bit) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("IsStart", args);
-            return args[1].Value != DBNull.Value && (bool)args[1].Value;
+            return args[1].Value != DBNull.Value && (bool) args[1].Value;
         }
 
         public override bool UpdateBlock(long id, bool block)
         {
             var args = new[]
-              {
+            {
                 new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("Block", SqlDbType.Int) {Value = block}
             };
             bool result = CallFunction("UpdateBlock", args);
             return result;
         }
+
         public override bool UpdateStatus(long uid, bool status)
         {
             var args = new[]
@@ -352,18 +433,19 @@ namespace InstagramBot.Data.SQL
             };
             return CallFunction("UpdateStatus", args);
         }
-        public override bool UpdateLanguage(long id, int language)
+
+        public override bool UpdateLanguage(long id, Language language)
         {
             var args = new[]
-          {
+            {
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
-                new SqlParameter("Language", SqlDbType.Int) {Value = language}
+                new SqlParameter("Language", SqlDbType.Int) {Value = (int) language}
             };
             return CallFunction("UpdateLanguage", args);
         }
 
         object start = new object();
-        
+
         public bool CallFunction(string functionName, params SqlParameter[] parameters)
         {
             if (MySqlConnection.State != ConnectionState.Open)
@@ -382,7 +464,7 @@ namespace InstagramBot.Data.SQL
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Reconnect:{functionName} [{ex.Message}]");
                 MySqlConnection.Close();
@@ -391,6 +473,7 @@ namespace InstagramBot.Data.SQL
                 return false;
             }
         }
+
         public SqlDataReader CallFunctionReader(string functionName, params SqlParameter[] parameters)
         {
             if (MySqlConnection.State != ConnectionState.Open)
@@ -418,6 +501,7 @@ namespace InstagramBot.Data.SQL
                 return null;
             }
         }
+
         public void Connect()
         {
             if (MySqlConnection.State == ConnectionState.Open)

@@ -1,50 +1,45 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 
 namespace InstagramBot.Net.Packets
 {
-   public class OnDone : IActionPacket
+    public class OnDone : IActionPacket
     {
         public Session Session { get; set; }
-        
+
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             try
             {
-                Session.Bot?.SendTextMessageAsync(user.TelegramId, 
+                Session.Bot?.SendTextMessageAsync(user.TelegramId,
                     string.Format(Session.Language.Get(user.Language, "od_start")));
+                bool start = false;
+                if (Session.MySql.IsStart(user.Account.From.ID)) start = false;
+                Session.MySql.InsertInstagram(user.Account.Uid, user.Account.Referal);
+                Session.MySql.InsertTelegram(user.Account.Uid, user.TelegramId);
+                Session.MySql.InsertTree(user.Account.Uid, user.Account.From.ID, user.Account.To.ID);
+                Session.MySql.InsertRedList(user.Account.Uid, user.AdditionInfo.LinkIds.ToArray());
+                Session.MySql.InsertLanguage(user.Account.Uid, user.Language);
 
-                Session.MySql.InsertNewAccount(user.Account.Uid, user.Account.Referal, user.TelegramId,
-                    user.Account.ToReferalId, States.OnAlreadyUsing, DateTime.Now);
-
-                int count;
-                Session.MySql.GetCountFollows(user.Account.FromReferalId, out count);
                 long telegramId;
-                Session.MySql.GetTelegramId(user.Account.FromReferalId, out telegramId);
+                Session.MySql.GetTelegramId(user.Account.From.ID, out telegramId);
 
                 Session.Bot?.SendTextMessageAsync(telegramId,
                     string.Format(Session.Language.Get(user.Language, "od_registred_via_link"), user.Account.Referal));
 
-              
-                if (count == 1)
-                {
-                    Session.MySql.UpdateStatus(user.Account.FromReferalId, true);
+                if (start && Session.MySql.IsStart(user.Account.From.ID))
                     Session.Bot?.SendTextMessageAsync(telegramId,
-                        string.Format(Session.Language.Get(user.Language, "od_growth"),user.Account.FromReferal));
-                }
+                        string.Format(Session.Language.Get(user.Language, "od_growth"), user.Account.From.URL));
 
-                Session.MySql.UpdateCountFollows(user.Account.FromReferalId, count + 1);
-                List<string> redlist = user.AdditionInfo.ListForLink.Keys.ToList();
-                Session.MySql.InsertRedList(user.Account.Uid, redlist.ToArray());
-                Session.MySql.InsertLanguage(user.Account.Uid, user.Language);
+
                 Console.WriteLine("[{0}] {1} Complete register", DateTime.Now, user.Account.Referal);
                 user.Account = null;
                 user.State = States.OnAlreadyUsing;
             }
-            catch { }
+            catch (Exception ex)
+            {
+            }
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
         {

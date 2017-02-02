@@ -1,6 +1,6 @@
 ﻿namespace InstagramBot.Data.Accounts
 {
-   public struct MiniInfo
+   public class MiniInfo
     {
         public long ID { get; set; }
         public string URL { get; set; }
@@ -22,5 +22,7 @@
         {
             URL = url;
         }
+        public MiniInfo Copy => new MiniInfo(ID, URL);
+
     }
 }

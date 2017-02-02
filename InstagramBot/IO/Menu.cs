@@ -28,15 +28,15 @@ namespace InstagramBot.IO
 
        public static void ShowMyReferals(ActionBot user)
        {
-           int count;
+         /*  int count;
            Session.MySql.GetCountFollows(user.Account.Uid, out count);
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
-               string.Format(Session.Language.Get(user.Language, "oau_number_registred_users"), count, count < 2 ? count : 2));
+               string.Format(Session.Language.Get(user.Language, "oau_number_registred_users"), count, count < 2 ? count : 2));*/
        }
 
        public static void ShowStatus(ActionBot user)
        {
-           string status = Session.MySql.IsLicenseStart(user.Account.Uid)
+           string status = Session.MySql.IsStart(user.Account.Uid)
                ? Session.Language.Get(user.Language, "status_growth")
                : Session.Language.Get(user.Language, "status_start");
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
@@ -45,73 +45,52 @@ namespace InstagramBot.IO
 
        public static void ShowStruct(ActionBot user, bool isStruct)
        {
-          
-           var list = Session.MySql.GetStructInfo(user.Account.Uid);
-           int lineCount = 0, 
-                stateRost = 0, 
-                unlimitedLine = 0, 
-                blocked = 0,
-                nonActive = 0;
-           
-           string myreferals = Session.Language.Get(user.Language, "oau_invite_list");
-           
-           foreach (var info in list)
-           {
-               if (info.States == States.Blocked) blocked++;
-               if (info.Status) stateRost++;
-               else unlimitedLine++;
-               if (info.CountFollows == 0) nonActive++;
-           }
            if (isStruct)
            {
-               Session.MySql.GetCountFollows(user.Account.Uid, out lineCount);
-                int min = lineCount < 2 ? lineCount : 2;
-                lineCount = lineCount < 2 ? 0 : lineCount - 2;
+               StructureLine structure;
+               Session.MySql.GetStructure(user.Account.Uid, out structure);
                int maxCount;
-               Session.MySql.GetCountRedFollows(user.Account.Referal, out maxCount);
-                Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                   string.Format(Session.Language.Get(user.Language, "oau_your_structure"), 
-                   lineCount, 
-                     min,
-                       list.Count - lineCount - min,
-                       list.Count,
-                       unlimitedLine,
+               Session.MySql.GetCountRedList(user.Account.Uid, out maxCount);
+               Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                   string.Format(Session.Language.Get(user.Language, "oau_your_structure"),
+                       structure.CountFromMyURL,
+                       structure.CountMinimum,
+                       structure.CountFromFriends,
+                       structure.CountFromMyURL + structure.CountMinimum + structure.CountFromFriends,
+                       structure.CountUlimited,
                        maxCount,
-                       nonActive, 
-                       blocked));
+                       structure.CountNull,
+                       structure.CountBlock));
            }
            else
+           {
+               string myreferals = Session.Language.Get(user.Language, "oau_invite_list");
+               List<MiniInfo> list;
+               Session.MySql.GetListFromMyURL(user.Account.Uid, out list);
+               list.Reverse();
+               for (int i = 0; i < 50 && i < list.Count; i++)
+                   myreferals += "\n" + list[i].URL;
                Session.Bot?.SendTextMessageAsync(user.TelegramId, myreferals);
+           }
        }
 
        public static void ShowListStruct(ActionBot user, int typer)
        {
-           var list = Session.MySql.GetStructInfo(user.Account.Uid);
-           list.Reverse();
+           List<MiniInfo> list = null;
            string myreferals = "";
            if (typer == 0)
            {
-               int max = 0;
-               foreach (StructInfo t in list)
-               {
-                   if (max > 50) break;
-                   if (t.CountFollows == 0)
-                   {
-                       myreferals += t.Referal + "\n";
-                       max++;
-                   }
-               }
+               Session.MySql.GetListNonActiveFromMyURL(user.Account.Uid, out list);
            }
-            if (typer == 1)
-            {
-                myreferals = Session.Language.Get(user.Language, "oau_invite_list");
-                int max = list.Count > 50 ? 50 : list.Count;
-                for (int i = 0; i < max; i++)
-                {
-                    myreferals += list[i].Referal + "\n";
-                }
-            }
-            Session.Bot?.SendTextMessageAsync(user.TelegramId, myreferals);
+           if (typer == 1)
+           {
+               myreferals = Session.Language.Get(user.Language, "oau_invite_list");
+               Session.MySql.GetListFromMyURL(user.Account.Uid, out list);
+           }
+           list.Reverse();
+           for (int i = 0; i < 50 && i < list.Count; i++)
+               myreferals += "\n" + list[i].URL;
+           Session.Bot?.SendTextMessageAsync(user.TelegramId, myreferals);
        }
         public static void ShowPromo(ActionBot user)
         {
@@ -125,9 +104,9 @@ namespace InstagramBot.IO
 
         public static void ShowMyRedList(ActionBot user)
        {
-           List<string> redlist;
+           List<MiniInfo> redlist;
            Session.MySql.GetRedList(user.Account.Uid, out redlist);
-           string text = redlist.Aggregate("", (current, t) => current + t + "\n");
+           string text = redlist.Aggregate("", (current, t) => current + t.URL + "\n");
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
                string.Format(Session.Language.Get(user.Language, "oau_redlist"), text));
        }
@@ -168,9 +147,10 @@ namespace InstagramBot.IO
         public static void ShowCountUsers(ActionBot user)
         {
             if (!adminList.Contains(user.TelegramId)) return;
-            var list = Session.MySql.GetTelegrams();
+            int count;
+            Session.MySql.GetCountInstagrams(out count);
             Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                string.Format(Session.Language.Get(user.Language, "oau_all_users"), list.Count));
+                string.Format(Session.Language.Get(user.Language, "oau_all_users"), count));
         }
    }
 }

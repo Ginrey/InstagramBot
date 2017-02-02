@@ -7,5 +7,7 @@
         public int CountFromFriends { get; set; }
         public int CountUlimited { get; set; }
         public int CountMinimum { get; set; }
+        public int CountBlock { get; set; }
+        public int CountNull { get; set; }
     }
 }

@@ -9,15 +9,18 @@ namespace InstagramBot.Data.Accounts
         public List<string> Uses = new List<string>();
         public bool Complete { get; set; }
         public bool Full => ListForLink.Count >= 9;
-        public List<StructInfo> StructsInfo { get; set; }
+        public List<long> LinkIds { get; set; } = new List<long>();
         public string FromReferal { get; set; }
         public Dictionary<string, bool> ListForLink = new Dictionary<string, bool>();
-        public void AddLink(string text)
+        public void AddLink(MiniInfo info)
         {
-            text = text.ToLower();
+            info.Set(info.URL.ToLower());
             if (ListForLink.Count >= 9) return;
-            if (!ListForLink.ContainsKey(text))
-                ListForLink.Add(text, false);
+            if (!ListForLink.ContainsKey(info.URL))
+            {
+                ListForLink.Add(info.URL, false);
+                LinkIds.Add(info.ID);
+            }
         }
     }
 }
