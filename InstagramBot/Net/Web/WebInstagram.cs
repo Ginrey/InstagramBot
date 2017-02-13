@@ -13,14 +13,14 @@ namespace InstagramBot.Net.Web
         }
         public  FollowedUser GetListFollowing(string referal)
         {
-            return  GetFollowingListById(GetAccount(referal).Uid);
+            return  GetFollowingListById(GetAccount(referal).Id);
         }
 
         public FollowedUser GetFullListFollowing(string referal)
         {
             var account = GetAccount(referal);
             List<string> lst = new List<string>();
-            var following = GetFollowingListById(account.Uid);
+            var following = GetFollowingListById(account.Id);
             
                 while (following.followed_by.page_info.has_next_page)
                 {
@@ -28,23 +28,23 @@ namespace InstagramBot.Net.Web
                         if (!lst.Contains(f.id + " - " + f.username))
                             lst.Add(f.id + " - " + f.username);
                     string next = following.followed_by.page_info.end_cursor;
-                    following = GetFullFollowingListById(account.Uid, next);
+                    following = GetFullFollowingListById(account.Id, next);
                     while(following.followed_by == null)
                     {
                         System.Threading.Thread.Sleep(20050);
-                    following = GetFullFollowingListById(account.Uid, next);
+                    following = GetFullFollowingListById(account.Id, next);
                 }
                     File.WriteAllText(referal + ".txt", string.Join("\n",lst.ToArray()));
                     System.Threading.Thread.Sleep(50);
                 }
            
-            return GetFollowingListById(GetAccount(referal).Uid);
+            return GetFollowingListById(GetAccount(referal).Id);
         }
         public  FollowedUser GetListFollows(string referal)
         {
             var acc =  GetAccount(referal);
             if (acc == null || acc.IsPrivate) return null;
-            return  GetFollowsListById(acc.Uid);
+            return  GetFollowsListById(acc.Id);
         }
         public UserInfo GetUser(string referal)
         {
@@ -77,9 +77,9 @@ namespace InstagramBot.Net.Web
                 if (string.IsNullOrEmpty(userInfo?.id)) return null;
                 return new AccountInstagram
                 {
-                    Uid = long.Parse(userInfo.id),
+                    Id = long.Parse(userInfo.id),
                     Name = userInfo.full_name,
-                    Referal = userInfo.username,
+                    URL = userInfo.username,
                     Following = userInfo.followed_by.count,
                     Folowers = userInfo.follows.count,
                     Posts = userInfo.media.count,
@@ -99,9 +99,9 @@ namespace InstagramBot.Net.Web
                 if (string.IsNullOrEmpty(userInfo?.id)) return null;
                 return new AccountInstagram
                 {
-                    Uid = long.Parse(userInfo.id),
+                    Id = long.Parse(userInfo.id),
                     Name = userInfo.full_name,
-                    Referal = userInfo.username,
+                    URL = userInfo.username,
                     Following = userInfo.followed_by.count,
                     Folowers = userInfo.follows.count,
                     Posts = userInfo.media.count,

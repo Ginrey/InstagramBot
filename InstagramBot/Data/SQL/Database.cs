@@ -11,6 +11,27 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
+        public virtual bool GetCountFromMyUrl(long id, out int count)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual bool GetCountFromCorruption(out int count)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetCountFromCorruptionWithDate(DateTime time, out int count)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetCountWithDate(long id, DateTime date, out int count)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetListWithDate(long id, DateTime date, out List<MiniInfo> list)
+        {
+            throw new NotImplementedException();
+        }
         public virtual bool GetFromTo(long id, out long fromId, out long toId)
         {
             throw new NotImplementedException();
@@ -32,6 +53,46 @@ namespace InstagramBot.Data.SQL
             throw new NotImplementedException();
         }
         public virtual bool GetCountRedList(long id, out int count)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetCountCorruptionList(out int count)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetCountCorruptionAddedWithDate(DateTime time, out int count)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetQuotaFromCorruption(out List<Privilege> list)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetCorruptionList(out List<Privilege> list)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetMyCorruptionInfo(long id, out Privilege list)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetStatisticsCorruption(out List<BloggerStatistics> list)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetStatisticsCorruptionWithDate(DateTime time, out List<BloggerStatistics> list)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetMyStatisticsCorruption(long id, out List<BloggerStatistics> list)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetListCorruptionAddedWithDate(DateTime time, out List<Privilege> list)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool GetCorruptionTimeList(out List<Privilege> list)
         {
             throw new NotImplementedException();
         }
@@ -67,6 +128,14 @@ namespace InstagramBot.Data.SQL
         {
             throw new NotImplementedException();
         }
+        public virtual bool InsertCorruption(long id, double coefficient)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool InsertCorruptionTime(long id, int count)
+        {
+            throw new NotImplementedException();
+        }
         public virtual bool InsertInstagram(long id, string url)
         {
             throw new NotImplementedException();
@@ -76,6 +145,10 @@ namespace InstagramBot.Data.SQL
             throw new NotImplementedException();
         }
         public virtual bool InsertRedList(long id, params long[] redIds)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool InsertStatisticsCorruption(long id, double coefficient, DateTime time)
         {
             throw new NotImplementedException();
         }
@@ -108,6 +181,14 @@ namespace InstagramBot.Data.SQL
             throw new NotImplementedException();
         }
         public virtual bool UpdateBlock(long id, bool block)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool UpdateCoefficient(long id, double coefficient)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual bool UpdateCountCorruptionTime(long id, int count)
         {
             throw new NotImplementedException();
         }

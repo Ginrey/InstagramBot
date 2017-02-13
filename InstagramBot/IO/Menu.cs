@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
@@ -23,7 +22,7 @@ namespace InstagramBot.IO
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
                string.Format(Session.Language.Get(user.Language, "oau_signing_up")));
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
-               "t.me/scs110100bot?start=" + user.Account.Referal);
+               "t.me/scs110100bot?start=" + user.Account.URL);
        }
 
        public static void ShowMyReferals(ActionBot user)
@@ -36,7 +35,7 @@ namespace InstagramBot.IO
 
        public static void ShowStatus(ActionBot user)
        {
-           string status = Session.MySql.IsStart(user.Account.Uid)
+           string status = Session.MySql.IsStart(user.Account.Id)
                ? Session.Language.Get(user.Language, "status_growth")
                : Session.Language.Get(user.Language, "status_start");
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
@@ -48,9 +47,9 @@ namespace InstagramBot.IO
            if (isStruct)
            {
                StructureLine structure;
-               Session.MySql.GetStructure(user.Account.Uid, out structure);
+               Session.MySql.GetStructure(user.Account.Id, out structure);
                int maxCount;
-               Session.MySql.GetCountRedList(user.Account.Uid, out maxCount);
+               Session.MySql.GetCountRedList(user.Account.Id, out maxCount);
                Session.Bot?.SendTextMessageAsync(user.TelegramId,
                    string.Format(Session.Language.Get(user.Language, "oau_your_structure"),
                        structure.CountFromMyURL,
@@ -66,7 +65,7 @@ namespace InstagramBot.IO
            {
                string myreferals = Session.Language.Get(user.Language, "oau_invite_list");
                List<MiniInfo> list;
-               Session.MySql.GetListFromMyURL(user.Account.Uid, out list);
+               Session.MySql.GetListFromMyURL(user.Account.Id, out list);
                list.Reverse();
                for (int i = 0; i < 50 && i < list.Count; i++)
                    myreferals += "\n" + list[i].URL;
@@ -80,12 +79,12 @@ namespace InstagramBot.IO
            string myreferals = "";
            if (typer == 0)
            {
-               Session.MySql.GetListNonActiveFromMyURL(user.Account.Uid, out list);
+               Session.MySql.GetListNonActiveFromMyURL(user.Account.Id, out list);
            }
            if (typer == 1)
            {
                myreferals = Session.Language.Get(user.Language, "oau_invite_list");
-               Session.MySql.GetListFromMyURL(user.Account.Uid, out list);
+               Session.MySql.GetListFromMyURL(user.Account.Id, out list);
            }
            list.Reverse();
            for (int i = 0; i < 50 && i < list.Count; i++)
@@ -105,7 +104,7 @@ namespace InstagramBot.IO
         public static void ShowMyRedList(ActionBot user)
        {
            List<MiniInfo> redlist;
-           Session.MySql.GetRedList(user.Account.Uid, out redlist);
+           Session.MySql.GetRedList(user.Account.Id, out redlist);
            string text = redlist.Aggregate("", (current, t) => current + t.URL + "\n");
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
                string.Format(Session.Language.Get(user.Language, "oau_redlist"), text));
@@ -125,16 +124,43 @@ namespace InstagramBot.IO
            Session.Bot?.SendTextMessageAsync(user.TelegramId, text, replyMarkup: keyboard);
        }
 
-       public static void ShowLK(ActionBot user)
+        public static void ShowBloggersMenu(ActionBot user)
+        {
+            if (!user.Account.IsVip) return;
+            ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup(new[]
+            {
+                new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuBloggers.MyInfo))},
+                new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuBloggers.Limit))},
+                new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuBloggers.Chat))},
+                new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuBloggers.Channel))},
+              //  new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuBloggers.Registering))},
+              //  new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuBloggers.Members))},
+                new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.PrivateOffice))},
+                new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.BackToMenu))}
+            });
+            Session.Bot?.SendTextMessageAsync(user.TelegramId, " Скрытое меню", replyMarkup: keyboard);
+        }
+
+        public static void ShowLK(ActionBot user)
        {
            List<KeyboardButton[]> listMenu = new List<KeyboardButton[]>();
-          // listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyReferals))});
-          // listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyListUsers))});
+
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyPrivateFollows))});
-        //   listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.Status))});
+      
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.Struct))});
            if (adminList.Contains(user.TelegramId))
-           listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.HowMachUsers))});
+           {
+               listMenu.Add(new[]
+                   {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.HowMachUsers))});
+               listMenu.Add(new[]
+                   {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.PrivilegeList))});
+           }
+           if (user.Account.IsVip)
+           {
+               listMenu.Add(new[]
+                   {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MyRevolver))});
+           }
+           listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.MultiClients))});
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.CheckUsersOnInstagram))});
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.ChangeLanguage))});
            listMenu.Add(new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.BackToMenu))});
@@ -152,5 +178,10 @@ namespace InstagramBot.IO
             Session.Bot?.SendTextMessageAsync(user.TelegramId,
                 string.Format(Session.Language.Get(user.Language, "oau_all_users"), count));
         }
-   }
+        public static void NewPrivilegeInstagram(ActionBot user)
+        {
+            if (!adminList.Contains(user.TelegramId)) return;
+            user.State = States.VipInstagram;
+        }
+    }
 }

@@ -20,10 +20,12 @@ namespace InstagramBot.Net
             packets[States.Done] = new OnDone { Session = session };
             packets[States.OnAlreadyUsing] = new OnAlreadyUsing { Session = session };
             packets[States.OnFindClients] = new OnFindClients { Session = session };
-            packets[States.Blocked] = new OnAlreadyUsing { Session = session };//todo
+            packets[States.Blocked] = new OnAlreadyUsing { Session = session };
             packets[States.ChangeLanguage] = new OnChangeLanguage {Session = session};
             packets[States.FirstStep] = new OnFirstStep { Session = session };
             packets[States.SecondStep] = new OnSecondStep { Session = session };
+            packets[States.VipInstagram] = new OnVipInstagram { Session = session };
+            packets[States.Multiaccount] = new OnMultiClients { Session = session };
         }
 
         public IActionPacket GetPacketType(States state)

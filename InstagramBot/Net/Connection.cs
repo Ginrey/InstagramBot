@@ -53,6 +53,11 @@ namespace InstagramBot.Net
                     Users[id].SetState(state);
                 }
                 else
+                if(message.Text.StartsWith("/test"))
+                {
+                    Session.Bot?.SendTextMessageAsync(message.Chat.Id, "CompleteTest");
+                }
+                else
                 {
                     long id = message.Chat.Id;
                     if (Users.ContainsKey(id))

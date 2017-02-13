@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
+using InstagramBot.IO;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -59,65 +60,77 @@ namespace InstagramBot.Net.Packets
 
         void AddTree(ActionBot user)
         {
-            if (user.AdditionInfo.ListForLink.Count >= 9) return;
-
-            List<MiniInfo> topList;
-            Session.MySql.GetPriority(1, out topList);
-            foreach (var t in topList)
+            try
             {
                 if (user.AdditionInfo.Full) return;
-                if (string.Equals(t.URL, user.Account.Referal, StringComparison.OrdinalIgnoreCase)) continue;
-                user.AdditionInfo.AddLink(t);
-            }
-            if (user.AdditionInfo.Full) return;//todo Коррупционный список
-            topList = null;
 
-            MiniInfo info = new MiniInfo();
-            while (string.IsNullOrEmpty(info.URL))
-                Session.MySql.GetReferal(user.Account.From.ID, out info);
-            if (!Session.BlockedList.Contains(info.ID))
-                user.AdditionInfo.AddLink(info);
-            info.Reset();
+                List<MiniInfo> topList;
+                Session.MySql.GetPriority(1, out topList);
+                foreach (var t in topList)
+                {
+                    if (user.AdditionInfo.Full) return;
+                    if (string.Equals(t.URL, user.Account.URL, StringComparison.OrdinalIgnoreCase)) continue;
+                    user.AdditionInfo.AddLink(t);
+                }
+                if (Session.PrivilegeList.Contains(user.Account.URL.ToLower()))
+                {
+                    user.Account.IsVip = true;
+                    return;
+                }
+                var blogger = Bloggers.Next();
+                if (!Session.BlockedList.Contains(blogger.ID))
+                    user.AdditionInfo.AddLink(blogger);
 
-            while (string.IsNullOrEmpty(info.URL))
-                Session.MySql.GetBaseInstagram(user.Account.From.ID, out info);
-            if (!Session.BlockedList.Contains(info.ID))
-                user.AdditionInfo.AddLink(info);
-            user.Account.To = info.Copy;
-
-            if (user.AdditionInfo.Full) return;
-
-            user.Account.Temp = user.Account.To.Copy;
-            while (user.Account.Temp.ID != 1647550018 && user.Account.Temp.ID != 442320062 && user.AdditionInfo.ListForLink.Count < 9)
-            {
-                Session.MySql.GetTreeInstagram(user.Account.Temp.ID, out info);
-                if (info.ID == -1) continue;
-                user.Account.Temp = info.Copy;
-                if(!Session.BlockedList.Contains(info.ID))
-                user.AdditionInfo.AddLink(info);
-            }
-            if (user.AdditionInfo.Full) return;
-         
-            while (topList == null)
-                 Session.MySql.GetPriority(2, out topList);
-           
-            foreach (MiniInfo t in topList)
-            {
                 if (user.AdditionInfo.Full) return;
-                user.AdditionInfo.AddLink(t);
-            }
-            topList = null;
+                topList = null;
 
-            while (topList == null)
-                Session.MySql.GetPriority(3, out topList);
+                MiniInfo info = new MiniInfo();
+                while (string.IsNullOrEmpty(info.URL))
+                    Session.MySql.GetReferal(user.Account.From.ID, out info);
+                if (!Session.BlockedList.Contains(info.ID))
+                    user.AdditionInfo.AddLink(info);
+                info.Reset();
 
-            foreach (MiniInfo t in topList)
-            {
+                while (string.IsNullOrEmpty(info.URL))
+                    Session.MySql.GetBaseInstagram(user.Account.From.ID, out info);
+                if (!Session.BlockedList.Contains(info.ID))
+                    user.AdditionInfo.AddLink(info);
+                user.Account.To = info.Copy;
+
                 if (user.AdditionInfo.Full) return;
-                user.AdditionInfo.AddLink(t);
-            }
 
-            if (!user.AdditionInfo.Full) AddTree(user);
+                user.Account.Temp = user.Account.To.Copy;
+                while (user.Account.Temp.ID != 1647550018 && user.Account.Temp.ID != 442320062 &&
+                       user.AdditionInfo.ListForLink.Count < 9)
+                {
+                    Session.MySql.GetTreeInstagram(user.Account.Temp.ID, out info);
+                    if (info.ID == -1) continue;
+                    user.Account.Temp = info.Copy;
+                    if (!Session.BlockedList.Contains(info.ID))
+                        user.AdditionInfo.AddLink(info);
+                }
+                if (user.AdditionInfo.Full) return;
+
+                var corruption = Corruption.Next();
+                if (!Session.BlockedList.Contains(corruption.ID))
+                    user.AdditionInfo.AddLink(corruption);
+
+                if (user.AdditionInfo.Full) return;
+
+                while (topList == null)
+                    Session.MySql.GetPriority(2, out topList);
+                user.AdditionInfo.AddLink(topList[0]);
+
+                while (!user.AdditionInfo.Full)
+                {
+                    blogger = Bloggers.Next();
+                    if (!Session.BlockedList.Contains(blogger.ID))
+                        user.AdditionInfo.AddLink(blogger);
+                }
+
+                if (!user.AdditionInfo.Full) AddTree(user);
+            } catch (Exception ex)
+            { LOG.Add("OWS tree", ex.Message); }
         }
 
         public async void Serialize(ActionBot user, StateEventArgs e)
@@ -126,34 +139,34 @@ namespace InstagramBot.Net.Packets
             {
                 await Session.Bot?.SendTextMessageAsync(user.TelegramId,
                     string.Format(Session.Language.Get(user.Language, "ows_follow_this"), user.AdditionInfo.FromReferal));
-
+                user.AdditionInfo.ListForLink.Clear();
                 AddTree(user);
 
                 ShowLink(user);
             }
             catch(Exception ex)
             {
+                LOG.Add("OWS S", ex.Message);
             }
         }
-
        
         async void ShowLink(ActionBot tempBot)
         {
-            foreach (var item in tempBot.AdditionInfo.ListForLink.Keys)
+            try
             {
-                string key = item.ToLower();
-                if (tempBot.AdditionInfo.Uses.Contains(key)) continue;
-                tempBot.AdditionInfo.Uses.Add(key);
-                tempBot.AdditionInfo.TempLink = key;
-                var keyboard = new InlineKeyboardMarkup(OneKeyboardMarkupMaker(key,tempBot));
-                await Session.Bot?.SendTextMessageAsync(tempBot.TelegramId, key, replyMarkup: keyboard);
-                return;
-            }
-            tempBot.AdditionInfo.Complete = true;
-            tempBot.State = States.Done;
+                foreach (var item in tempBot.AdditionInfo.ListForLink.Keys)
+                {
+                    string key = item.ToLower();
+                    if (tempBot.AdditionInfo.Uses.Contains(key)) continue;
+                    tempBot.AdditionInfo.Uses.Add(key);
+                    var keyboard = new InlineKeyboardMarkup(OneKeyboardMarkupMaker(key, tempBot));
+                    await Session.Bot?.SendTextMessageAsync(tempBot.TelegramId, key, replyMarkup: keyboard);
+                    return;
+                }
+                tempBot.AdditionInfo.Complete = true;
+                tempBot.State = States.Done;
+            }catch(Exception ex) { LOG.Add("OWS Link", ex.Message); }
         }
-
-       
        
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
@@ -180,64 +193,80 @@ namespace InstagramBot.Net.Packets
             }
             catch (Exception ex)
             {
+                LOG.Add("OWS D", ex.Message);
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    Session.Language.Get(user.Language, "ows_unknown_error"));
+                    Session.Language.Get(user.Language, "ows_unknown_error")+ex.Message);
             }
         }
 
        async void Check(ActionBot tempBot)
-        {
-            bool temp = false;
-            var follows = Session.WebInstagram.GetListFollows(tempBot.Account.Referal);
+       {
+           try
+           {
+               if (!tempBot.AdditionInfo.Full) AddTree(tempBot);
+               bool temp = false;
+               var follows = Session.WebInstagram.GetListFollows(tempBot.Account.URL);
 
-            if (follows?.follows.nodes == null)
-            {
-               await Session.Bot?.SendTextMessageAsync(tempBot.TelegramId, Session.Language.Get(tempBot.Language, "ows_nodes_null"));
-                return;
-            }
-            foreach (var u in follows.follows.nodes)
-            {
-                if (u.username.ToLower() == tempBot.AdditionInfo.TempLink)
-                    temp = true;
-            }
+               if (follows?.follows.nodes == null)
+               {
+                   await
+                       Session.Bot?.SendTextMessageAsync(tempBot.TelegramId,
+                           Session.Language.Get(tempBot.Language, "ows_nodes_null"));
+                   return;
+               }
+               foreach (var u in follows.follows.nodes)
+               {
+                   if (u.username.ToLower() == tempBot.AdditionInfo.Uses.Last())
+                       temp = true;
+               }
 
-            if (temp)
-            {
-               // tempBot.AdditionInfo.ListForLink[command[1].ToLower()] = true;
-                if (tempBot.AdditionInfo.Complete)
-                {
-                    tempBot.State = States.Done;
-                    return;
-                }else
-                ShowLink(tempBot);
-               
-            }
-            else
-               await Session.Bot?.SendTextMessageAsync(tempBot.TelegramId, Session.Language.Get(tempBot.Language, "ows_check"));
-        }
+               if (temp)
+               {
+                   if (tempBot.AdditionInfo.Complete)
+                   {
+                       tempBot.State = States.Done;
+                       return;
+                   }
+                   ShowLink(tempBot);
+               }
+               else
+                   await
+                       Session.Bot?.SendTextMessageAsync(tempBot.TelegramId,
+                           Session.Language.Get(tempBot.Language, "ows_check"));
+           }
+           catch (Exception ex)
+           {
+               LOG.Add("OWS Check", ex.Message);
+           }
+       }
 
         void Block(string[] command, ActionBot tempBot)
         {
-            var account = Session.WebInstagram.GetAccount(command[1]);
+            try
+            {
+                var account = Session.WebInstagram.GetAccount(command[1]);
 
-            if (account == null)
-            {
-                if (tempBot.AdditionInfo.ListForLink.ContainsKey(command[1]))
-                    tempBot.AdditionInfo.ListForLink.Remove(command[1]);
-                AddTree(tempBot);
-                ShowLink(tempBot);
-                return;
+                if (account == null)
+                {
+                    if (tempBot.AdditionInfo.ListForLink.ContainsKey(command[1]))
+                        tempBot.AdditionInfo.ListForLink.Remove(command[1]);
+                    AddTree(tempBot);
+                    ShowLink(tempBot);
+                    return;
+                }
+                if (account.IsPrivate)
+                {
+                    Session.BlockedList.Add(account.Id);
+                    if (tempBot.AdditionInfo.ListForLink.ContainsKey(command[1]))
+                        tempBot.AdditionInfo.ListForLink.Remove(command[1]);
+                    AddTree(tempBot);
+                    ShowLink(tempBot);
+                    return;
+                }
+                Session.Bot?.SendTextMessageAsync(tempBot.TelegramId,
+                    Session.Language.Get(tempBot.Language, "ows_error_not_private"));
             }
-            if (account.IsPrivate)
-            {
-                Session.BlockedList.Add(account.Uid);
-                if (tempBot.AdditionInfo.ListForLink.ContainsKey(command[1]))
-                    tempBot.AdditionInfo.ListForLink.Remove(command[1]);
-                AddTree(tempBot);
-                ShowLink(tempBot);
-                return;
-            }
-             Session.Bot?.SendTextMessageAsync(tempBot.TelegramId, Session.Language.Get(tempBot.Language, "ows_error_not_private"));
+            catch (Exception ex) { LOG.Add("OWS Block", ex.Message); }
         }
     }
 }

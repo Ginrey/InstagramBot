@@ -40,7 +40,8 @@ namespace InstagramBot.IO
                foreach (var line in lines)
                {
                    var l = line.Replace("\\n", "\n");
-                   if (!string.IsNullOrEmpty(l)) ReverseTranslate.Add(l.Split('|')[1], l.Split('|')[0]);
+                   if (!string.IsNullOrEmpty(l))
+                    ReverseTranslate[l.Split('|')[1]] = l.Split('|')[0];
                }
          
        }

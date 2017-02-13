@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Data\Accounts\AccountInstagram.cs" />
     <Compile Include="Data\Accounts\AdditionInfo.cs" />
+    <Compile Include="Data\Accounts\Corruption.cs" />
     <Compile Include="Data\Accounts\FullInfo.cs" />
     <Compile Include="Data\Accounts\ActionBot.cs" />
     <Compile Include="Data\Accounts\MiniInfo.cs" />
@@ -72,7 +73,9 @@
     <Compile Include="Data\States.cs" />
     <Compile Include="Data\UnixTime.cs" />
     <Compile Include="IO\Languages.cs" />
+    <Compile Include="IO\LOG.cs" />
     <Compile Include="IO\Menu.cs" />
+    <Compile Include="IO\MenuBloggers.cs" />
     <Compile Include="IO\Multithreading.cs" />
     <Compile Include="Net\IActionPacket.cs" />
     <Compile Include="Net\Connection.cs" />
@@ -84,9 +87,11 @@
     <Compile Include="Net\Packets\OnFindClients.cs" />
     <Compile Include="Net\Packets\OnFirstStep.cs" />
     <Compile Include="Net\Packets\OnGetFromReferal.cs" />
+    <Compile Include="Net\Packets\OnMultiClients.cs" />
     <Compile Include="Net\Packets\OnRegistering.cs" />
     <Compile Include="Net\Packets\OnSecondStep.cs" />
     <Compile Include="Net\Packets\OnSelectLanguage.cs" />
+    <Compile Include="Net\Packets\OnVipInstagram.cs" />
     <Compile Include="Net\Packets\OnWaitSubscribe.cs" />
     <Compile Include="Net\Packets\OnWaitUrl.cs" />
     <Compile Include="Net\Web\Authorization.cs" />

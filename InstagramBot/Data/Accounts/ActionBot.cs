@@ -7,7 +7,6 @@ namespace InstagramBot.Data.Accounts
 {
     public class ActionBot
     {
-      
         public AccountInstagram Account { get; set; }
         public Message Message { get; set; }
         public AdditionInfo AdditionInfo { get; set; }

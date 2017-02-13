@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
 
@@ -14,7 +15,27 @@ namespace InstagramBot.Data.SQL
 
         SqlDataReader reader;
         Random random = new Random();
-
+        public List<string> Getins()
+        {
+            lock (MySqlConnection)
+            {
+                List<string> list = new List<string>();
+                using (
+                    var command =
+                        new SqlCommand(
+                            "select URL from Instagrams", MySqlConnection))
+                {
+                    command.CommandType = CommandType.Text;
+                    reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        list.Add(reader["URL"].ToString());
+                    }
+                    reader.Close();
+                }
+                return list;
+            }
+        }
         public MySqlDatabase(string connectionString)
         {
             if (MySqlConnection == null)
@@ -25,7 +46,7 @@ namespace InstagramBot.Data.SQL
         {
             var args = new[]
             {
-                new SqlParameter("Count", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
+                new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
             };
             var result = CallFunction("GetCountInstagrams", args);
             if (args[0].Value == DBNull.Value || args[0].Value == null)
@@ -34,6 +55,96 @@ namespace InstagramBot.Data.SQL
                 return false;
             }
             count = (int) args[0].Value;
+            return true;
+        }
+
+        public override bool GetCountFromMyUrl(long id, out int count)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetCountFromMyURL", args);
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            {
+                count = 0;
+                return false;
+            }
+            count = (int) args[1].Value;
+            return true;
+        }
+       
+        public override bool GetCountFromCorruption(out int count)
+        {
+            SqlParameter[] args =
+            {
+                new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetCountFromCorruption", args);
+            if (args[0].Value == DBNull.Value || args[0].Value == null)
+            {
+                count = 0;
+                return false;
+            }
+            count = (int)args[0].Value;
+            return true;
+        }
+        public override bool GetCountFromCorruptionWithDate(DateTime time, out int count)
+        {
+            SqlParameter[] args =
+            {
+                new SqlParameter("Date", SqlDbType.DateTime) {Value = time},
+                new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetCountFromCorruptionWithDate", args);
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            {
+                count = 0;
+                return false;
+            }
+            count = (int)args[1].Value;
+            return true;
+        }
+
+        public override bool GetCountWithDate(long id, DateTime time, out int count)
+        {
+            var args = new[]
+           {
+                new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Date", SqlDbType.DateTime) {Value = time},
+                new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetCountWithDate", args);
+            if (args[2].Value == DBNull.Value || args[2].Value == null)
+            {
+                count = 0;
+                return false;
+            }
+            count = (int)args[2].Value;
+            return true;
+        }
+
+        public override bool GetListWithDate(long id, DateTime date, out List<MiniInfo> list)
+        {
+            list = new List<MiniInfo>();
+            var args = new[]
+            {
+               new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
+               new SqlParameter("Date", SqlDbType.DateTime) {Value = (DateTime)date}
+            };
+            var dataReader = CallFunctionReader("GetListWithDate", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    list.Add(new Privilege(
+                        (long) dataReader["Id"],
+                        (string) dataReader["URL"]));
+                }
+                dataReader.Close();
+            }
             return true;
         }
 
@@ -53,7 +164,204 @@ namespace InstagramBot.Data.SQL
             count = (int) args[1].Value;
             return true;
         }
+        public override bool GetCountCorruptionList(out int count)
+        {
+            var args = new[]
+            {
+                new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetCountCorruptionList", args);
+            if (args[0].Value == DBNull.Value || args[0].Value == null)
+            {
+                count = 0;
+                return false;
+            }
+            count = (int)args[0].Value;
+            return true;
+        }
+        public override bool GetCountCorruptionAddedWithDate(DateTime time, out int count)
+        {
+            var args = new[]
+            {
+                new SqlParameter("Date", SqlDbType.DateTime) {Value = time},
+                new SqlParameter("Count", SqlDbType.Int) {Direction = ParameterDirection.Output}
+            };
+            var result = CallFunction("GetCountCorruptionAddedWithDate", args);
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            {
+                count = 0;
+                return false;
+            }
+            count = (int)args[1].Value;
+            return true;
+        }
+        public override bool GetQuotaFromCorruption(out List<Privilege> list)
+        {
+            list = new List<Privilege>();
+            SqlParameter[] args = { };
+            var dataReader = CallFunctionReader("GetQuotaFromCorruption", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    list.Add(new Privilege(
+                        (long)dataReader["Id"],
+                        (string)dataReader["URL"],
+                        (int)dataReader["Count"]));
+                }
+                dataReader.Close();
+            }
+            return true;
+        }
 
+        public override bool GetCorruptionList(out List<Privilege> list)
+        {
+            list = new List<Privilege>();
+            SqlParameter[] args = { };
+            var dataReader = CallFunctionReader("GetCorruptionList", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    list.Add(new Privilege(
+                        (long) dataReader["Id"],
+                        (string) dataReader["URL"],
+                        (double) dataReader["Coefficient"]));
+                }
+                dataReader.Close();
+            }
+            return true;
+        }
+        public override bool GetMyCorruptionInfo(long id, out Privilege info)
+        {
+            info = new Privilege();
+            var args = new[]
+             {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id}
+            };
+            var dataReader = CallFunctionReader("GetMyCorruptionInfo", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    info.ID = (long) dataReader["Id"];
+                    info.URL = (string) dataReader["URL"];
+                    info.Coefficient = (double) dataReader["Coefficient"];
+                }
+                dataReader.Close();
+            }
+            return true; 
+        }
+        public override bool GetListCorruptionAddedWithDate(DateTime time, out List<Privilege> list)
+        {
+            list = new List<Privilege>();
+            var args = new[]
+            {
+                new SqlParameter("Date", SqlDbType.DateTime) {Value = time}
+            };
+            var dataReader = CallFunctionReader("GetListCorruptionAddedWithDate", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    list.Add(new Privilege(
+                        (long) dataReader["Id"],
+                        (string) dataReader["URL"],
+                        (double) dataReader["Coefficient"]));
+                }
+                dataReader.Close();
+            }
+            return true;
+        }
+        public override bool GetCorruptionTimeList(out List<Privilege> list)
+        {
+            list = new List<Privilege>();
+            SqlParameter[] args = { };
+            var dataReader = CallFunctionReader("GetCorruptionTimeList", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    list.Add(new Privilege(
+                        (long)dataReader["Id"],
+                        (string)dataReader["URL"])
+                    { Balance = (int)dataReader["Count"]});
+                }
+                dataReader.Close();
+            }
+            return true;
+        }
+        public override bool GetStatisticsCorruption(out List<BloggerStatistics> list)
+        {
+            list = new List<BloggerStatistics>();
+            SqlParameter[] args = { };
+            var dataReader = CallFunctionReader("GetStatisticsCorruption", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    list.Add(new BloggerStatistics(
+                        (long)dataReader["Id"],
+                        (string)dataReader["URL"],
+                        (double)dataReader["Coefficient"],
+                        (DateTime)dataReader["Date"]));
+                }
+                dataReader.Close();
+            }
+            return true;
+        }
+        public override bool GetStatisticsCorruptionWithDate(DateTime time, out List<BloggerStatistics> list)
+        {
+            list = new List<BloggerStatistics>();
+            var args = new[]
+            {
+                new SqlParameter("Date", SqlDbType.DateTime) {Value = time}
+            };
+            var dataReader = CallFunctionReader("GetStatisticsCorruptionWithDate", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    list.Add(new BloggerStatistics(
+                        (long) dataReader["Id"],
+                        (string) dataReader["URL"],
+                        (double) dataReader["Coefficient"],
+                        (DateTime) dataReader["Date"]));
+                }
+                dataReader.Close();
+            }
+            return true;
+        }
+        public override bool GetMyStatisticsCorruption(long id, out List<BloggerStatistics> list)
+        {
+            list = new List<BloggerStatistics>();
+            var args = new[]
+             {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id}
+            };
+            var dataReader = CallFunctionReader("GetMyStatisticsCorruption", args);
+            if (dataReader == null) return false;
+            lock (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    list.Add(new BloggerStatistics(
+                        (long)dataReader["Id"],
+                        (string)dataReader["URL"],
+                        (double)dataReader["Coefficient"],
+                        (DateTime)dataReader["Date"]));
+                }
+                dataReader.Close();
+            }
+            return true;
+        }
         public override bool GetListFromMyURL(long id, out List<MiniInfo> list)
         {
             list = new List<MiniInfo>();
@@ -64,10 +372,13 @@ namespace InstagramBot.Data.SQL
             var dataReader = CallFunctionReader("GetListFromMyURL", args);
             if (dataReader == null) return false;
             lock (dataReader)
+            {
                 while (dataReader.Read())
                 {
                     list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
                 }
+                dataReader.Close();
+            }
             return true;
         }
 
@@ -81,10 +392,13 @@ namespace InstagramBot.Data.SQL
             var dataReader = CallFunctionReader("GetListNonActiveFromMyURL", args);
             if (dataReader == null) return false;
             lock (dataReader)
+            {
                 while (dataReader.Read())
                 {
                     list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
                 }
+                dataReader.Close();
+            }
             return true;
         }
 
@@ -117,10 +431,13 @@ namespace InstagramBot.Data.SQL
             var dataReader = CallFunctionReader("GetIdByTelegramId", args);
             if (dataReader == null) return false;
             lock (dataReader)
+            {
                 while (dataReader.Read())
                 {
                     list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
                 }
+                dataReader.Close();
+            }
             return true;
         }
 
@@ -167,10 +484,13 @@ namespace InstagramBot.Data.SQL
             var dataReader = CallFunctionReader("GetBlockList", args);
             if (dataReader == null) return false;
             lock (dataReader)
+            {
                 while (dataReader.Read())
                 {
                     list.Add((long) dataReader["Id"]);
                 }
+                dataReader.Close();
+            }
             return true;
         }
 
@@ -184,6 +504,7 @@ namespace InstagramBot.Data.SQL
             var dataReader = CallFunctionReader("GetPriority", args);
             if (dataReader == null) return false;
             lock (dataReader)
+            {
                 while (dataReader.Read())
                 {
                     var info = new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]);
@@ -198,6 +519,8 @@ namespace InstagramBot.Data.SQL
                         list[j] = info;
                     }
                 }
+                dataReader.Close();
+            }
             return true;
         }
 
@@ -211,10 +534,13 @@ namespace InstagramBot.Data.SQL
             var dataReader = CallFunctionReader("GetRedList", args);
             if (dataReader == null) return false;
             lock (dataReader)
+            {
                 while (dataReader.Read())
                 {
                     list.Add(new MiniInfo((long) dataReader["Id"], (string) dataReader["URL"]));
                 }
+                dataReader.Close();
+            }
             return true;
         }
 
@@ -235,7 +561,23 @@ namespace InstagramBot.Data.SQL
             info.URL = (string) args[1].Value;
             return result;
         }
-
+        public bool GetReferal(string url, out MiniInfo info)
+        {
+            info = new MiniInfo();
+            var args = new[]
+            {
+                new SqlParameter("URL", SqlDbType.VarChar, 50) {Value = url},
+                new SqlParameter("ID", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
+            };
+            bool result = CallFunction("GetReferalFromUrl", args);
+            if (args[1].Value == DBNull.Value || args[1].Value == null)
+            {
+                return false;
+            }
+            info.ID = (long)args[1].Value;
+            info.URL = url;
+            return result;
+        }
         public override bool GetStructure(long id, out StructureLine structure)
         {
             var args = new[]
@@ -274,7 +616,7 @@ namespace InstagramBot.Data.SQL
                 new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
                 new SqlParameter("TelegramID", SqlDbType.BigInt) {Direction = ParameterDirection.Output}
             };
-            var result = CallFunction("GetLanguage", args);
+            var result = CallFunction("GetTelegramId", args);
             if (args[1].Value == DBNull.Value || args[1].Value == null)
             {
                 telegramId = 0;
@@ -302,7 +644,26 @@ namespace InstagramBot.Data.SQL
             info.URL = (string) args[2].Value;
             return true;
         }
-
+        public override bool InsertCorruption(long id, double coefficient)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Coefficient", SqlDbType.Float) {Value = coefficient}
+            };
+            bool result = CallFunction("InsertCorruption", args);
+            return result;
+        }
+        public override bool InsertCorruptionTime(long id, int count)
+        {
+            var args = new[]
+            {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Count", SqlDbType.Int) {Value = count}
+            };
+            bool result = CallFunction("InsertCorruptionTime", args);
+            return result;
+        }
         public override bool InsertInstagram(long id, string url)
         {
             var args = new[]
@@ -331,18 +692,31 @@ namespace InstagramBot.Data.SQL
             {
                 new SqlParameter("Id", SqlDbType.BigInt) {Value = id}
             };
+            List<long> Ids = redIds.ToList();
+            while (Ids.Count < 9) Ids.Add(0);
+            while (Ids.Count > 9) Ids.RemoveAt(Ids.Count - 1);
             parameters.AddRange(
-                redIds.Select((t, i) => new SqlParameter("RedID" + (i + 1), SqlDbType.BigInt) {Value = t}));
+                Ids.Select((t, i) => new SqlParameter("RedID" + (i + 1), SqlDbType.BigInt) {Value = t}));
             var result = CallFunction("InsertRedList", parameters.ToArray());
             return result;
         }
-
+        public override bool InsertStatisticsCorruption(long id, double coefficient, DateTime time)
+        {
+            var args = new[]
+           {
+                new SqlParameter("ID", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Coefficient", SqlDbType.Float) {Value = coefficient},
+                new SqlParameter("Date", SqlDbType.DateTime) {Value = time}
+            };
+            bool result = CallFunction("InsertStatisticsCorruption", args);
+            return result;
+        }
         public override bool InsertTelegram(long telegramId, long instagramId)
         {
             var args = new[]
             {
                 new SqlParameter("TelegramId", SqlDbType.BigInt) {Value = telegramId},
-                new SqlParameter("InstagramId", SqlDbType.Int) {Value = instagramId}
+                new SqlParameter("InstagramId", SqlDbType.BigInt) {Value = instagramId}
             };
             bool result = CallFunction("InsertTelegram", args);
             return result;
@@ -353,8 +727,8 @@ namespace InstagramBot.Data.SQL
             var args = new[]
             {
                 new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
-                new SqlParameter("FromId", SqlDbType.Int) {Value = fromId},
-                new SqlParameter("ToId", SqlDbType.Int) {Value = toId}
+                new SqlParameter("FromId", SqlDbType.BigInt) {Value = fromId},
+                new SqlParameter("ToId", SqlDbType.BigInt) {Value = toId}
             };
             bool result = CallFunction("InsertTree", args);
             return result;
@@ -423,7 +797,26 @@ namespace InstagramBot.Data.SQL
             bool result = CallFunction("UpdateBlock", args);
             return result;
         }
-
+        public override bool UpdateCoefficient(long id, double coefficient)
+        {
+            var args = new[]
+           {
+                new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Coefficient", SqlDbType.Float) {Value = coefficient}
+            };
+            bool result = CallFunction("UpdateCoefficient", args);
+            return result;
+        }
+        public override bool UpdateCountCorruptionTime(long id, int count)
+        {
+            var args = new[]
+           {
+                new SqlParameter("Id", SqlDbType.BigInt) {Value = id},
+                new SqlParameter("Cout", SqlDbType.Int) {Value = count}
+            };
+            bool result = CallFunction("UpdateCountCorruptionTime", args);
+            return result;
+        }
         public override bool UpdateStatus(long uid, bool status)
         {
             var args = new[]
@@ -466,7 +859,9 @@ namespace InstagramBot.Data.SQL
             }
             catch (Exception ex)
             {
+                Console.OutputEncoding = Encoding.UTF8;
                 Console.WriteLine($"Reconnect:{functionName} [{ex.Message}]");
+                LOG.Add("Sql "+functionName, ex.Message);
                 MySqlConnection.Close();
                 MySqlConnection = new SqlConnection(MySqlConnection.ConnectionString);
                 Connect();

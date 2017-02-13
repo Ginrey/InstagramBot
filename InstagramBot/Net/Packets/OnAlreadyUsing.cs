@@ -17,11 +17,17 @@ namespace InstagramBot.Net.Packets
             {
                 List<MiniInfo> info;
                 if (user.Account != null) return;
-                if (Session.MySql.GetIdByTelegramId( user.TelegramId, out info))
+                if (Session.MySql.GetIdByTelegramId(user.TelegramId, out info))
                 {
+                    user.Account = new AccountInstagram
+                    {
+                        Id = info[0].ID,
+                        URL = info[0].URL
+                    };
+                    
+                    user.Account.IsVip = Bloggers.Contains(user.Account.Id);
 
-                    user.Account = Session.WebInstagram.GetAccount(info[0].ID);
-                    if(Session.BlockedList.Contains(info[0].ID)) Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                    if(Session.BlockedList.Contains(user.Account.Id)) Session.Bot?.SendTextMessageAsync(user.TelegramId,
                              string.Format(Session.Language.Get(user.Language, "ob_banned")));
                     if (user.Account == null)
                     {
@@ -32,9 +38,9 @@ namespace InstagramBot.Net.Packets
                     else
                     {
                         Language language;
-                        Session.MySql.GetLanguage(user.Account.Uid, out language);
+                        Session.MySql.GetLanguage(user.Account.Id, out language);
                         user.Language = language;
-                        Console.WriteLine("[{0}] {1} Enter to account", DateTime.Now, user.Account.Referal);
+                        Console.WriteLine("[{0}] {1} Enter to account", DateTime.Now, user.Account.URL);
                         Menu.ShowMainMenu(user);
                     }
                 }
@@ -97,15 +103,62 @@ namespace InstagramBot.Net.Packets
                     case Config.MenuList.WhereReferals:
                         Session.Bot?.SendTextMessageAsync(user.TelegramId, "https://youtu.be/nWdoU7e1OxU");
                         break;
+
+                    case Config.MenuList.PrivilegeList:
+                        Menu.NewPrivilegeInstagram(user);
+                        break;
                     case Config.MenuList.HowMachUsers:
                         Menu.ShowCountUsers(user);
                         break;
+
+                    case Config.MenuList.MyRevolver:
+                        Menu.ShowBloggersMenu(user);
+                        break;
+                    case Config.MenuBloggers.Members:
+                        MenuBloggers.ShowMembersCount(user);
+                        break;
+                    case Config.MenuBloggers.Limit:
+                        MenuBloggers.ShowStatistics(user);
+                        break;
+                    case Config.MenuBloggers.Registering:
+                        MenuBloggers.ShowRegistering(user);
+                        break;
+                    case Config.MenuBloggers.Chat:
+                        MenuBloggers.ShowChat(user);
+                        break;
+                    case Config.MenuBloggers.Channel:
+                        MenuBloggers.ShowChannel(user);
+                        break;
+                    case Config.MenuBloggers.MyInfo:
+                        MenuBloggers.ShowMyInfo(user);
+                        break;
+                    case Config.MenuBloggers.ListMembers:
+                        MenuBloggers.ShowListMembers(user);
+                        break;
+                    case Config.MenuBloggers.ListNew:
+                        MenuBloggers.ShowListNew(user);
+                        break;
+                    case Config.MenuBloggers.ListStatistics:
+                        MenuBloggers.ShowListStatistics(user);
+                        break;
+                    case Config.MenuBloggers.ListOverall:
+                        MenuBloggers.ShowListOverall(user);
+                        break;
+                    case Config.MenuBloggers.ListUpLine:
+                        MenuBloggers.ShowListUpline(user);
+                        break;
+
+                    case Config.MenuList.MultiClients:
+                        user.State = States.Multiaccount;
+                        break;
+
                     default:
                         break;
                 }
             }
             catch(Exception ex)
             {
+                LOG.Add("OAU", ex.Message);
             }
         }
     }

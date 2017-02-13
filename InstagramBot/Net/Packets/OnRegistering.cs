@@ -1,6 +1,7 @@
 ﻿using System;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
+using InstagramBot.IO;
 
 namespace InstagramBot.Net.Packets
 {
@@ -19,6 +20,7 @@ namespace InstagramBot.Net.Packets
             }
             catch (Exception ex)
             {
+                LOG.Add("ORS", ex.Message);
             }
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
@@ -35,7 +37,7 @@ namespace InstagramBot.Net.Packets
                 }
                 user.State = States.WaitUrl;
             }
-            catch { }
+            catch(Exception ex) { LOG.Add("ORD", ex.Message); }
         }
     }
 }

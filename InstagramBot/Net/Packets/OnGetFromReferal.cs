@@ -1,6 +1,7 @@
 ﻿using System;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
+using InstagramBot.IO;
 
 namespace InstagramBot.Net.Packets
 {
@@ -24,7 +25,7 @@ namespace InstagramBot.Net.Packets
                 }
             }
             catch (Exception ex)
-            { }
+            { LOG.Add("OGFS", ex.Message); }
         }
        
         public void Deserialize(ActionBot user, StateEventArgs e)
@@ -39,7 +40,7 @@ namespace InstagramBot.Net.Packets
                 }
                 var acc = Session.WebInstagram.GetAccount(user.Account.From.URL);
                 if (acc == null) goto error;
-                user.Account.From.Set(acc.Uid);
+                user.Account.From.Set(acc.Id);
               
                 if (Session.MySql.IsPresentInstagram(user.Account.From.ID))
                 {
@@ -52,7 +53,7 @@ namespace InstagramBot.Net.Packets
                             string.Format(Session.Language.Get(user.Language, "ofgr_user_not_registred"), 3 - user.AdditionInfo.ErrorCounter));
            }
             catch (Exception ex)
-            { }
+            { LOG.Add("OGFD", ex.Message); }
         }
     }
 }

@@ -14,6 +14,8 @@
         ChangeLanguage,
         FirstStep,
         SecondStep,
+        VipInstagram,
+        Multiaccount,
         Null
     }
 }
