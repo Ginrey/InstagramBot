@@ -1,15 +1,19 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 
+#endregion
+
 namespace InstagramBot.Data.Accounts
 {
-   public static class Refresher
-   {
-       public static Session Session { get; set; }
+    public static class Refresher
+    {
         static TimeSpan dateStart;
-        static Timer timerRefresh = new Timer(1000);
+        static readonly Timer timerRefresh = new Timer(1000);
+
         static Refresher()
         {
             timerRefresh = new Timer(1000);
@@ -17,16 +21,20 @@ namespace InstagramBot.Data.Accounts
             timerRefresh.Elapsed += TimerRefresh_Elapsed;
             timerRefresh.Start();
         }
-        private static void TimerRefresh_Elapsed(object sender, ElapsedEventArgs e)
+
+        public static Session Session { get; set; }
+
+        static void TimerRefresh_Elapsed(object sender, ElapsedEventArgs e)
         {
             dateStart -= TimeSpan.FromSeconds(1);
             if (dateStart.TotalSeconds <= 0)
             {
-               dateStart = DateTime.Now.Date.AddDays(1).AddMinutes(5) - DateTime.Now;
-               Refresh();
+                dateStart = DateTime.Now.Date.AddDays(1).AddMinutes(5) - DateTime.Now;
+                Refresh();
             }
             Console.Title = $"InstagramBot [{dateStart}]";
         }
+
         public static void Refresh()
         {
             List<Privilege> list;
@@ -37,10 +45,14 @@ namespace InstagramBot.Data.Accounts
             Console.WriteLine("Refresh complete");
         }
     }
-   public static class Corruption
-   {
-      static Queue<Privilege> privilegeList;
+
+    public static class Corruption
+    {
+        static Queue<Privilege> privilegeList;
         static Queue<Privilege> privilegeListCopy;
+
+        static readonly object lockObject = new object();
+
         public static void Set(List<Privilege> list)
         {
             lock (lockObject)
@@ -50,7 +62,6 @@ namespace InstagramBot.Data.Accounts
             }
         }
 
-       static object lockObject = new object();
         public static Privilege Next()
         {
             lock (lockObject)
@@ -84,17 +95,20 @@ namespace InstagramBot.Data.Accounts
         static void Reset()
         {
             double arraySum = privilegeList.Sum(item => item.Coefficient);
-            foreach(var item in privilegeList)
+            foreach (var item in privilegeList)
             {
-                item.Balance = (int)(100 / arraySum * item.Coefficient);
+                item.Balance = (int) (100/arraySum*item.Coefficient);
             }
         }
     }
 
-    public static class Bloggers 
+    public static class Bloggers
     {
         static Queue<Privilege> privilegeList;
         public static Queue<Privilege> privilegeListCopy;
+
+        static readonly object lockObject = new object();
+
         public static void Set(List<Privilege> list)
         {
             lock (lockObject)
@@ -110,7 +124,6 @@ namespace InstagramBot.Data.Accounts
             return privilegeListCopy.Any(item => item.Id == id);
         }
 
-        static object lockObject = new object();
         public static Privilege Next()
         {
             lock (lockObject)
@@ -135,7 +148,7 @@ namespace InstagramBot.Data.Accounts
             double arraySum = privilegeListCopy.Sum(item => item.Coefficient);
             foreach (var item in privilegeList)
             {
-                item.Balance = (int)(100 / arraySum * item.Coefficient);
+                item.Balance = (int) (100/arraySum*item.Coefficient);
                 item.Balance = item.Balance == 0 ? 1 : item.Balance;
             }
         }
@@ -143,22 +156,26 @@ namespace InstagramBot.Data.Accounts
 
     public class Privilege : MiniInfo
     {
-        public int Balance { get; set; }
-        public int BonusPlace { get; set; }
-        public double Coefficient { get; set; }
         public Privilege(long id = -1, string url = "", double coefficient = 0, object bonus = null) : base(id, url)
         {
             Coefficient = coefficient;
             int b;
-            BonusPlace = bonus != null && int.TryParse(bonus.ToString(), out b) ? b : 0;
+            BonusPlace = (bonus != null) && int.TryParse(bonus.ToString(), out b) ? b : 0;
         }
+
+        public int Balance { get; set; }
+        public int BonusPlace { get; set; }
+        public double Coefficient { get; set; }
     }
+
     public class BloggerStatistics : Privilege
     {
-        public DateTime Date { get; set; }
-        public BloggerStatistics(long id = -1, string url = "", double coefficient = 0, DateTime date = new DateTime()) : base(id, url, coefficient)
+        public BloggerStatistics(long id = -1, string url = "", double coefficient = 0, DateTime date = new DateTime())
+            : base(id, url, coefficient)
         {
             Date = date;
         }
+
+        public DateTime Date { get; set; }
     }
 }

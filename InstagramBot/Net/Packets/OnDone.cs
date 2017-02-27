@@ -1,16 +1,20 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
+
+#endregion
 
 namespace InstagramBot.Net.Packets
 {
     public class OnDone : IActionPacket
     {
+        readonly object insertObject = new object();
         public Session Session { get; set; }
-        object insertObject = new object();
+
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             try
@@ -18,7 +22,7 @@ namespace InstagramBot.Net.Packets
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
                     string.Format(Session.Language.Get(user.Language, "od_start")));
                 bool start = !Session.MySql.IsStart(user.Account.From.Id);
-                if(user.Account.IsVip)
+                if (user.Account.IsVip)
                 {
                     List<Privilege> vipList;
                     Session.MySql.GetCorruptionList(out vipList);
@@ -33,13 +37,15 @@ namespace InstagramBot.Net.Packets
                     Session.MySql.InsertTree(user.Account.Info.Id, user.Account.From.Id, user.Account.To.Id);
                     Session.MySql.InsertRedList(user.Account.Info.Id, user.AdditionInfo.LinkIds.ToArray());
                     Session.MySql.InsertLanguage(user.TelegramId, user.Language);
-                 //   if (user.AdditionInfo.IsAlreadyUses) Session.MySql.UpdateStatus(user.Account.Info.Id, true);
+                    //   if (user.AdditionInfo.IsAlreadyUses) Session.MySql.UpdateStatus(user.Account.Info.Id, true);
                 }
                 long telegramId;
                 Session.MySql.GetTelegramId(user.Account.From.Id, out telegramId);
 
                 Session.Bot?.SendTextMessageAsync(telegramId,
-                    string.Format(Session.Language.Get(user.Language, "od_registred_via_link")+"["+user.Account.From.Url+"]", user.Account.Info.Url));
+                    string.Format(
+                        Session.Language.Get(user.Language, "od_registred_via_link") + "[" + user.Account.From.Url + "]",
+                        user.Account.Info.Url));
 
                 if (start && Session.MySql.IsStart(user.Account.From.Id))
                     Session.Bot?.SendTextMessageAsync(telegramId,
@@ -56,9 +62,9 @@ namespace InstagramBot.Net.Packets
                 Console.WriteLine("OnDone: " + ex.Message);
             }
         }
+
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-          
         }
     }
 }

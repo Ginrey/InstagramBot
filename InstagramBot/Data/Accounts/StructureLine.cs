@@ -1,6 +1,6 @@
 ﻿namespace InstagramBot.Data.Accounts
 {
-   public class StructureLine
+    public class StructureLine
     {
         public long ID { get; set; }
         public int CountFromMyURL { get; set; }

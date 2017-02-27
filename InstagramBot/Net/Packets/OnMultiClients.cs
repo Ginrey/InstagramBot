@@ -1,16 +1,22 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using File = System.IO.File;
+
+#endregion
 
 namespace InstagramBot.Net.Packets
 {
-   public class OnMultiClients : IActionPacket
+    public class OnMultiClients : IActionPacket
     {
         public Session Session { get; set; }
+
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             List<KeyboardButton[]> listMenu = new List<KeyboardButton[]>
@@ -24,7 +30,8 @@ namespace InstagramBot.Net.Packets
             };
 
             ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup(listMenu.ToArray());
-            Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, Config.MenuList.MultiClients),
+            Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                Session.Language.Get(user.Language, Config.MenuList.MultiClients),
                 replyMarkup: keyboard);
         }
 
@@ -32,30 +39,33 @@ namespace InstagramBot.Net.Packets
         {
             try
             {
-                if (string.IsNullOrEmpty(e.Message.Text) || user.Account == null) return;
+                if (string.IsNullOrEmpty(e.Message.Text) || (user.Account == null)) return;
                 if (Change(user, e.Message.Text)) return;
 
                 string command = Session.Language.GetReverse(e.Message.Text);
                 switch (command)
                 {
                     case Config.MenuMultiClients.Current:
-                        Session.Bot?.SendTextMessageAsync(user.TelegramId, string.Format(Session.Language.Get(user.Language, "omc_current"), user.Account.Info.Url));
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            string.Format(Session.Language.Get(user.Language, "omc_current"), user.Account.Info.Url));
                         break;
                     case Config.MenuMultiClients.Add:
-                        Session.Bot?.SendTextMessageAsync(user.TelegramId, "Для выхода в главное меню отправьте команду /start");
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            "Для выхода в главное меню отправьте команду /start");
                         user.AdditionInfo.IsAlreadyUses = true;
                         user.State = States.Registering;
                         Console.WriteLine("[{0}] {1} Starting multi register", DateTime.Now, user.Account.Info.Url);
                         break;
-                      case Config.MenuMultiClients.Change:
+                    case Config.MenuMultiClients.Change:
                         List<MiniInfo> info;
                         Session.MySql.GetIdByTelegramId(user.TelegramId, out info);
                         var keyboard = new InlineKeyboardMarkup(InlineKeyboardMarkupMaker(info));
                         Session.Bot?.SendTextMessageAsync(user.TelegramId, "Список", replyMarkup: keyboard);
                         break;
                     case Config.MenuMultiClients.EditNick:
-                        System.IO.File.AppendAllText("EditNick.txt", user.Account.Info.Id + "\r\n");
-                        Session.Bot?.SendTextMessageAsync(user.TelegramId, "Запрос будет обработан в течение 24 часов. Спасибо");
+                        File.AppendAllText("EditNick.txt", user.Account.Info.Id + "\r\n");
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            "Запрос будет обработан в течение 24 часов. Спасибо");
                         break;
 
                     case Config.MenuList.PrivateOffice:
@@ -73,6 +83,7 @@ namespace InstagramBot.Net.Packets
                 LOG.Add("OMA", ex);
             }
         }
+
         bool Change(ActionBot user, string cmd)
         {
             if (!cmd.StartsWith("/Select")) return false;
@@ -104,5 +115,4 @@ namespace InstagramBot.Net.Packets
             return iks;
         }
     }
-
 }

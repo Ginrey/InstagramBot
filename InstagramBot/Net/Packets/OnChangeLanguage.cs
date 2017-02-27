@@ -1,22 +1,26 @@
-﻿using System;
+﻿#region
+
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
+#endregion
+
 namespace InstagramBot.Net.Packets
 {
-   public class OnChangeLanguage : IActionPacket
+    public class OnChangeLanguage : IActionPacket
     {
         public Session Session { get; set; }
+
         public void Serialize(ActionBot user, StateEventArgs e)
         {
-           var keyboard = new InlineKeyboardMarkup(new[]
-               {
-                    new InlineKeyboardButton("Русский 🇷🇺", "/Russian"),
-                    new InlineKeyboardButton("English 🇺🇸", "/English")
-                });
+            var keyboard = new InlineKeyboardMarkup(new[]
+            {
+                new InlineKeyboardButton("Русский 🇷🇺", "/Russian"),
+                new InlineKeyboardButton("English 🇺🇸", "/English")
+            });
             Session.Bot?.SendTextMessageAsync(user.TelegramId, Session.Language.Get(user.Language, "ocl_selectlang"),
                 replyMarkup: keyboard);
         }

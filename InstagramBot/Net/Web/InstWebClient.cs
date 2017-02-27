@@ -1,48 +1,55 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
+
+#endregion
 
 namespace InstagramBot.Net.Web
 {
     public class InstWebClient : WebClient
     {
-        public string UserAgent { get; private set; }
-       
-        public CookieContainer CookieContainer { get; set; }
-          protected override WebRequest GetWebRequest(Uri address)
-          {
-              WebRequest request = base.GetWebRequest(address);
+        readonly object start = new object();
 
-              if (request is HttpWebRequest)
-              {
-                  (request as HttpWebRequest).CookieContainer = this.CookieContainer;
-              }
-              HttpWebRequest httpRequest = (HttpWebRequest)request;
-              httpRequest.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-              return httpRequest;
-          }
-     
-      /*  protected override WebResponse GetWebResponse(WebRequest request)
+        /*  protected override WebResponse GetWebResponse(WebRequest request)
         {
             HttpWebRequest httpRequest = (HttpWebRequest)request;
             httpRequest.AllowAutoRedirect = false;
             return httpRequest.GetResponse();
         }*/
-        
-        public InstWebClient(string userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko", IWebProxy proxy = null)
+
+        public InstWebClient(string userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko",
+            IWebProxy proxy = null)
         {
             if (proxy != null)
-            {               
+            {
                 Proxy = proxy;
             }
             UserAgent = userAgent;
             CookieContainer = new CookieContainer();
             ResetHeaders("");
-            
+
             ServicePointManager.ServerCertificateValidationCallback += (o, certificate, chain, errors) => true;
+        }
+
+        public string UserAgent { get; private set; }
+
+        public CookieContainer CookieContainer { get; set; }
+
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            WebRequest request = base.GetWebRequest(address);
+
+            if (request is HttpWebRequest)
+            {
+                (request as HttpWebRequest).CookieContainer = CookieContainer;
+            }
+            HttpWebRequest httpRequest = (HttpWebRequest) request;
+            httpRequest.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            return httpRequest;
         }
 
         public WebHeaderCollection GetResponseHeaders()
@@ -52,12 +59,14 @@ namespace InstagramBot.Net.Web
 
         void SetToket(string token)
         {
-            if(!string.IsNullOrEmpty(token))
-            Headers["X-CSRFToken"] = token;
+            if (!string.IsNullOrEmpty(token))
+                Headers["X-CSRFToken"] = token;
         }
-        public void ResetHeaders(string token="")
+
+        public void ResetHeaders(string token = "")
         {
-            Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
+            Headers[HttpRequestHeader.UserAgent] =
+                "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
             Headers[HttpRequestHeader.Host] = "www.instagram.com";
             Headers["Accept"] = "*/*";
             Headers["Accept-Language"] = "en-US,en;q=0.5";
@@ -68,7 +77,6 @@ namespace InstagramBot.Net.Web
             Headers["X-Instagram-AJAX"] = "1";
         }
 
-        object start = new object();
         public string UploadString(string address)
         {
             try
@@ -78,19 +86,19 @@ namespace InstagramBot.Net.Web
                     if (address.Any(wordByte => wordByte > 127) || address.Contains(' ')) return "";
                     return DownloadString(GetUri(address));
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-
-                if (ex.Message.Contains("404")) return "";// UploadString(address);
+                if (ex.Message.Contains("404")) return ""; // UploadString(address);
                 throw ex;
             }
         }
 
-        public  string UploadString(string address, string data)
+        public string UploadString(string address, string data)
         {
-            return  UploadString(GetUri(address), data);
+            return UploadString(GetUri(address), data);
         }
-        
+
         public string UploadString(string address, Dictionary<string, string> data)
         {
             lock (start)
@@ -108,7 +116,7 @@ namespace InstagramBot.Net.Web
             }
         }
 
-        private static Uri GetUri(string str)
+        static Uri GetUri(string str)
         {
             var u = new Uri(str);
             var servicePoint = ServicePointManager.FindServicePoint(u);

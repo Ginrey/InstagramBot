@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
@@ -6,15 +8,14 @@ using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
 
+#endregion
+
 namespace InstagramBot.Net
 {
     public class Connection
     {
-        public Session Session { get; set; }
         public Dictionary<long, ActionBot> Users = new Dictionary<long, ActionBot>();
-        public PacketsRegistry PacketsRegistry { get; set; }
-        TelegramBotClient Bot => Session.Bot;
-     
+
         public Connection(Session session)
         {
             Session = session;
@@ -23,6 +24,10 @@ namespace InstagramBot.Net
             Bot.OnMessage += OnMessageReceived;
             Bot.OnCallbackQuery += OnInlineQueryReceived;
         }
+
+        public Session Session { get; set; }
+        public PacketsRegistry PacketsRegistry { get; set; }
+        TelegramBotClient Bot => Session.Bot;
 
         public void Connect()
         {
@@ -37,8 +42,8 @@ namespace InstagramBot.Net
             Bot?.StopReceiving();
             Console.Title = "Closed";
         }
-      
-        private void OnMessageReceived(object sender, MessageEventArgs messageEventArgs)
+
+        void OnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             var message = messageEventArgs.Message;
             if (message.Type == MessageType.TextMessage)
@@ -47,13 +52,12 @@ namespace InstagramBot.Net
                 {
                     string[] lines = message.Text.Split();
                     string fromreferal = lines.Length == 2 ? lines[1] : "";
-                        long id = message.Chat.Id;
+                    long id = message.Chat.Id;
                     var state = GetLicenseState(id);
                     Users[id] = new ActionBot(id, Session, fromreferal);
                     Users[id].SetState(state);
                 }
-                else
-                if(message.Text.StartsWith("/test"))
+                else if (message.Text.StartsWith("/test"))
                 {
                     Session.Bot?.SendTextMessageAsync(message.Chat.Id, "CompleteTest");
                 }
@@ -71,7 +75,7 @@ namespace InstagramBot.Net
                         Users[id] = new ActionBot(id, Session, "");
                         Users[id].SetState(state);
                     }
-                  //  user.NextStep(message);
+                    //  user.NextStep(message);
                     return;
                 }
             }
@@ -81,7 +85,7 @@ namespace InstagramBot.Net
             }
         }
 
-        private void OnInlineQueryReceived(object sender, CallbackQueryEventArgs messageEventArgs)
+        void OnInlineQueryReceived(object sender, CallbackQueryEventArgs messageEventArgs)
         {
             var message = messageEventArgs.CallbackQuery.Message;
             message.Text = messageEventArgs.CallbackQuery.Data;

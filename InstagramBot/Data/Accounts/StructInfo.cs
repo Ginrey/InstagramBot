@@ -1,6 +1,6 @@
 ﻿namespace InstagramBot.Data.Accounts
 {
-   public class StructInfo
+    public class StructInfo
     {
         public string Referal { get; set; }
         public States States { get; set; }

@@ -1,5 +1,10 @@
-﻿using InstagramBot.Data;
+﻿#region
+
+using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
+
+#endregion
+
 namespace InstagramBot.Net
 {
     public interface IActionPacket

@@ -1,19 +1,17 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 using InstagramBot.Data.Accounts;
 using Newtonsoft.Json;
 
+#endregion
+
 namespace InstagramBot.Net.Web
 {
     public class Authorization
     {
-        public string Login { get; set; }
-        public string Password { get; set; }
-        public WebProxy Proxy { get; set; }
-        public bool IsDone { get; set; }
-        InstWebClient instWC { get; set; }
-
         protected Authorization(string login = "", string password = "", string proxy = "", string passwordProxy = "")
         {
             Login = login;
@@ -24,15 +22,20 @@ namespace InstagramBot.Net.Web
                 {
                     Credentials = new NetworkCredential(passwordProxy.Split(':')[0], passwordProxy.Split(':')[1])
                 };
-
             }
-            instWC = new InstWebClient(proxy : Proxy);
+            instWC = new InstWebClient(proxy: Proxy);
         }
+
+        public string Login { get; set; }
+        public string Password { get; set; }
+        public WebProxy Proxy { get; set; }
+        public bool IsDone { get; set; }
+        InstWebClient instWC { get; }
 
         protected void Auth()
         {
             if (IsDone) return;
-             instWC.UploadString("https://www.instagram.com/");
+            instWC.UploadString("https://www.instagram.com/");
 
             Dictionary<string, string> code = new Dictionary<string, string>
             {
@@ -41,7 +44,7 @@ namespace InstagramBot.Net.Web
             };
 
             instWC.ResetHeaders(GetTokenFromCookie());
-            var data =  instWC.UploadString("https://www.instagram.com/accounts/login/ajax/", code);
+            var data = instWC.UploadString("https://www.instagram.com/accounts/login/ajax/", code);
             instWC.ResetHeaders(GetTokenFromCookie());
             IsDone = data.Contains("true");
             Console.WriteLine(IsDone ? "Auth complete" : "Auth error");
@@ -67,7 +70,11 @@ namespace InstagramBot.Net.Web
             {
                 Dictionary<string, string> code = new Dictionary<string, string>
                 {
-                    {"q", "ig_user(" + referalId + "){followed_by.first(20){page_info{end_cursor,has_next_page},nodes{id,full_name,username}}}"}
+                    {
+                        "q",
+                        "ig_user(" + referalId +
+                        "){followed_by.first(20){page_info{end_cursor,has_next_page},nodes{id,full_name,username}}}"
+                    }
                 };
                 instWC.ResetHeaders();
                 var data = instWC.UploadString("https://www.instagram.com/query/", code);
@@ -86,7 +93,11 @@ namespace InstagramBot.Net.Web
             {
                 Dictionary<string, string> code = new Dictionary<string, string>
                 {
-                  {"q","ig_user("+referalId+"){followed_by.after("+after+",20){page_info{end_cursor,has_next_page},nodes{id,full_name,username}}}"}
+                    {
+                        "q",
+                        "ig_user(" + referalId + "){followed_by.after(" + after +
+                        ",20){page_info{end_cursor,has_next_page},nodes{id,full_name,username}}}"
+                    }
                 };
                 instWC.ResetHeaders();
                 var data = instWC.UploadString("https://www.instagram.com/query/", code);
@@ -100,7 +111,7 @@ namespace InstagramBot.Net.Web
         }
 
 
-        protected  FollowedUser GetFollowsListById(long referalId)
+        protected FollowedUser GetFollowsListById(long referalId)
         {
             try
             {
@@ -119,7 +130,7 @@ namespace InstagramBot.Net.Web
             }
         }
 
-        protected  UserInfo GetUserFromUrl(string url)
+        protected UserInfo GetUserFromUrl(string url)
         {
             try
             {
@@ -139,7 +150,11 @@ namespace InstagramBot.Net.Web
             {
                 Dictionary<string, string> code = new Dictionary<string, string>
                 {
-                    {"q", "ig_user(" + id + "){id,username,full_name,followed_by{count},follows{count},media{count},is_private}"}
+                    {
+                        "q",
+                        "ig_user(" + id +
+                        "){id,username,full_name,followed_by{count},follows{count},media{count},is_private}"
+                    }
                 };
                 instWC.ResetHeaders();
                 var data = instWC.UploadString("https://www.instagram.com/query/", code);

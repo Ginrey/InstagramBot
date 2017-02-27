@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿#region
+
+using System.Collections.Generic;
 using System.Threading;
+
+#endregion
 
 namespace InstagramBot.Data
 {
     public class BlackList
     {
-        Dictionary<long, ActionTimer> List = new Dictionary<long, ActionTimer>();
+        readonly Dictionary<long, ActionTimer> List = new Dictionary<long, ActionTimer>();
 
         public void Add(long state)
         {
@@ -41,21 +45,23 @@ namespace InstagramBot.Data
         }
     }
 }
-    public class ActionTimer
-    {
-        Timer timer;
-        public ActionTimer(TimerCallback callBack, object state)
-        {
-            timer = new Timer(callBack, state, Timeout.Infinite, Timeout.Infinite);
-        }
 
-        public void Start(int dueTime, int period)
-        {
-            timer.Change(dueTime, period);
-        }
-        public void Stop()
-        {
-            timer.Change(Timeout.Infinite, Timeout.Infinite);
-        }
+public class ActionTimer
+{
+    readonly Timer timer;
+
+    public ActionTimer(TimerCallback callBack, object state)
+    {
+        timer = new Timer(callBack, state, Timeout.Infinite, Timeout.Infinite);
     }
 
+    public void Start(int dueTime, int period)
+    {
+        timer.Change(dueTime, period);
+    }
+
+    public void Stop()
+    {
+        timer.Change(Timeout.Infinite, Timeout.Infinite);
+    }
+}

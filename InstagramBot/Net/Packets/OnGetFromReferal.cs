@@ -1,33 +1,42 @@
-﻿using System;
+﻿#region
+
+using System;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
+using Telegram.Bot.Types;
+
+#endregion
 
 namespace InstagramBot.Net.Packets
 {
-    class OnGetFromReferal : IActionPacket
+    internal class OnGetFromReferal : IActionPacket
     {
         public Session Session { get; set; }
+
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             try
             {
                 user.AdditionInfo.ErrorCounter = 0;
                 if (string.IsNullOrEmpty(user.AdditionInfo.FromReferal))
-                Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                            string.Format(Session.Language.Get(user.Language, "ogfr_enter_inviter")));
+                    Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                        string.Format(Session.Language.Get(user.Language, "ogfr_enter_inviter")));
                 else
                 {
                     Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                            string.Format(Session.Language.Get(user.Language, "ofgr_come_to_link"), user.AdditionInfo.FromReferal));
-                    e.Message = new Telegram.Bot.Types.Message {Text = user.AdditionInfo.FromReferal};
+                        string.Format(Session.Language.Get(user.Language, "ofgr_come_to_link"),
+                            user.AdditionInfo.FromReferal));
+                    e.Message = new Message {Text = user.AdditionInfo.FromReferal};
                     Deserialize(user, e);
                 }
             }
             catch (Exception ex)
-            { LOG.Add("OGFS", ex); }
+            {
+                LOG.Add("OGFS", ex);
+            }
         }
-       
+
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
             try
@@ -41,7 +50,7 @@ namespace InstagramBot.Net.Packets
                 var acc = Session.WebInstagram.GetAccount(user.Account.From.Url);
                 if (acc == null) goto error;
                 user.Account.From.Set(acc.Info.Id);
-              
+
                 if (Session.MySql.IsPresentInstagram(user.Account.From.Id))
                 {
                     user.State = States.WaitSubscribe;
@@ -50,10 +59,13 @@ namespace InstagramBot.Net.Packets
                 error:
                 user.AdditionInfo.ErrorCounter++;
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                            string.Format(Session.Language.Get(user.Language, "ofgr_user_not_registred"), 3 - user.AdditionInfo.ErrorCounter));
-           }
+                    string.Format(Session.Language.Get(user.Language, "ofgr_user_not_registred"),
+                        3 - user.AdditionInfo.ErrorCounter));
+            }
             catch (Exception ex)
-            { LOG.Add("OGFD", ex); }
+            {
+                LOG.Add("OGFD", ex);
+            }
         }
     }
 }

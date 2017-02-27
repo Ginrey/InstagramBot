@@ -1,74 +1,18 @@
-﻿using System;
+﻿#region
+
+using System;
+
+#endregion
 
 namespace InstagramBot.Data
 {
     /// <summary>
-    /// Представляет реализацию Unix-времени.
+    ///     Представляет реализацию Unix-времени.
     /// </summary>
     public class UnixTime : ICloneable
     {
         /// <summary>
-        /// Возвращает текущее время в формате Unix.
-        /// </summary>
-        /// <returns></returns>
-        public static Int32 GetUnixTime()
-        {
-            return ToUnixTime(DateTime.Now);
-        }
-      
-        /// <summary>
-        /// Преобразует DateTime в Unix таймстемп.
-        /// </summary>
-        /// <param name="dateTime">DateTime</param>
-        /// <returns></returns>
-        public static Int32 ToUnixTime(DateTime dateTime)
-        {
-            return (int)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
-        }
-
-        /// <summary>
-        /// Преобразует Unix таймстемп в DateTime.
-        /// </summary>
-        /// <param name="timeStamp">Таймстемп</param>
-        /// <returns></returns>
-        public static DateTime ToDateTime(Int32 timeStamp)
-        {
-            return new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(timeStamp);
-        }
-
-        /// <summary>
-        /// Текущие дата/время
-        /// </summary>
-        public static UnixTime Now
-        {
-            get
-            {
-                return new UnixTime();
-            }
-        }
-
-        /// <summary>
-        /// Таймстемп.
-        /// </summary>
-        public int Timestamp { get; set; }
-
-        /// <summary>
-        /// Дата/время
-        /// </summary>
-        public DateTime Time
-        {
-            get
-            {
-                return ToDateTime(Timestamp);
-            }
-            set
-            {
-                Timestamp = ToUnixTime(value);
-            }
-        }
-
-        /// <summary>
-        /// Базовая инициализация. Время присваивается текущее.
+        ///     Базовая инициализация. Время присваивается текущее.
         /// </summary>
         public UnixTime()
         {
@@ -76,7 +20,7 @@ namespace InstagramBot.Data
         }
 
         /// <summary>
-        /// Инициализация объекта.
+        ///     Инициализация объекта.
         /// </summary>
         /// <param name="timeStamp">Unix таймстемп</param>
         public UnixTime(int timeStamp)
@@ -85,7 +29,7 @@ namespace InstagramBot.Data
         }
 
         /// <summary>
-        /// Инициализация объекта.
+        ///     Инициализация объекта.
         /// </summary>
         /// <param name="dateTime">DateTime</param>
         public UnixTime(DateTime dateTime)
@@ -93,9 +37,65 @@ namespace InstagramBot.Data
             Time = dateTime;
         }
 
+        /// <summary>
+        ///     Текущие дата/время
+        /// </summary>
+        public static UnixTime Now
+        {
+            get { return new UnixTime(); }
+        }
+
+        /// <summary>
+        ///     Таймстемп.
+        /// </summary>
+        public int Timestamp { get; set; }
+
+        /// <summary>
+        ///     Дата/время
+        /// </summary>
+        public DateTime Time
+        {
+            get { return ToDateTime(Timestamp); }
+            set { Timestamp = ToUnixTime(value); }
+        }
+
+        public object Clone()
+        {
+            return new UnixTime(Timestamp);
+        }
+
+        /// <summary>
+        ///     Возвращает текущее время в формате Unix.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetUnixTime()
+        {
+            return ToUnixTime(DateTime.Now);
+        }
+
+        /// <summary>
+        ///     Преобразует DateTime в Unix таймстемп.
+        /// </summary>
+        /// <param name="dateTime">DateTime</param>
+        /// <returns></returns>
+        public static int ToUnixTime(DateTime dateTime)
+        {
+            return (int) (dateTime - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
+        }
+
+        /// <summary>
+        ///     Преобразует Unix таймстемп в DateTime.
+        /// </summary>
+        /// <param name="timeStamp">Таймстемп</param>
+        /// <returns></returns>
+        public static DateTime ToDateTime(int timeStamp)
+        {
+            return new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(timeStamp);
+        }
+
         public override string ToString()
         {
-            return String.Format("{0}", Time, Timestamp);
+            return string.Format("{0}", Time, Timestamp);
         }
 
         public static UnixTime operator +(UnixTime time1, UnixTime time2)
@@ -127,9 +127,9 @@ namespace InstagramBot.Data
         {
             return new UnixTime(time1.Timestamp - ToUnixTime(time2));
         }
-        
+
         /// <summary>
-        /// Неявное преобразование (cast) DateTime в UnixTime.
+        ///     Неявное преобразование (cast) DateTime в UnixTime.
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
@@ -139,7 +139,7 @@ namespace InstagramBot.Data
         }
 
         /// <summary>
-        /// Неявное преобразование (cast) UnixTime в DateTime.
+        ///     Неявное преобразование (cast) UnixTime в DateTime.
         /// </summary>
         /// <param name="unixTime"></param>
         /// <returns></returns>
@@ -147,11 +147,5 @@ namespace InstagramBot.Data
         {
             return unixTime.Time;
         }
-
-        public object Clone()
-        {
-            return new UnixTime(Timestamp);
-        }
-      
     }
 }

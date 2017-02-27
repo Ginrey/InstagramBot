@@ -1,16 +1,19 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
 
+#endregion
 
 namespace InstagramBot.Net.Packets
 {
-    class OnAlreadyUsing : IActionPacket
+    internal class OnAlreadyUsing : IActionPacket
     {
         public Session Session { get; set; }
-       
+
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             try
@@ -21,13 +24,14 @@ namespace InstagramBot.Net.Packets
                 {
                     user.Account = new AccountInstagram
                     {
-                       Info = info[0]
+                        Info = info[0]
                     };
-                    
+
                     user.Account.IsVip = Bloggers.Contains(user.Account.Info.Id);
 
-                    if(Session.BlockedList.Contains(user.Account.Info.Id)) Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                             string.Format(Session.Language.Get(user.Language, "ob_banned")));
+                    if (Session.BlockedList.Contains(user.Account.Info.Id))
+                        Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                            string.Format(Session.Language.Get(user.Language, "ob_banned")));
                     if (user.Account == null)
                     {
                         user.Language = Language.Russian;
@@ -40,7 +44,7 @@ namespace InstagramBot.Net.Packets
                         Session.MySql.GetLanguage(user.Account.Info.Id, out language);
                         user.Language = language;
                         Console.WriteLine("[{0}] {1} Enter to account", DateTime.Now, user.Account.Info.Url);
-                        Menu.ShowMainMenu(user);
+                        user.ShowMainMenu();
                     }
                 }
             }
@@ -54,98 +58,98 @@ namespace InstagramBot.Net.Packets
         {
             try
             {
-                if (string.IsNullOrEmpty(e.Message.Text) || user.Account == null) return;
+                if (string.IsNullOrEmpty(e.Message.Text) || (user.Account == null)) return;
                 string command = Session.Language.GetReverse(e.Message.Text);
                 switch (command)
                 {
                     case Config.MenuList.ReferalUrl:
-                        Menu.ShowMyUrl(user);
+                        user.ShowMyUrl();
                         break;
                     case Config.MenuList.MyReferals:
                         Menu.ShowMyReferals(user);
                         break;
                     case Config.MenuList.MyListUsers:
-                        Menu.ShowStruct(user, false);
+                        user.ShowStruct(false);
                         break;
                     case Config.MenuList.MyPrivateFollows:
-                        Menu.ShowMyRedList(user);
+                        user.ShowMyRedList();
                         break;
                     case Config.MenuList.Order:
                         Session.Bot?.SendTextMessageAsync(user.TelegramId, Config.Order(user.Language));
                         break;
                     case Config.MenuList.PrivateOffice:
-                        Menu.ShowLK(user);
+                        user.ShowLK();
                         break;
                     case Config.MenuList.ChangeLanguage:
                         user.State = States.ChangeLanguage;
                         break;
                     case Config.MenuList.BackToMenu:
-                        Menu.ShowMainMenu(user, Config.MenuList.MainMenu);
+                        user.ShowMainMenu(Config.MenuList.MainMenu);
                         break;
                     case Config.MenuList.Status:
-                        Menu.ShowStatus(user);
+                        user.ShowStatus();
                         break;
                     case Config.MenuList.Struct:
-                        Menu.ShowStruct(user, true);
+                        user.ShowStruct(true);
                         break;
                     case Config.MyListUser:
-                        Menu.ShowListStruct(user, 1);
+                        user.ShowListStruct(1);
                         break;
                     case Config.MyNullListUser:
-                        Menu.ShowListStruct(user, 0);
+                        user.ShowListStruct(0);
                         break;
                     case Config.MenuList.CheckUsersOnInstagram:
                         user.State = States.OnFindClients;
                         break;
                     case Config.MenuList.PromoMaterials:
-                        Menu.ShowPromo(user);
+                        user.ShowPromo();
                         break;
                     case Config.MenuList.WhereReferals:
                         Session.Bot?.SendTextMessageAsync(user.TelegramId, "https://youtu.be/nWdoU7e1OxU");
                         break;
 
                     case Config.MenuList.PrivilegeList:
-                        Menu.NewPrivilegeInstagram(user);
+                        user.NewPrivilegeInstagram();
                         break;
                     case Config.MenuList.HowMachUsers:
-                        Menu.ShowCountUsers(user);
+                        user.ShowCountUsers();
                         break;
 
                     case Config.MenuList.MyRevolver:
-                        Menu.ShowBloggersMenu(user);
+                        user.ShowBloggersMenu();
                         break;
                     case Config.MenuBloggers.Members:
-                        MenuBloggers.ShowMembersCount(user);
+                        user.ShowMembersCount();
                         break;
                     case Config.MenuBloggers.Limit:
-                        MenuBloggers.ShowStatistics(user);
+                        user.ShowStatistics();
                         break;
                     case Config.MenuBloggers.Registering:
-                        MenuBloggers.ShowRegistering(user);
+                        user.ShowRegistering();
                         break;
                     case Config.MenuBloggers.Chat:
-                        MenuBloggers.ShowChat(user);
+                        user.ShowChat();
                         break;
                     case Config.MenuBloggers.Channel:
-                        MenuBloggers.ShowChannel(user);
+                        user.ShowChannel();
                         break;
                     case Config.MenuBloggers.MyInfo:
-                        MenuBloggers.ShowMyInfo(user);
+                        user.ShowMyInfo();
                         break;
                     case Config.MenuBloggers.ListMembers:
-                        MenuBloggers.ShowListMembers(user);
+                        user.ShowListMembers();
                         break;
                     case Config.MenuBloggers.ListNew:
-                        MenuBloggers.ShowListNew(user);
+                        user.ShowListNew();
                         break;
                     case Config.MenuBloggers.ListStatistics:
-                        MenuBloggers.ShowListStatistics(user);
+                        user.ShowListStatistics();
                         break;
                     case Config.MenuBloggers.ListOverall:
-                        MenuBloggers.ShowListOverall(user);
+                        user.ShowListOverall();
                         break;
                     case Config.MenuBloggers.ListUpLine:
-                        MenuBloggers.ShowListUpline(user);
+                        user.ShowListUpline();
                         break;
 
                     case Config.MenuList.MultiClients:
@@ -156,7 +160,7 @@ namespace InstagramBot.Net.Packets
                         break;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LOG.Add("OAU", ex);
             }

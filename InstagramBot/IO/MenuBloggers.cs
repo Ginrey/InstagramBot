@@ -1,22 +1,26 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
+#endregion
+
 namespace InstagramBot.IO
 {
-   public static class MenuBloggers
+    public static class MenuBloggers
     {
-        public static Session Session { get; set; }
         static DateTime yesterday = DateTime.Now.Date.AddDays(-1);
         static DateTime today = DateTime.Now.Date;
-        public static void ShowMembersCount(ActionBot user)
+        public static Session Session { get; set; }
+
+        public static void ShowMembersCount(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
-                int count;
+            int count;
             Session.MySql.GetCountCorruptionList(out count);
             List<Privilege> nowlist;
             Session.MySql.GetQuotaFromCorruption(out nowlist);
@@ -28,18 +32,18 @@ namespace InstagramBot.IO
             sendText += $"Количество: {count} /List_members\n";
             sendText += $"Охват аудитории: {sum}\n";
             sendText += $"Добавились {today.ToShortDateString()}: {countnew} /List_new\n";
-           
+
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
 
-        public static void ShowStatistics(ActionBot user)
+        public static void ShowStatistics(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
             List<Privilege> list;
             Session.MySql.GetCorruptionList(out list);
-            double summcoeff=0;
+            double summcoeff = 0;
             Privilege top = new Privilege();
-            foreach(var item in list)
+            foreach (var item in list)
             {
                 if (item.Coefficient > top.Coefficient)
                     top = item;
@@ -65,12 +69,12 @@ namespace InstagramBot.IO
             sendText += $"Всего из револьвера зарегистрировалось {countRegAll}\n";
             sendText += "\nДополнительно\n";
             sendText += $"Итого: {today.ToShortDateString()} /List_overall\n";
-            sendText += $"Лидер квота: {top.Url} ({top.Coefficient}) - {100 / summcoeff * top.Coefficient:0.0000}%\n";
-          
+            sendText += $"Лидер квота: {top.Url} ({top.Coefficient}) - {100/summcoeff*top.Coefficient:0.0000}%\n";
+
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
 
-        public static void ShowRegistering(ActionBot user)
+        public static void ShowRegistering(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
             int countRegToday, countMyAll, countTodayAll, countAll;
@@ -86,7 +90,8 @@ namespace InstagramBot.IO
                         $"За весь период {countAll}";
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
-        public static void ShowChat(ActionBot user)
+
+        public static void ShowChat(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
             InlineKeyboardButton[][] iks = new InlineKeyboardButton[1][];
@@ -97,10 +102,12 @@ namespace InstagramBot.IO
                     Url = "https://t.me/joinchat/AAAAAEIqhbjjDvIou8nhlw"
                 }
             };
-        
-            Session.Bot?.SendTextMessageAsync(user.TelegramId, "Для перехода в чат нажмите", replyMarkup: new InlineKeyboardMarkup(iks));
+
+            Session.Bot?.SendTextMessageAsync(user.TelegramId, "Для перехода в чат нажмите",
+                replyMarkup: new InlineKeyboardMarkup(iks));
         }
-        public static void ShowChannel(ActionBot user)
+
+        public static void ShowChannel(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
             InlineKeyboardButton[][] iks = new InlineKeyboardButton[1][];
@@ -112,9 +119,11 @@ namespace InstagramBot.IO
                 }
             };
 
-            Session.Bot?.SendTextMessageAsync(user.TelegramId, "Для перехода в канал нажмите", replyMarkup: new InlineKeyboardMarkup(iks));
+            Session.Bot?.SendTextMessageAsync(user.TelegramId, "Для перехода в канал нажмите",
+                replyMarkup: new InlineKeyboardMarkup(iks));
         }
-        public static void ShowMyInfo(ActionBot user)
+
+        public static void ShowMyInfo(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
             int FreePlace = GetCountTree(user.Account.Info.Id);
@@ -139,14 +148,17 @@ namespace InstagramBot.IO
             sendText += "------------------------\n" +
                         "Верхние линии /List_upline\n" +
                         "------------------------\n";
-            sendText += $"Суточный лимит трафика =  {80 / summcoeff * info.Coefficient:0.0000}%\n";
-            sendText += $"Накопительный лимит трафика = {20 / summcoeff * info.Coefficient:0.0000}%\n";
-            sendText += $"ИТОГО на {today.ToShortDateString()} общий лимит трафика = {100 / summcoeff * info.Coefficient:0.0000}%\n\n";
-            sendText += $"СЛТ {80 / summcoeff * info.Coefficient:0.0000}% + НЛТ {20 / summcoeff * info.Coefficient:0.0000}% = ОЛТ {100 / summcoeff * info.Coefficient:0.0000}%\n\n" +
-                        $"/Statistics";
+            sendText += $"Суточный лимит трафика =  {80/summcoeff*info.Coefficient:0.0000}%\n";
+            sendText += $"Накопительный лимит трафика = {20/summcoeff*info.Coefficient:0.0000}%\n";
+            sendText +=
+                $"ИТОГО на {today.ToShortDateString()} общий лимит трафика = {100/summcoeff*info.Coefficient:0.0000}%\n\n";
+            sendText +=
+                $"СЛТ {80/summcoeff*info.Coefficient:0.0000}% + НЛТ {20/summcoeff*info.Coefficient:0.0000}% = ОЛТ {100/summcoeff*info.Coefficient:0.0000}%\n\n" +
+                $"/Statistics";
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
-        public static void ShowListMembers(ActionBot user)
+
+        public static void ShowListMembers(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
             List<Privilege> list;
@@ -156,11 +168,12 @@ namespace InstagramBot.IO
             {
                 int freeplace = GetCountTree(item.Id);
                 freeplace = freeplace == 0 ? 1 : freeplace;
-                sendText += $"{item.Url}: {item.Coefficient+1} РР - {freeplace} СМ\n";
+                sendText += $"{item.Url}: {item.Coefficient + 1} РР - {freeplace} СМ\n";
             }
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
-        public static void ShowListNew(ActionBot user)
+
+        public static void ShowListNew(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
             List<Privilege> list;
@@ -168,12 +181,12 @@ namespace InstagramBot.IO
             string sendText = "";
             foreach (var item in list)
                 sendText += $"{today.ToShortDateString()} {item.Url} ({item.Coefficient})\n";
-            if(string.IsNullOrEmpty(sendText))
+            if (string.IsNullOrEmpty(sendText))
                 sendText += $"{today.ToShortDateString()} (0)\n";
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
 
-        public static void ShowListStatistics(ActionBot user)
+        public static void ShowListStatistics(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
 
@@ -192,7 +205,7 @@ namespace InstagramBot.IO
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
 
-        public static void ShowListOverall(ActionBot user)
+        public static void ShowListOverall(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
             List<BloggerStatistics> list;
@@ -200,25 +213,26 @@ namespace InstagramBot.IO
             double summ = list.Sum(item => item.Coefficient);
             string sendText = "";
             foreach (var item in list)
-                sendText += $"{item.Date.ToShortDateString()} {item.Url} {100 / summ * item.Coefficient:0.0000}%\n";
+                sendText += $"{item.Date.ToShortDateString()} {item.Url} {100/summ*item.Coefficient:0.0000}%\n";
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
-        public static void ShowListUpline(ActionBot user)
+
+        public static void ShowListUpline(this ActionBot user)
         {
             if (!user.Account.IsVip) return;
-        
+
             MiniInfo info = new MiniInfo(user.Account.Info.Id, user.Account.Info.Url);
             List<string> sendText = new List<string>();
             do
             {
                 sendText.Add(info.Url);
                 Session.MySql.GetTreeInstagram(info.Id, out info);
-            } while (info.Id != 1647550018 && info.Id != 442320062);
+            } while ((info.Id != 1647550018) && (info.Id != 442320062));
             sendText.Add("100lbov");
             sendText.Reverse();
             string text = "";
             foreach (string t in sendText)
-                text += t+"\n";
+                text += t + "\n";
             Session.Bot?.SendTextMessageAsync(user.TelegramId, text);
         }
 
@@ -230,7 +244,7 @@ namespace InstagramBot.IO
             {
                 count--;
                 Session.MySql.GetTreeInstagram(info.Id, out info);
-            } while (info.Id != 1647550018 && info.Id != 442320062);
+            } while ((info.Id != 1647550018) && (info.Id != 442320062));
 
             return count;
         }

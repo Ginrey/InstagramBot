@@ -1,32 +1,22 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Threading.Tasks;
 using InstagramBot.IO;
 using Telegram.Bot.Types;
+
+#endregion
 
 namespace InstagramBot.Data.Accounts
 {
     public class ActionBot
     {
-        public AccountInstagram Account { get; set; }
-        public Message Message { get; set; }
-        public AdditionInfo AdditionInfo { get; set; }
-        public Language Language { get; set; }
-        public long TelegramId { get; set; }
-        Session session;
         States _state;
-        Task Task;
         DateTime lastMessageTime;
-        public  States State
-        {
-            get { return _state; }
-             set
-            {
-                _state = value;
-                    session.Connection.PacketsRegistry.GetPacketType(value)
-                        .Serialize(this, new StateEventArgs(Message, value));
-            }
-        }
-        public  ActionBot(long tid, Session session, string fromreferal = "")
+        readonly Session session;
+        Task Task;
+
+        public ActionBot(long tid, Session session, string fromreferal = "")
         {
             AdditionInfo = new AdditionInfo
             {
@@ -36,12 +26,31 @@ namespace InstagramBot.Data.Accounts
             lastMessageTime = DateTime.Now;
             this.session = session;
         }
+
+        public AccountInstagram Account { get; set; }
+        public Message Message { get; set; }
+        public AdditionInfo AdditionInfo { get; set; }
+        public Language Language { get; set; }
+        public long TelegramId { get; set; }
+
+        public States State
+        {
+            get { return _state; }
+            set
+            {
+                _state = value;
+                session.Connection.PacketsRegistry.GetPacketType(value)
+                    .Serialize(this, new StateEventArgs(Message, value));
+            }
+        }
+
         bool Wait()
         {
             if (lastMessageTime.Subtract(DateTime.Now) > TimeSpan.Zero) return false;
             lastMessageTime = DateTime.Now + TimeSpan.FromSeconds(1);
             return true;
         }
+
         public void SetState(States state)
         {
             if (!Wait()) return;

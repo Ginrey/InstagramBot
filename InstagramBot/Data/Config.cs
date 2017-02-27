@@ -1,28 +1,31 @@
-﻿using System.Collections.Generic;
+﻿#region
+
+using System.Collections.Generic;
 using System.IO;
 using InstagramBot.IO;
 
+#endregion
 
 namespace InstagramBot.Data
 {
-   public static class Config
-   {
-       static Dictionary<Language, string> orderDict = new Dictionary<Language, string>();
-       
-    
+    public static class Config
+    {
+        public const string MyListUser = "oau_my_list_users";
+        public const string MyNullListUser = "oau_my_nulllist_users";
+        static readonly Dictionary<Language, string> orderDict = new Dictionary<Language, string>();
+
+
         public static string Order(Language lang)
         {
             {
-                if(!orderDict.ContainsKey(lang))
+                if (!orderDict.ContainsKey(lang))
                 {
-                    orderDict[lang] = File.ReadAllText(lang +"Order.txt");
+                    orderDict[lang] = File.ReadAllText(lang + "Order.txt");
                 }
                 return orderDict[lang];
             }
         }
 
-        public const string MyListUser = "oau_my_list_users";
-        public const string MyNullListUser = "oau_my_nulllist_users";
         public static class MenuBloggers
         {
             public const string Members = "mb_members";
@@ -38,6 +41,7 @@ namespace InstagramBot.Data
             public const string ListOverall = "/List_overall";
             public const string ListUpLine = "/List_upline";
         }
+
         public static class MenuMultiClients
         {
             public const string Current = "mmc_current";
@@ -45,6 +49,7 @@ namespace InstagramBot.Data
             public const string Change = "mmc_change";
             public const string EditNick = "mmc_editnick";
         }
+
         public static class MenuList
         {
             public const string PrivateOffice = "ml_private_office";

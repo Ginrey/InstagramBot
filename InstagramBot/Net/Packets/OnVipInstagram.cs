@@ -1,7 +1,11 @@
-﻿using System;
+﻿#region
+
+using System;
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
 using InstagramBot.IO;
+
+#endregion
 
 namespace InstagramBot.Net.Packets
 {
@@ -37,13 +41,13 @@ namespace InstagramBot.Net.Packets
                     }
                     MiniInfo info;
                     Session.MySql.GetReferal(item, out info);
-                    if(info.Id != -1)
+                    if (info.Id != -1)
                     {
                         infoText += item + " добавлен в револьвер \n";
                         Session.MySql.InsertCorruption(info.Id, 1);
                     }
                 }
-             
+
                 user.State = States.OnAlreadyUsing;
                 Menu.ShowMainMenu(user, infoText);
                 Refresher.Refresh();

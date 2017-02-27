@@ -1,14 +1,19 @@
-﻿using System;
+﻿#region
+
 using InstagramBot.Data;
 using InstagramBot.Data.Accounts;
+using InstagramBot.IO;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+
+#endregion
 
 namespace InstagramBot.Net.Packets
 {
     public class OnSelectLanguage : IActionPacket
     {
         public Session Session { get; set; }
+
         public void Serialize(ActionBot user, StateEventArgs e)
         {
             try
@@ -22,19 +27,21 @@ namespace InstagramBot.Net.Packets
                                                                    "Select language fot using service\n",
                     replyMarkup: keyboard);
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         public void Deserialize(ActionBot user, StateEventArgs e)
         {
-            
             if (e.Message.Text.Contains("/Russian"))
-           {
-               user.Language = IO.Language.Russian;
-               user.State = States.FirstStep;
-           }
+            {
+                user.Language = Language.Russian;
+                user.State = States.FirstStep;
+            }
             if (e.Message.Text.Contains("/English"))
             {
-                user.Language = IO.Language.English;
+                user.Language = Language.English;
                 user.State = States.FirstStep;
             }
         }

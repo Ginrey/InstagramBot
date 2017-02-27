@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿#region
+
+using System.Collections.Generic;
+
+#endregion
 
 namespace InstagramBot.Data.Accounts
 {
@@ -10,6 +14,7 @@ namespace InstagramBot.Data.Accounts
             public string full_name { get; set; }
             public string username { get; set; }
         }
+
         public class PageInfo
         {
             public bool has_previous_page { get; set; }
@@ -17,18 +22,21 @@ namespace InstagramBot.Data.Accounts
             public bool has_next_page { get; set; }
             public string end_cursor { get; set; }
         }
+
         public class FollowedBy
         {
             public List<Node> nodes { get; set; }
             public PageInfo page_info { get; set; }
         }
     }
+
     public class FollowedUser
     {
         public string status { get; set; }
         public Subscriptions.FollowedBy followed_by { get; set; }
         public Subscriptions.FollowedBy follows { get; set; }
     }
+
     public class UserInfo
     {
         public User user { get; set; }
