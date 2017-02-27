@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Timers;
 
@@ -14,7 +13,7 @@ namespace InstagramBot.Data.Accounts
         static Refresher()
         {
             timerRefresh = new Timer(1000);
-            dateStart = DateTime.Now.Date.AddDays(1) - DateTime.Now;
+            dateStart = DateTime.Now.Date.AddDays(1).AddMinutes(5) - DateTime.Now;
             timerRefresh.Elapsed += TimerRefresh_Elapsed;
             timerRefresh.Start();
         }
@@ -23,14 +22,10 @@ namespace InstagramBot.Data.Accounts
             dateStart -= TimeSpan.FromSeconds(1);
             if (dateStart.TotalSeconds <= 0)
             {
-                if (File.Exists("RefreshDone"))
-                {
-                    dateStart = DateTime.Now.Date.AddDays(1) - DateTime.Now;
-                    Refresh();
-
-                    File.Delete("RefreshDone");
-                }
+               dateStart = DateTime.Now.Date.AddDays(1).AddMinutes(5) - DateTime.Now;
+               Refresh();
             }
+            Console.Title = $"InstagramBot [{dateStart}]";
         }
         public static void Refresh()
         {
@@ -67,7 +62,7 @@ namespace InstagramBot.Data.Accounts
                     if (queue.Balance > 0)
                     {
                         queue.Balance--;
-                        Refresher.Session?.MySql.UpdateCountCorruptionTime(queue.ID, queue.Balance);
+                        Refresher.Session?.MySql.UpdateCountCorruptionTime(queue.Id, queue.Balance);
                         return queue;
                     }
                 }
@@ -80,7 +75,7 @@ namespace InstagramBot.Data.Accounts
             lock (lockObject)
             {
                 user.Balance = count;
-                Refresher.Session?.MySql.InsertCorruptionTime(user.ID, count);
+                Refresher.Session?.MySql.InsertCorruptionTime(user.Id, count);
                 privilegeList.Enqueue(user);
                 privilegeListCopy.Enqueue(user);
             }
@@ -112,7 +107,7 @@ namespace InstagramBot.Data.Accounts
 
         public static bool Contains(long id)
         {
-            return privilegeListCopy.Any(item => item.ID == id);
+            return privilegeListCopy.Any(item => item.Id == id);
         }
 
         static object lockObject = new object();

@@ -21,13 +21,12 @@ namespace InstagramBot.Net.Packets
                 {
                     user.Account = new AccountInstagram
                     {
-                        Id = info[0].ID,
-                        URL = info[0].URL
+                       Info = info[0]
                     };
                     
-                    user.Account.IsVip = Bloggers.Contains(user.Account.Id);
+                    user.Account.IsVip = Bloggers.Contains(user.Account.Info.Id);
 
-                    if(Session.BlockedList.Contains(user.Account.Id)) Session.Bot?.SendTextMessageAsync(user.TelegramId,
+                    if(Session.BlockedList.Contains(user.Account.Info.Id)) Session.Bot?.SendTextMessageAsync(user.TelegramId,
                              string.Format(Session.Language.Get(user.Language, "ob_banned")));
                     if (user.Account == null)
                     {
@@ -38,15 +37,16 @@ namespace InstagramBot.Net.Packets
                     else
                     {
                         Language language;
-                        Session.MySql.GetLanguage(user.Account.Id, out language);
+                        Session.MySql.GetLanguage(user.Account.Info.Id, out language);
                         user.Language = language;
-                        Console.WriteLine("[{0}] {1} Enter to account", DateTime.Now, user.Account.URL);
+                        Console.WriteLine("[{0}] {1} Enter to account", DateTime.Now, user.Account.Info.Url);
                         Menu.ShowMainMenu(user);
                     }
                 }
             }
             catch (Exception ex)
             {
+                LOG.Add("OAUS", ex);
             }
         }
 
@@ -158,7 +158,7 @@ namespace InstagramBot.Net.Packets
             }
             catch(Exception ex)
             {
-                LOG.Add("OAU", ex.Message);
+                LOG.Add("OAU", ex);
             }
         }
     }

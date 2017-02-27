@@ -13,7 +13,7 @@ namespace InstagramBot
     public class Session
     {
         public Connection Connection { get; }
-        public BlackList BlackList = new BlackList();
+       
         List<MySqlDatabase> listsql = new List<MySqlDatabase>();
         public Multithreading Multithreading { get; set; }
         int indexSql = 0, indexWeb = 0;
@@ -62,7 +62,7 @@ namespace InstagramBot
             }
             Multithreading = new Multithreading(Environment.ProcessorCount);
             Connection = new Connection(this);
-            MenuMultiClients.Session = Menu.Session = MenuBloggers.Session = Refresher.Session = this;
+            Menu.Session = MenuBloggers.Session = Refresher.Session = this;
             Refresher.Refresh();
             List<long> list;
             MySql.GetBlockList(out list);

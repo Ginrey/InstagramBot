@@ -2,27 +2,27 @@
 {
    public class MiniInfo
     {
-        public long ID { get; set; }
-        public string URL { get; set; }
+        public long Id { get; set; }
+        public string Url { get; set; }
         public MiniInfo(long id = -1, string url = "")
         {
-            ID = id;
-            URL = url;
+            Id = id;
+            Url = url;
         }
         public void Reset()
         {
-            ID = -1;
-            URL = "";
+            Id = -1;
+            Url = "";
         }
         public void Set(long id)
         {
-            ID = id;
+            Id = id;
         }
         public void Set(string url)
         {
-            URL = url;
+            Url = url;
         }
-        public MiniInfo Copy => new MiniInfo(ID, URL);
+        public MiniInfo Copy => new MiniInfo(Id, Url);
 
     }
 }

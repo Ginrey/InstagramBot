@@ -23,7 +23,7 @@ namespace InstagramBot
                     new WebInstagram("Instacc020", "36987412in", "146.185.208.35:3000", "mmGoRn:RdGbG1uN"),
                     new WebInstagram("Instacc021", "36987412in", "146.185.208.46:3000", "mmGoRn:RdGbG1uN"),
                     new WebInstagram("Instacc025", "36987412in", "146.185.209.184:3000", "mmGoRn:RdGbG1uN"),
-                    new WebInstagram("Instacc032", "36987412in", "146.185.209.216:3000", "mmGoRn:RdGbG1uN"),
+                 //   new WebInstagram("Instacc032", "36987412in", "146.185.209.216:3000", "mmGoRn:RdGbG1uN"),
                     new WebInstagram("Instacc038", "36987412in", "91.243.62.218:3000", "mmGoRn:RdGbG1uN"),
                     new WebInstagram("Instacc039", "36987412in", "5.188.230.49:3000", "mmGoRn:RdGbG1uN")
                 }

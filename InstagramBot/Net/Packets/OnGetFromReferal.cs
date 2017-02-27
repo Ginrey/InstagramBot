@@ -25,7 +25,7 @@ namespace InstagramBot.Net.Packets
                 }
             }
             catch (Exception ex)
-            { LOG.Add("OGFS", ex.Message); }
+            { LOG.Add("OGFS", ex); }
         }
        
         public void Deserialize(ActionBot user, StateEventArgs e)
@@ -38,11 +38,11 @@ namespace InstagramBot.Net.Packets
                     user.Account.From = new MiniInfo(442320062, "100lbov");
                     user.State = States.WaitSubscribe;
                 }
-                var acc = Session.WebInstagram.GetAccount(user.Account.From.URL);
+                var acc = Session.WebInstagram.GetAccount(user.Account.From.Url);
                 if (acc == null) goto error;
-                user.Account.From.Set(acc.Id);
+                user.Account.From.Set(acc.Info.Id);
               
-                if (Session.MySql.IsPresentInstagram(user.Account.From.ID))
+                if (Session.MySql.IsPresentInstagram(user.Account.From.Id))
                 {
                     user.State = States.WaitSubscribe;
                     return;
@@ -53,7 +53,7 @@ namespace InstagramBot.Net.Packets
                             string.Format(Session.Language.Get(user.Language, "ofgr_user_not_registred"), 3 - user.AdditionInfo.ErrorCounter));
            }
             catch (Exception ex)
-            { LOG.Add("OGFD", ex.Message); }
+            { LOG.Add("OGFD", ex); }
         }
     }
 }

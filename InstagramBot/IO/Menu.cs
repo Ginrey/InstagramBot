@@ -22,7 +22,7 @@ namespace InstagramBot.IO
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
                string.Format(Session.Language.Get(user.Language, "oau_signing_up")));
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
-               "t.me/scs110100bot?start=" + user.Account.URL);
+               "t.me/scs110100bot?start=" + user.Account.Info.Url);
        }
 
        public static void ShowMyReferals(ActionBot user)
@@ -35,7 +35,7 @@ namespace InstagramBot.IO
 
        public static void ShowStatus(ActionBot user)
        {
-           string status = Session.MySql.IsStart(user.Account.Id)
+           string status = Session.MySql.IsStart(user.Account.Info.Id)
                ? Session.Language.Get(user.Language, "status_growth")
                : Session.Language.Get(user.Language, "status_start");
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
@@ -47,9 +47,9 @@ namespace InstagramBot.IO
            if (isStruct)
            {
                StructureLine structure;
-               Session.MySql.GetStructure(user.Account.Id, out structure);
+               Session.MySql.GetStructure(user.Account.Info.Id, out structure);
                int maxCount;
-               Session.MySql.GetCountRedList(user.Account.Id, out maxCount);
+               Session.MySql.GetCountRedList(user.Account.Info.Id, out maxCount);
                Session.Bot?.SendTextMessageAsync(user.TelegramId,
                    string.Format(Session.Language.Get(user.Language, "oau_your_structure"),
                        structure.CountFromMyURL,
@@ -65,10 +65,10 @@ namespace InstagramBot.IO
            {
                string myreferals = Session.Language.Get(user.Language, "oau_invite_list");
                List<MiniInfo> list;
-               Session.MySql.GetListFromMyURL(user.Account.Id, out list);
+               Session.MySql.GetListFromMyURL(user.Account.Info.Id, out list);
                list.Reverse();
                for (int i = 0; i < 50 && i < list.Count; i++)
-                   myreferals += "\n" + list[i].URL;
+                   myreferals += "\n" + list[i].Url;
                Session.Bot?.SendTextMessageAsync(user.TelegramId, myreferals);
            }
        }
@@ -79,16 +79,16 @@ namespace InstagramBot.IO
            string myreferals = "";
            if (typer == 0)
            {
-               Session.MySql.GetListNonActiveFromMyURL(user.Account.Id, out list);
+               Session.MySql.GetListNonActiveFromMyURL(user.Account.Info.Id, out list);
            }
            if (typer == 1)
            {
                myreferals = Session.Language.Get(user.Language, "oau_invite_list");
-               Session.MySql.GetListFromMyURL(user.Account.Id, out list);
+               Session.MySql.GetListFromMyURL(user.Account.Info.Id, out list);
            }
            list.Reverse();
            for (int i = 0; i < 50 && i < list.Count; i++)
-               myreferals += "\n" + list[i].URL;
+               myreferals += "\n" + list[i].Url;
            Session.Bot?.SendTextMessageAsync(user.TelegramId, myreferals);
        }
         public static void ShowPromo(ActionBot user)
@@ -104,8 +104,8 @@ namespace InstagramBot.IO
         public static void ShowMyRedList(ActionBot user)
        {
            List<MiniInfo> redlist;
-           Session.MySql.GetRedList(user.Account.Id, out redlist);
-           string text = redlist.Aggregate("", (current, t) => current + t.URL + "\n");
+           Session.MySql.GetRedList(user.Account.Info.Id, out redlist);
+           string text = redlist.Aggregate("", (current, t) => current + t.Url + "\n");
            Session.Bot?.SendTextMessageAsync(user.TelegramId,
                string.Format(Session.Language.Get(user.Language, "oau_redlist"), text));
        }
@@ -121,7 +121,7 @@ namespace InstagramBot.IO
                new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.WhereReferals))},
                new[] {new KeyboardButton(Session.Language.Get(user.Language, Config.MenuList.PromoMaterials))}
            });
-           Session.Bot?.SendTextMessageAsync(user.TelegramId, text, replyMarkup: keyboard);
+           Session.Bot?.SendTextMessageAsync(user.TelegramId, string.Format(text,user.Account.Info.Url), replyMarkup: keyboard);
        }
 
         public static void ShowBloggersMenu(ActionBot user)

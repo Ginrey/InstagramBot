@@ -37,10 +37,10 @@ namespace InstagramBot.Net.Packets
                     }
                     MiniInfo info;
                     Session.MySql.GetReferal(item, out info);
-                    if(info.ID != -1)
+                    if(info.Id != -1)
                     {
                         infoText += item + " добавлен в револьвер \n";
-                        Session.MySql.InsertCorruption(info.ID, 1);
+                        Session.MySql.InsertCorruption(info.Id, 1);
                     }
                 }
              

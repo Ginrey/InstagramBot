@@ -20,7 +20,7 @@ namespace InstagramBot.Net.Packets
             }
             catch (Exception ex)
             {
-                LOG.Add("ORS", ex.Message);
+                LOG.Add("ORS", ex);
             }
         }
         public void Deserialize(ActionBot user, StateEventArgs e)
@@ -37,7 +37,7 @@ namespace InstagramBot.Net.Packets
                 }
                 user.State = States.WaitUrl;
             }
-            catch(Exception ex) { LOG.Add("ORD", ex.Message); }
+            catch(Exception ex) { LOG.Add("ORD", ex); }
         }
     }
 }

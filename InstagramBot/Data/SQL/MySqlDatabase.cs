@@ -247,8 +247,8 @@ namespace InstagramBot.Data.SQL
             {
                 while (dataReader.Read())
                 {
-                    info.ID = (long) dataReader["Id"];
-                    info.URL = (string) dataReader["URL"];
+                    info.Id = (long) dataReader["Id"];
+                    info.Url = (string) dataReader["URL"];
                     info.Coefficient = (double) dataReader["Coefficient"];
                 }
                 dataReader.Close();
@@ -472,8 +472,8 @@ namespace InstagramBot.Data.SQL
             {
                 return false;
             }
-            info.ID = (long) args[1].Value;
-            info.URL = (string) args[2].Value;
+            info.Id = (long) args[1].Value;
+            info.Url = (string) args[2].Value;
             return true;
         }
 
@@ -557,8 +557,8 @@ namespace InstagramBot.Data.SQL
             {
                 return false;
             }
-            info.ID = id;
-            info.URL = (string) args[1].Value;
+            info.Id = id;
+            info.Url = (string) args[1].Value;
             return result;
         }
         public bool GetReferal(string url, out MiniInfo info)
@@ -574,8 +574,8 @@ namespace InstagramBot.Data.SQL
             {
                 return false;
             }
-            info.ID = (long)args[1].Value;
-            info.URL = url;
+            info.Id = (long)args[1].Value;
+            info.Url = url;
             return result;
         }
         public override bool GetStructure(long id, out StructureLine structure)
@@ -640,8 +640,8 @@ namespace InstagramBot.Data.SQL
             {
                 return false;
             }
-            info.ID = (long) args[1].Value;
-            info.URL = (string) args[2].Value;
+            info.Id = (long) args[1].Value;
+            info.Url = (string) args[2].Value;
             return true;
         }
         public override bool InsertCorruption(long id, double coefficient)
@@ -861,7 +861,7 @@ namespace InstagramBot.Data.SQL
             {
                 Console.OutputEncoding = Encoding.UTF8;
                 Console.WriteLine($"Reconnect:{functionName} [{ex.Message}]");
-                LOG.Add("Sql "+functionName, ex.Message);
+                LOG.Add("Sql "+functionName, ex);
                 MySqlConnection.Close();
                 MySqlConnection = new SqlConnection(MySqlConnection.ConnectionString);
                 Connect();

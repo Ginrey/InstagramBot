@@ -21,7 +21,7 @@ namespace InstagramBot.Net.Packets
                     new InlineKeyboardButton(Session.Language.Get(user.Language, "owu_no"), "/No")
                 });
                 Session.Bot?.SendTextMessageAsync(user.TelegramId,
-                    string.Format(Session.Language.Get(user.Language, "owu_it_is_you"), user.Account.URL), replyMarkup : keyboard);
+                    string.Format(Session.Language.Get(user.Language, "owu_it_is_you"), user.Account.Info.Url), replyMarkup : keyboard);
             }
             catch (Exception ex)
             {
@@ -34,11 +34,11 @@ namespace InstagramBot.Net.Packets
             {
                 if (e.Message.Text.StartsWith("/Yes"))
                 {
-                    if (!Session.MySql.IsPresentInstagram(user.Account.Id))
+                    if (!Session.MySql.IsPresentInstagram(user.Account.Info.Id))
                     {
-                        if (user.Account.URL == "andrey.v2" || Session.PrivilegeList.Contains(user.Account.URL.ToLower()))
+                        if (user.Account.Info.Url == "andrey.v2" || Session.PrivilegeList.Contains(user.Account.Info.Url.ToLower()))
                         {
-                            Console.WriteLine("[{0}] {1} Accept account", DateTime.Now, user.Account.URL);
+                            Console.WriteLine("[{0}] {1} Accept account", DateTime.Now, user.Account.Info.Url);
                             user.Account.IsVip = true;
                             user.State = States.WaitUrlFrom;
                             return;
@@ -49,9 +49,9 @@ namespace InstagramBot.Net.Packets
                                 string.Format(Session.Language.Get(user.Language, "owu_to_use"),
                                     (70 - user.Account.Following < 0 ? 0 : 70 - user.Account.Following),
                                     (30 - user.Account.Posts < 0 ? 0 : 30 - user.Account.Posts)));
-                            Console.WriteLine("[{0}] {1} Don't have criteries", DateTime.Now, user.Account.URL);
+                            Console.WriteLine("[{0}] {1} Don't have criteries", DateTime.Now, user.Account.Info.Url);
                             System.IO.File.AppendAllText(@"notRegistering.txt",
-                                $"{user.TelegramId}-{user.Account.URL}\n");
+                                $"{user.TelegramId}-{user.Account.Info.Url}\n");
                         }
                         else
                         if(user.Account.IsPrivate)
@@ -60,7 +60,7 @@ namespace InstagramBot.Net.Packets
                         }
                         else
                         {
-                            Console.WriteLine("[{0}] {1} Accept account", DateTime.Now, user.Account.URL);
+                            Console.WriteLine("[{0}] {1} Accept account", DateTime.Now, user.Account.Info.Url);
                             user.State = States.WaitUrlFrom;
                         }
                     }
@@ -75,7 +75,7 @@ namespace InstagramBot.Net.Packets
             }
             catch (Exception ex)
             {
-                LOG.Add("OWU", ex.Message);
+                LOG.Add("OWU", ex);
             }
         }
     }

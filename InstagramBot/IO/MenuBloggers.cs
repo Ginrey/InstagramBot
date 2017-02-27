@@ -65,7 +65,7 @@ namespace InstagramBot.IO
             sendText += $"Всего из револьвера зарегистрировалось {countRegAll}\n";
             sendText += "\nДополнительно\n";
             sendText += $"Итого: {today.ToShortDateString()} /List_overall\n";
-            sendText += $"Лидер квота: {top.URL} ({top.Coefficient}) - {100 / summcoeff * top.Coefficient:0.0000}%\n";
+            sendText += $"Лидер квота: {top.Url} ({top.Coefficient}) - {100 / summcoeff * top.Coefficient:0.0000}%\n";
           
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
@@ -74,8 +74,8 @@ namespace InstagramBot.IO
         {
             if (!user.Account.IsVip) return;
             int countRegToday, countMyAll, countTodayAll, countAll;
-            Session.MySql.GetCountWithDate(user.Account.Id, today, out countRegToday);
-            Session.MySql.GetCountFromMyUrl(user.Account.Id, out countMyAll);
+            Session.MySql.GetCountWithDate(user.Account.Info.Id, today, out countRegToday);
+            Session.MySql.GetCountFromMyUrl(user.Account.Info.Id, out countMyAll);
             Session.MySql.GetCountFromCorruptionWithDate(today, out countTodayAll);
             Session.MySql.GetCountFromCorruption(out countAll);
             string sendText = "Количество собственных регистраций\n";
@@ -117,20 +117,20 @@ namespace InstagramBot.IO
         public static void ShowMyInfo(ActionBot user)
         {
             if (!user.Account.IsVip) return;
-            int FreePlace = GetCountTree(user.Account.Id);
+            int FreePlace = GetCountTree(user.Account.Info.Id);
             int countRegYesterday;
 
-            Session.MySql.GetCountWithDate(user.Account.Id, yesterday, out countRegYesterday);
+            Session.MySql.GetCountWithDate(user.Account.Info.Id, yesterday, out countRegYesterday);
             double summcoeff = Bloggers.privilegeListCopy.Sum(item => item.Coefficient);
 
             Privilege info;
-            Session.MySql.GetMyCorruptionInfo(user.Account.Id, out info);
+            Session.MySql.GetMyCorruptionInfo(user.Account.Info.Id, out info);
 
             int countRegisterYesterday;
-            Session.MySql.GetCountWithDate(user.Account.Id, yesterday, out countRegisterYesterday);
+            Session.MySql.GetCountWithDate(user.Account.Info.Id, yesterday, out countRegisterYesterday);
 
             int countMyAll;
-            Session.MySql.GetCountFromMyUrl(user.Account.Id, out countMyAll);
+            Session.MySql.GetCountFromMyUrl(user.Account.Info.Id, out countMyAll);
             FreePlace = FreePlace == 0 ? 1 : FreePlace;
             string sendText = "Личная информация:\n";
             sendText += $"Количество свободных мест = {FreePlace}\n";
@@ -154,9 +154,9 @@ namespace InstagramBot.IO
             string sendText = "";
             foreach (var item in list)
             {
-                int freeplace = GetCountTree(item.ID);
+                int freeplace = GetCountTree(item.Id);
                 freeplace = freeplace == 0 ? 1 : freeplace;
-                sendText += $"{item.URL}: {item.Coefficient+1} РР - {freeplace} СМ\n";
+                sendText += $"{item.Url}: {item.Coefficient+1} РР - {freeplace} СМ\n";
             }
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
@@ -167,7 +167,7 @@ namespace InstagramBot.IO
             Session.MySql.GetListCorruptionAddedWithDate(today, out list);
             string sendText = "";
             foreach (var item in list)
-                sendText += $"{today.ToShortDateString()} {item.URL} ({item.Coefficient})\n";
+                sendText += $"{today.ToShortDateString()} {item.Url} ({item.Coefficient})\n";
             if(string.IsNullOrEmpty(sendText))
                 sendText += $"{today.ToShortDateString()} (0)\n";
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
@@ -180,12 +180,12 @@ namespace InstagramBot.IO
             double summcoeff = Bloggers.privilegeListCopy.Sum(item => item.Coefficient);
 
             List<BloggerStatistics> list;
-            Session.MySql.GetMyStatisticsCorruption(user.Account.Id, out list);
+            Session.MySql.GetMyStatisticsCorruption(user.Account.Info.Id, out list);
             string sendText = "";
             foreach (var item in list)
             {
                 int count;
-                Session.MySql.GetCountWithDate(item.ID, item.Date.Date, out count);
+                Session.MySql.GetCountWithDate(item.Id, item.Date.Date, out count);
                 sendText += $"{item.Date.ToShortDateString()} = {count} ак, {100/summcoeff*item.Coefficient:0.0000}%\n";
             }
             if (sendText == "") sendText = "Ваша статистика появится со следующего дня";
@@ -200,20 +200,20 @@ namespace InstagramBot.IO
             double summ = list.Sum(item => item.Coefficient);
             string sendText = "";
             foreach (var item in list)
-                sendText += $"{item.Date.ToShortDateString()} {item.URL} {100 / summ * item.Coefficient:0.0000}%\n";
+                sendText += $"{item.Date.ToShortDateString()} {item.Url} {100 / summ * item.Coefficient:0.0000}%\n";
             Session.Bot?.SendTextMessageAsync(user.TelegramId, sendText);
         }
         public static void ShowListUpline(ActionBot user)
         {
             if (!user.Account.IsVip) return;
         
-            MiniInfo info = new MiniInfo(user.Account.Id, user.Account.URL);
+            MiniInfo info = new MiniInfo(user.Account.Info.Id, user.Account.Info.Url);
             List<string> sendText = new List<string>();
             do
             {
-                sendText.Add(info.URL);
-                Session.MySql.GetTreeInstagram(info.ID, out info);
-            } while (info.ID != 1647550018 && info.ID != 442320062);
+                sendText.Add(info.Url);
+                Session.MySql.GetTreeInstagram(info.Id, out info);
+            } while (info.Id != 1647550018 && info.Id != 442320062);
             sendText.Add("100lbov");
             sendText.Reverse();
             string text = "";
@@ -229,8 +229,8 @@ namespace InstagramBot.IO
             do
             {
                 count--;
-                Session.MySql.GetTreeInstagram(info.ID, out info);
-            } while (info.ID != 1647550018 && info.ID != 442320062);
+                Session.MySql.GetTreeInstagram(info.Id, out info);
+            } while (info.Id != 1647550018 && info.Id != 442320062);
 
             return count;
         }

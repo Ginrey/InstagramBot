@@ -27,12 +27,12 @@ namespace InstagramBot.Net.Packets
             if (e.Message.Text.Contains("/Russian"))
             {
                 user.Language = Language.Russian;
-                Session.MySql.UpdateLanguage(user.Account.Id, Language.Russian);
+                Session.MySql.UpdateLanguage(user.Account.Info.Id, Language.Russian);
             }
             if (e.Message.Text.Contains("/English"))
             {
                 user.Language = Language.English;
-                Session.MySql.UpdateLanguage(user.Account.Id, Language.English);
+                Session.MySql.UpdateLanguage(user.Account.Info.Id, Language.English);
             }
             user.State = States.OnAlreadyUsing;
             Menu.ShowMainMenu(user, "--------------");

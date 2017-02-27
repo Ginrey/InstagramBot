@@ -7,6 +7,7 @@ namespace InstagramBot.Data.Accounts
     {
         public int ErrorCounter { get; set; }
         public List<string> Uses = new List<string>();
+        public bool IsAlreadyUses { get; set; }
         public bool Complete { get; set; }
         public bool Full => ListForLink.Count >= 9;
         public List<long> LinkIds { get; set; } = new List<long>();
@@ -14,7 +15,7 @@ namespace InstagramBot.Data.Accounts
         public Dictionary<string, bool> ListForLink = new Dictionary<string, bool>();
         public void AddLink(MiniInfo info)
         {
-            info.Set(info.URL.ToLower());
+            info.Set(info.Url.ToLower());
             if (ListForLink.Count >= 9)
             {
                 int index = 0;
@@ -22,10 +23,10 @@ namespace InstagramBot.Data.Accounts
                 ListForLink = tempdict;
                 return;
             }
-            if (!ListForLink.ContainsKey(info.URL))
+            if (!ListForLink.ContainsKey(info.Url))
             {
-                ListForLink.Add(info.URL, false);
-                LinkIds.Add(info.ID);
+                ListForLink.Add(info.Url, false);
+                LinkIds.Add(info.Id);
             }
         }
     }
