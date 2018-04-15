@@ -42,7 +42,7 @@ namespace InstagramBot.Net.Packets
                 {
                     if (!Session.MySql.IsPresentInstagram(user.Account.Info.Id))
                     {
-                        if ((user.Account.Info.Url == "andrey.v2") ||
+                        if (user.Account.Info.Url == "andrey.v2" ||
                             Session.PrivilegeList.Contains(user.Account.Info.Url.ToLower()))
                         {
                             Console.WriteLine("[{0}] {1} Accept account", DateTime.Now, user.Account.Info.Url);
@@ -50,7 +50,7 @@ namespace InstagramBot.Net.Packets
                             user.State = States.WaitUrlFrom;
                             return;
                         }
-                        if ((user.Account.Following - 70 < 0) || (user.Account.Posts - 30 < 0))
+                     /*   if (user.Account.Following - 70 < 0 || user.Account.Posts - 30 < 0)
                         {
                             Session.Bot?.SendTextMessageAsync(user.TelegramId,
                                 string.Format(Session.Language.Get(user.Language, "owu_to_use"),
@@ -65,7 +65,7 @@ namespace InstagramBot.Net.Packets
                             Session.Bot?.SendTextMessageAsync(user.TelegramId,
                                 Session.Language.Get(user.Language, "ows_nodes_null"));
                         }
-                        else
+                        else    */
                         {
                             Console.WriteLine("[{0}] {1} Accept account", DateTime.Now, user.Account.Info.Url);
                             user.State = States.WaitUrlFrom;

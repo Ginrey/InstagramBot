@@ -62,6 +62,7 @@
     <Compile Include="Data\Accounts\Corruption.cs" />
     <Compile Include="Data\Accounts\FullInfo.cs" />
     <Compile Include="Data\Accounts\ActionBot.cs" />
+    <Compile Include="Data\Accounts\Info.cs" />
     <Compile Include="Data\Accounts\MiniInfo.cs" />
     <Compile Include="Data\Accounts\StructInfo.cs" />
     <Compile Include="Data\Accounts\StructureLine.cs" />

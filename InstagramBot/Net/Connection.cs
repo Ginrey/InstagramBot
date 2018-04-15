@@ -34,7 +34,7 @@ namespace InstagramBot.Net
             if (Bot == null) return;
             var me = Bot.GetMeAsync().Result;
             Console.Title = me.Username;
-            Bot.StartReceiving();
+            Bot.StartReceiving();          
         }
 
         public void Close()

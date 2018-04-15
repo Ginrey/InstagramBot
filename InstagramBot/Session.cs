@@ -23,9 +23,9 @@ namespace InstagramBot
         {
             Token = token;
             if (!string.IsNullOrEmpty(Token)) Bot = new TelegramBotClient(Token);
-            string connectionString = "SERVER=WIN-344VU98D3RU\\SQLEXPRESS;DATABASE=Instagram;Trusted_Connection=True";
+            string connectionString = "SERVER=WIN-344VU98D3RU;DATABASE=Instagram;Trusted_Connection=True";
 #if DEBUG
-            connectionString = "SERVER=DESKTOP-VBFBI8T;DATABASE=Instagram;Trusted_Connection=True";
+            connectionString = "SERVER=DESKTOP-MP7QOML;DATABASE=Instagram;Trusted_Connection=True";
 #endif
             for (int i = 0; i < 100; i++)
             {
@@ -42,6 +42,7 @@ namespace InstagramBot
             MySql.GetBlockList(out list);
             BlockedList = list;
             PrivilegeList = new List<string>();
+           
         }
 
         public Connection Connection { get; }

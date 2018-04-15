@@ -33,13 +33,14 @@ namespace InstagramBot.Net.Packets
             try
             {
                 if (e.Message.Text.Contains("/")) return;
+                //TODO Ремонт
                 user.Account = Session.WebInstagram.GetAccount(e.Message.Text.Replace("@", ""));
                 if (user.Account == null)
                 {
                     Session.Bot?.SendTextMessageAsync(user.TelegramId,
                         string.Format(Session.Language.Get(user.Language, "or_account_not_exist")));
                     return;
-                }
+                }  */
                 user.State = States.WaitUrl;
             }
             catch (Exception ex)

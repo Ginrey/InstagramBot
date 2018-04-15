@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using InstagramBot.Data.Accounts;
 using Newtonsoft.Json;
@@ -64,69 +65,51 @@ namespace InstagramBot.Net.Web
             return string.Empty;
         }
 
-        protected FollowedUser GetFollowingListById(long referalId)
+        protected Subscriptions.FollowedUser GetFollowingListById(long referalId)
         {
             try
-            {
-                Dictionary<string, string> code = new Dictionary<string, string>
-                {
-                    {
-                        "q",
-                        "ig_user(" + referalId +
-                        "){followed_by.first(20){page_info{end_cursor,has_next_page},nodes{id,full_name,username}}}"
-                    }
-                };
+            {    
                 instWC.ResetHeaders();
-                var data = instWC.UploadString("https://www.instagram.com/query/", code);
-                FollowedUser info = JsonConvert.DeserializeObject<FollowedUser>(data);
+                var data = instWC.UploadString("https://www.instagram.com/graphql/query/?query_hash=37479f2b8209594dde7facb0d904896a&variables=" + JsonConvert.SerializeObject(new {id = referalId, first = "50"}));
+                Subscriptions.FollowedUser info = JsonConvert.DeserializeObject<Subscriptions.FollowedUser>(data);
                 return info;
             }
             catch
             {
-                return new FollowedUser();
+                return new Subscriptions.FollowedUser();
             }
         }
 
-        protected FollowedUser GetFullFollowingListById(long referalId, string after)
+        protected Subscriptions.FollowedUser GetFullFollowingListById(long referalId, string afterKey)
         {
             try
-            {
-                Dictionary<string, string> code = new Dictionary<string, string>
-                {
-                    {
-                        "q",
-                        "ig_user(" + referalId + "){followed_by.after(" + after +
-                        ",20){page_info{end_cursor,has_next_page},nodes{id,full_name,username}}}"
-                    }
-                };
+            {  
                 instWC.ResetHeaders();
-                var data = instWC.UploadString("https://www.instagram.com/query/", code);
-                FollowedUser info = JsonConvert.DeserializeObject<FollowedUser>(data);
+                var data = instWC.UploadString(
+                    "https://www.instagram.com/graphql/query/?query_hash=37479f2b8209594dde7facb0d904896a&variables=" +
+                    JsonConvert.SerializeObject(new {id = referalId, first = "50", after = afterKey}));
+                Subscriptions.FollowedUser info = JsonConvert.DeserializeObject<Subscriptions.FollowedUser>(data);
                 return info;
             }
             catch
             {
-                return new FollowedUser();
+                return new Subscriptions.FollowedUser();
             }
         }
 
 
-        protected FollowedUser GetFollowsListById(long referalId)
+        protected Subscriptions.FollowedUser GetFollowsListById(long referalId)
         {
             try
-            {
-                Dictionary<string, string> code = new Dictionary<string, string>
-                {
-                    {"q", "ig_user(" + referalId + "){follows.first(20){nodes{id,full_name,username}}}"}
-                };
+            {    
                 instWC.ResetHeaders();
-                var data = instWC.UploadString("https://www.instagram.com/query/", code);
-                FollowedUser info = JsonConvert.DeserializeObject<FollowedUser>(data);
+                var data = instWC.UploadString("https://www.instagram.com/graphql/query/?query_hash=58712303d941c6855d4e888c5f0cd22f&variables=" + JsonConvert.SerializeObject(new {id = referalId, first = "50"}));
+                Subscriptions.FollowedUser info = JsonConvert.DeserializeObject<Subscriptions.FollowedUser>(data);
                 return info;
             }
             catch
             {
-                return new FollowedUser();
+                return new Subscriptions.FollowedUser();
             }
         }
 
@@ -134,16 +117,20 @@ namespace InstagramBot.Net.Web
         {
             try
             {
+                instWC.ResetHeaders();
+                var split = url.Split('/');
+                instWC.Headers["Referer"] = "https://www.instagram.com/"+split[split.Length -1];
                 string data = instWC.UploadString(url);
                 UserInfo info = JsonConvert.DeserializeObject<UserInfo>(data);
                 return info;
             }
-            catch
+            catch(Exception e)
             {
                 return new UserInfo();
             }
         }
 
+      
         protected User GetUserFromUrl(long id)
         {
             try

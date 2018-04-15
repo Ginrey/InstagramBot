@@ -219,16 +219,16 @@ namespace InstagramBot.Net.Packets
                 bool temp = false;
                 var follows = Session.WebInstagram.GetListFollows(tempBot.Account.Info.Url);
 
-                if (follows?.follows.nodes == null)
+                if (follows?.data.user.edge_follow.edges == null)
                 {
                     await
                         Session.Bot?.SendTextMessageAsync(tempBot.TelegramId,
                             Session.Language.Get(tempBot.Language, "ows_nodes_null"));
                     return;
                 }
-                foreach (var u in follows.follows.nodes)
+                foreach (var u in follows.data.user.edge_follow.edges)
                 {
-                    if (u.username.ToLower() == tempBot.AdditionInfo.Uses.Last())
+                    if (u.node.username.ToLower() == tempBot.AdditionInfo.Uses.Last())
                         temp = true;
                 }
 
